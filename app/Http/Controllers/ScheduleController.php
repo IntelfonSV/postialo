@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\ScheduledPost;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ScheduleController extends Controller
 {
@@ -163,4 +164,24 @@ class ScheduleController extends Controller
         }
         return back()->with('success', 'Publicaciones generadas exitosamente');
     }
+
+    public function regenerateImage(Request $request, Schedule $schedule){
+        $request->validate([
+            'image' => 'required',
+            'prompt_image' => 'required',
+        ]);
+
+        $freepik = new FreepikController();
+        $data = $freepik->generateImage($request->prompt_image);
+    
+        $schedule->update([
+            'prompt_image' => $request->prompt_image,
+            'task_id' => $data['task_id'],
+        ]);
+
+            sleep(10);
+
+        return back()->with('success', 'Imagen regenerada exitosamente');
+    }
+    
 }

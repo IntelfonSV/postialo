@@ -3,6 +3,7 @@ import DangerButton from "@/Components/DangerButton";
 import { router, useForm } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import StatusHelper from "@/Helpers/StatusHelper";
 
 function Schedule({
     schedule = null,
@@ -11,7 +12,7 @@ function Schedule({
     selectedMonth = "",
     number = null,
 }) {
-    console.log(selectedMonth);
+    const { TranslateStatus, badge } = StatusHelper();
     
     const SOCIAL_NETWORKS = ["facebook", "instagram", "x"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
@@ -97,18 +98,6 @@ function Schedule({
       })
     };
 
-    const badge = (status) => {
-        switch (status) {
-            case "pending":
-                return "px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800";
-            case "in_progress":
-                return "px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-blue-100 text-blue-800";
-            case "generated":
-                return "px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800";
-            default:
-                return "px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-200 text-gray-800";
-        }
-    };
 
     return (
         <div className="bg-white rounded-xl shadow-lg shadow-gray-800/50 p-2 md:p-4 space-y-2 border-gray-200 border">
@@ -116,9 +105,8 @@ function Schedule({
             <div className="flex flex-wrap gap-2 justify-between items-start bg-gray-200 p-5 rounded-xl">
                 <div>
                     <p className="font-bold text-lg text-gray-800">
-                        Publicación #
+                        Publicación # <span className="font-normal text-gray-800">{number}</span>
                     </p>
-                    <p className="text-xs text-gray-500 font-mono">{number}</p>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                     <div>
@@ -139,13 +127,13 @@ function Schedule({
                         </div>
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-500">
+                        <label className="block text-xs font-medium text-gray-500 mb-2">
                             Estado
                         </label>
                         <span
                             className={badge(data.status)}
                         >
-                            {data.status}
+                            {TranslateStatus(data.status)}
                         </span>
                     </div>
                 </div>

@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('scheduled-posts', ScheduledPostController::class);
     Route::post('/schedules/generate', [ScheduleController::class, 'generatePosts'])->name('schedules.generatePosts');
     Route::get('/freepik/get-image/{id}', [FreepikController::class,'getImage'])->name('freepik.getImage');
+    Route::post('/schedules/regenerate-image/{schedule}', [ScheduleController::class, 'regenerateImage'])->name('schedules.regenerateImage');
+    Route::post('/scheduled-posts/regenerate-text/{scheduled_post}', [ScheduledPostController::class, 'regenerateText'])->name('scheduled-posts.regenerate-text');
 });
 
 require __DIR__.'/auth.php';

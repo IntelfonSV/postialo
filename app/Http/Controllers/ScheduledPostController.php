@@ -17,7 +17,11 @@ class ScheduledPostController extends Controller
     {
         $user = auth()->user();
         $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
-        $posts = Schedule::where('user_id', $user->id)->with('posts')->get();
+        $posts = Schedule::where('user_id', $user->id)
+        ->with(['posts' => function ($q) {
+            $q->orderBy('network', 'asc');
+        }])
+        ->get();
         return Inertia::render('ScheduledPosts/Index', [
             'scheduledPosts' => $posts,
             'months' => $months,
@@ -93,5 +97,29 @@ class ScheduledPostController extends Controller
         ]);
 
         return redirect()->route('scheduled-posts.index');
+    }
+
+
+    public function regenerateText(Request $request, ScheduledPost $scheduledPost){
+        $user_prompt = "Modifica el copy de la publicación:
+        copy original: {$request->content}
+        Objetivo: {$request->objective}
+        cambios: {$request->changes}
+        red social: {$request->network}
+        Reglas:
+        generame el copy para la red social indicada. y no lo retornes en json  solo el copy.
+        Sin formato Markdown ni backticks.
+        Para Twitter: máximo 250 caracteres.";
+
+        $assistant = new AssistantController();
+        $response = $assistant->generateContent([
+            'user_prompt' => $user_prompt,
+        ]);
+
+
+           $scheduledPost->update([
+            'content' => $response
+            ]);
+        return back()->with('success', 'Publicación actualizada exitosamente');
     }
 }

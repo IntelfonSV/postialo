@@ -6,31 +6,17 @@ import Modal from "@/Components/Modal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
 import { FaCheck, FaEdit, FaTimes } from "react-icons/fa";
-import { MdOutlineRefresh } from "react-icons/md";
 import Swal from "sweetalert2";
 import { IoReloadCircleSharp } from "react-icons/io5";
+import RegenerateImageModal from "./Partials/RegenerateImageModal";
+import Loading from "@/Components/Loading";
+import StatusHelper from "@/Helpers/StatusHelper";
+import RegenerateTextModal from "./Partials/RegenerateTextModal";
+import EditTextModal from "./Partials/EditTextModal";
 
 function Index({ scheduledPosts, months }) {
-    const badge = (status) => {
-        switch (status) {
-            case "draft":
-                return "bg-yellow-100 text-yellow-800 rounded-full px-2 py-2";
-            case "approved":
-                return "bg-green-100 text-green-800 rounded-full px-2 py-2";
-            case "published":
-                return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
-            case "facebook":
-                return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
-            case "instagram":
-                return "bg-pink-100 text-pink-800 rounded-full px-2 py-2";
-            case "x":
-                return "bg-cyan-100 text-cyan-800 rounded-full px-2 py-2";
-            default:
-                return "bg-gray-200 text-gray-800 rounded-full p-2";
-        }
-    };
+    const { TranslateStatus, badge } = StatusHelper();
 
     const [posts, setPosts] = useState([]);
     const [networks, setNetworks] = useState({
@@ -38,26 +24,6 @@ function Index({ scheduledPosts, months }) {
         instagram: true,
         x: true,
     });
-
-    const customStyles = {
-        rows: {
-            style: {
-                minHeight: "72px", // override the row height
-            },
-        },
-        headCells: {
-            style: {
-                paddingLeft: "16px", // override the cell padding for head cells
-                paddingRight: "16px",
-            },
-        },
-        cells: {
-            style: {
-                margin: "0 0px",
-                padding: "0 0px",
-            },
-        },
-    };
 
     const [selectedMonth, setselectedMonth] = useState(
         months.length > 0 ? months[0].month + "-" + months[0].year : ""
@@ -73,58 +39,13 @@ function Index({ scheduledPosts, months }) {
         );
         setPosts(posts_filtered);
     }, [selectedMonth, networks]);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const handleCloseEditModal = () => setShowEditModal(false);
-
-    const [editElement, setEditElement] = useState(null);
-
-    const columns = [
-        {
-            name: "Contenido",
-            wrap: true,
-            selector: (row) => (
-                <p className="whitespace-pre-line py-2">{row.content}</p>
-            ),
-            sortable: true,
-        },
-        {
-            name: "Acciones",
-            width: "150px",
-            selector: (row) => (
-                <div className="flex flex-col items-center w-full bg-gray-500 gap-2">
-                    <span className={badge(row.network)}>{row.network}</span>
-                    <span className={badge(row.status)}>{row.status}</span>
-                    <div>
-                        <button
-                            onClick={() => handleApprove(row)}
-                            title="Aprobar"
-                            className="rounded-full p-1 hover:bg-green-100"
-                        >
-                            <FaCheck className="w-5 h-5 text-green-500" />
-                        </button>
-                        <button
-                            onClick={() => handleEdit(row)}
-                            title="Editar"
-                            className="rounded-full p-1 hover:bg-blue-100"
-                        >
-                            <FaEdit className="w-5 h-5 text-blue-500" />
-                        </button>
-                        <button
-                            className="rounded-full hover:bg-yellow-100"
-                            onClick={() => handleGenerate(row)}
-                            title="Volver a generar"
-                        >
-                            <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
-                        </button>
-                    </div>
-                </div>
-            ),
-            sortable: true,
-        },
-    ];
+    const [showRegenerateTextModal, setShowRegenerateTextModal] =
+        useState(false);
 
     const [regenerateElement, setRegenerateElement] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [regenerateImageModal, setRegenerateImageModal] = useState(false);
+    const [regenerateImageElement, setRegenerateImageElement] = useState(null);
 
     const handleApprove = (row) => {
         row.status = "approved";
@@ -151,30 +72,22 @@ function Index({ scheduledPosts, months }) {
 
     const handleGenerate = (row) => {
         setRegenerateElement(row);
-        setShowModal(true);
+        setShowRegenerateTextModal(true);
     };
+
     const handleCloseModal = () => setShowModal(false);
 
-    const handleEditPost = (e) => {
-        e.preventDefault();
-
-        router.put(
-            route("scheduled-posts.update", editElement.id),
-            editElement,
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setShowEditModal(false);
-                },
-                onError: () => {},
-            }
-        );
-    };
-
     const handleEdit = (row) => {
-        setEditElement(row);
+        setRegenerateElement(row);
         setShowEditModal(true);
     };
+
+    const handleRegenerateImage = (row) => {
+        setRegenerateImageElement(row);
+        setRegenerateImageModal(true);
+    };
+
+    const [loading, setLoading] = useState(false);
 
     return (
         <AuthenticatedLayout>
@@ -257,6 +170,7 @@ function Index({ scheduledPosts, months }) {
                             <input
                                 type="checkbox"
                                 id="x"
+                                false
                                 name="x"
                                 checked={networks.x}
                                 onChange={(e) =>
@@ -297,64 +211,80 @@ function Index({ scheduledPosts, months }) {
                                     />
                                     <button
                                         className="rounded-full p-1 hover:bg-blue-100 mt-1"
-                                        onClick={() => handleGenerate(obj)}
+                                        onClick={() =>
+                                            handleRegenerateImage(obj)
+                                        }
                                         title="Volver a generar imagen"
                                     >
                                         <IoReloadCircleSharp className="w-7 h-7  text-blue-500" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col items-center w-full bg-gray-500 gap-2">
+                                <div className="flex flex-col items-center w-full gap-2">
                                     {obj.posts
                                         .filter((post) => {
                                             return networks[post.network];
                                         })
                                         .map((row) => (
-                                            <div className="flex flex-col items-center w-full bg-gray-500 gap-2">
-                                                <p className="whitespace-pre-line py-2">
-                                                    {row.content}
-                                                </p>
-                                                <span
-                                                    className={badge(
-                                                        row.network
-                                                    )}
-                                                >
-                                                    {row.network}
-                                                </span>
-                                                <span
-                                                    className={badge(
-                                                        row.status
-                                                    )}
-                                                >
-                                                    {row.status}
-                                                </span>
-                                                <div>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleApprove(row)
-                                                        }
-                                                        title="Aprobar"
-                                                        className="rounded-full p-1 hover:bg-green-100"
-                                                    >
-                                                        <FaCheck className="w-5 h-5 text-green-500" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleEdit(row)
-                                                        }
-                                                        title="Editar"
-                                                        className="rounded-full p-1 hover:bg-blue-100"
-                                                    >
-                                                        <FaEdit className="w-5 h-5 text-blue-500" />
-                                                    </button>
-                                                    <button
-                                                        className="rounded-full hover:bg-yellow-100"
-                                                        onClick={() =>
-                                                            handleGenerate(row)
-                                                        }
-                                                        title="Volver a generar"
-                                                    >
-                                                        <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
-                                                    </button>
+                                            <div key={row.id} className="w-full">
+                                                <div className="flex items-center w-full gap-2 bg-gray-200 p-2 rounded-xl justify-between">
+                                                    <div className="flex  items-center gap-2">
+                                                        <span
+                                                            className={badge(
+                                                                row.network
+                                                            )}
+                                                        >
+                                                            {TranslateStatus(
+                                                                row.network
+                                                            )}
+                                                        </span>
+                                                        <span
+                                                            className={badge(
+                                                                row.status
+                                                            )}
+                                                        >
+                                                            {TranslateStatus(
+                                                                row.status
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleApprove(
+                                                                    row
+                                                                )
+                                                            }
+                                                            title="Aprobar"
+                                                            className="rounded-full p-1 hover:bg-green-100"
+                                                        >
+                                                            <FaCheck className="w-6 h-6 text-green-500" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleEdit(row)
+                                                            }
+                                                            title="Editar"
+                                                            className="rounded-full p-1 hover:bg-blue-100"
+                                                        >
+                                                            <FaEdit className="w-6 h-6 text-blue-500" />
+                                                        </button>
+                                                        <button
+                                                            className="rounded-full hover:bg-purple-100"
+                                                            onClick={() =>
+                                                                handleGenerate(
+                                                                    row
+                                                                )
+                                                            }
+                                                            title="Volver a generar"
+                                                        >
+                                                            <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full">
+                                                    <p className="whitespace-pre-line py-2 w-full">
+                                                        {row.content}
+                                                    </p>
                                                 </div>
                                             </div>
                                         ))}
@@ -370,97 +300,27 @@ function Index({ scheduledPosts, months }) {
                 )}
             </div>
 
-            <Modal show={showModal} closeable onClose={handleCloseModal}>
-                <div className="p-6 relative">
-                    <CloseModalButton
-                        className="absolute top-2 right-2"
-                        close={handleCloseModal}
-                    />
-                    <h2 className="text-lg font-medium text-gray-900">
-                        Generar publicación
-                    </h2>
-                    <form className="mt-6 space-y-6">
-                        <div>
-                            <label
-                                htmlFor="title"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Contenido actual de la publicación
-                            </label>
-                            <p className="mt-1 text-sm text-gray-600">
-                                {regenerateElement?.content}
-                            </p>
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="content"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Describe los cambios
-                            </label>
-                            <textarea
-                                id="content"
-                                name="content"
-                                rows="4"
-                                value={regenerateElement?.newContent}
-                                onChange={(e) =>
-                                    setRegenerateElement({
-                                        ...regenerateElement,
-                                        newContent: e.target.value,
-                                    })
-                                }
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            ></textarea>
-                        </div>
-                        <div className="flex justify-end">
-                            <GreenButton>Generar</GreenButton>
-                        </div>
-                    </form>
-                </div>
-            </Modal>
+            <RegenerateTextModal
+                editElement={regenerateElement}
+                show={showRegenerateTextModal}
+                close={() => setShowRegenerateTextModal(false)}
+                setLoading={setLoading}
+            />
 
-            <Modal
+            <EditTextModal
+                editElement={regenerateElement}
                 show={showEditModal}
-                closeable
-                onClose={handleCloseEditModal}
-            >
-                <div className="p-6 relative">
-                    <CloseModalButton
-                        className="absolute top-2 right-2"
-                        close={handleCloseEditModal}
-                    />
-                    <h2 className="text-lg font-medium text-gray-900">
-                        Editar publicación programada para{" "}
-                        {editElement?.network}
-                    </h2>
-                    <form className="mt-6 space-y-6" onSubmit={handleEditPost}>
-                        <div>
-                            <label
-                                htmlFor="content"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Contenido
-                            </label>
-                            <textarea
-                                id="content"
-                                name="content"
-                                rows="4"
-                                value={editElement?.content}
-                                onChange={(e) =>
-                                    setEditElement({
-                                        ...editElement,
-                                        content: e.target.value,
-                                    })
-                                }
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            ></textarea>
-                        </div>
-                        <div className="flex justify-end">
-                            <GreenButton type="submit">Guardar</GreenButton>
-                        </div>
-                    </form>
-                </div>
-            </Modal>
+                close={() => setShowEditModal(false)}
+                setLoading={setLoading}
+            />
+
+            <RegenerateImageModal
+                schedule={regenerateImageElement}
+                show={regenerateImageModal}
+                handleCloseModal={() => setRegenerateImageModal(false)}
+                setLoading={setLoading}
+            />
+            {loading && <Loading />}
         </AuthenticatedLayout>
     );
 }

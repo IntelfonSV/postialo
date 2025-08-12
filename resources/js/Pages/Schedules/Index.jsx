@@ -9,6 +9,7 @@ import GreenButton from "@/Components/GreenButton";
 import { Head, router, usePage } from "@inertiajs/react";
 import GrayContainer from "@/Components/GrayContainer";
 import MonthYearSelect from "@/Components/MonthYearSelect";
+import Loading from "@/Components/Loading";
 
 const Index = ({ schedules = [], templates = [], months = [] }) => {
     const [monthsData, setMonthsData] = useState({});
@@ -186,9 +187,7 @@ const Index = ({ schedules = [], templates = [], months = [] }) => {
                 </div>
             </div>
             {loading && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
+                <Loading />
             )}
 
                 <MonthYearSelect show={showMonthYearSelect} close={handleMonthYearSelectClose} setSelected={setSelectedMonth} months={months} />
