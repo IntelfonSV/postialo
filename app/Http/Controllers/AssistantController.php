@@ -37,4 +37,27 @@ class AssistantController extends Controller
         $respuesta = $messages->data[0]->content[0]->text->value;
         return $respuesta;
     }
+
+    public function generateContentWithChat(string $user_prompt, string $system_prompt, string $model = 'gpt-4o-mini')
+    {
+        // $prompt = $request->input('user_prompt') ?? ($request['user_prompt'] ?? '');
+
+        if ($user_prompt === '') {
+            abort(400, 'Falta user_prompt');
+        }
+
+        $client = OpenAI::client(env('OPENAI_API_KEY'));
+
+        $response = $client->chat()->create([
+            'model' => $model,
+            'messages' => [
+                ['role' => 'system', 'content' => $system_prompt],
+                ['role' => 'user', 'content' => $user_prompt],
+            ],
+            'temperature' => 0.7,
+        ]);
+
+        return $response->choices[0]->message->content ?? '';
+    }
+
 }

@@ -2,18 +2,20 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import BrandIdentityForm from "./Partials/BrandIdentityForm";
 import { FaEdit } from "react-icons/fa";
 import { useState } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import GrayContainer from "@/Components/GrayContainer";
+import ElevenLabsWidget from "@/Components/ElevenLabsWidget";
 
 function Index({ brandIdentity }) {
+    const user = usePage().props.auth.user;
+    console.log(user);
     const [editBrandIdentity, seteditBrandIdentity] = useState(false);
     return (
         <AuthenticatedLayout>
             <div>
                 <GrayContainer>
                     <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 items-center">
-                        <div>
-                        </div>
+                        <div></div>
                         <h3 className="text-xl font-semibold text-blue-900 text-center w-full">
                             Identidad de Marca
                         </h3>
@@ -36,6 +38,7 @@ function Index({ brandIdentity }) {
                     setEdit={seteditBrandIdentity}
                     brandIdentity={brandIdentity}
                 />
+                <ElevenLabsWidget user={user} />
             </div>
         </AuthenticatedLayout>
     );
