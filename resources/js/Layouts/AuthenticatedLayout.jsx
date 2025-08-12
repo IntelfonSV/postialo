@@ -9,9 +9,7 @@ import Swal from 'sweetalert2';
 
 export default function AuthenticatedLayout({ header, children }) {
 
-    const user = usePage().props.auth.user;
-    console.log(usePage().props);
-    const { flash } = usePage().props
+    const {auth, flash} = usePage().props;
     useEffect(() => {
         if (flash?.success) {
             Swal.fire({
@@ -57,7 +55,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/" className="text-white font-bold text-3xl">
-                                SocialPro
+                                Post<span className="text-red-500">IA</span>lo
                                 </Link>
                             </div>
 
@@ -106,7 +104,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 type="button"
                                                 className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
                                             >
-                                                {user.name}
+                                                {auth.user.name}
 
                                                 <svg
                                                     className="-me-0.5 ms-2 h-4 w-4"
@@ -203,10 +201,10 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="border-t border-gray-200 pb-1 pt-4">
                         <div className="px-4">
                             <div className="text-base font-medium text-gray-800">
-                                {user.name}
+                                {auth.user.name}
                             </div>
                             <div className="text-sm font-medium text-gray-500">
-                                {user.email}
+                                {auth.user.email}
                             </div>
                         </div>
 

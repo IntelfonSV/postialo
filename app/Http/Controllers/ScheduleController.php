@@ -19,9 +19,11 @@ class ScheduleController extends Controller
         $user = auth()->user();
         $schedules = Schedule::where('user_id', $user->id)->get();
         $templates = Template::where('user_id', $user->id)->get();
+        $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         return Inertia::render('Schedules/Index', [
             'schedules' => $schedules,
             'templates' => $templates,
+            'months' => $months,
         ]);
     }
 
@@ -114,6 +116,7 @@ class ScheduleController extends Controller
         $user = auth()->user();
         $schedules = Schedule::where('user_id', $user->id)->where('month', $request->month)->where('year', $request->year)->get();
         $freepik = new FreepikController();
+        $assistant = new AssistantController();
         foreach ($schedules as $schedule) {
 
             $data = $freepik->generateImage($schedule->prompt_image);
@@ -121,14 +124,39 @@ class ScheduleController extends Controller
                 'task_id' => $data['task_id'],
             ]);
 
+            $social_networks = json_encode($schedule->networks);
+            $user_prompt = "Genera un copy por cada red social indicada usando:
+            Tema: {$schedule->idea}
+            Redes Sociales: {$social_networks}
+            Objetivo: {$schedule->objective}
+            Reglas:
+            Salida: JSON por cada red social, solo con el texto de la publicación.
+            Sin formato Markdown ni backticks.
+            Para Twitter: máximo 250 caracteres.
+            **Responde en formato json para cada red social**
+            de esta manera:
+            
+            {
+                \"facebook\": \"publicación para facebook\",
+                \"instagram\": \"publicación para instagram\",
+                \"x\": \"publicación para x\"
+            }";
+
+            $response = $assistant->generateContent([
+                'user_prompt' => $user_prompt,
+            ]);
+
+            $post = json_decode($response, true);
+
            foreach ($schedule->networks as $network) {
+
                $scheduled_post = ScheduledPost::create([
                 'schedule_id' => $schedule->id,
-                'content' => "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                'content' => $post[$network],
                 'network' => $network,
                 'scheduled_date' => $schedule->scheduled_date,
-            ]);
-           }
+                ]);
+            }
            $schedule->update([
             'status' => 'in_progress',
         ]);

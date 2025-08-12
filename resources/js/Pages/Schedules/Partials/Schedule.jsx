@@ -11,6 +11,8 @@ function Schedule({
     selectedMonth = "",
     number = null,
 }) {
+    console.log(selectedMonth);
+    
     const SOCIAL_NETWORKS = ["facebook", "instagram", "x"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
         id: schedule?.id || null,

@@ -6,45 +6,41 @@ import { FaCheck, FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Schedule from "./Partials/Schedule";
 import GreenButton from "@/Components/GreenButton";
-import { router, usePage } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
+import GrayContainer from "@/Components/GrayContainer";
+import MonthYearSelect from "@/Components/MonthYearSelect";
 
-const Index = ({ schedules = [], templates = [] }) => {
-    const [months, setMonths] = useState({});
+const Index = ({ schedules = [], templates = [], months = [] }) => {
+    const [monthsData, setMonthsData] = useState({});
     const [selectedMonth, setSelectedMonth] = useState("");
     const [newSchedule, setNewSchedule] = useState(false);
-    const [selectedSchedules, setSelectedSchedules] = useState(null);
+    const [selectedSchedules, setSelectedSchedules] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [showMonthYearSelect, setShowMonthYearSelect] = useState(false);
 
     useEffect(() => {
-        setSelectedSchedules(null);
-
-        const months = schedules.reduce((acc, schedule) => {
-            const month = schedule.month;
-            const year = schedule.year;
-
-            if (!acc[`${year}-${month}`]) {
-                acc[`${year}-${month}`] = { posts: [] };
+        if(months.length){
+            if(selectedMonth == "" || !months.find((month) => month.month == selectedMonth.split("-")[1] && month.year == selectedMonth.split("-")[0])){
+                setSelectedMonth(months[0].year + "-" + months[0].month);
             }
-            acc[`${year}-${month}`].posts.push(schedule);
-            return acc;
-        }, {});
-        setMonths(months);
-        setSelectedMonth(Object.keys(months)[0]);
-    }, [schedules]);
+
+        }
+    }, [months]);
+
+
+
 
     useEffect(() => {
-        if (!selectedMonth) return;
-        const year = parseInt(selectedMonth.split("-")[0]);
-        const month = parseInt(selectedMonth.split("-")[1]);
+        const data = schedules.filter((schedule) => schedule.month == selectedMonth.split("-")[1] && schedule.year == selectedMonth.split("-")[0]);
+        setSelectedSchedules(data);
+        setNewSchedule(false);
+    }, [schedules, selectedMonth]);
 
-        const schedulesMonth = schedules.filter(
-            (schedule) => schedule.month == month && schedule.year == year
-        );
-        setSelectedSchedules(schedulesMonth);
-    }, [months, selectedMonth]);
+
+
 
     const populateMonthSelect = () => {
-        const sortedMonths = Object.keys(months).sort();
+        const sortedMonths = months.map((month) => month.year + "-" + month.month);
         return sortedMonths.map((month) => (
             <option key={month} value={month}>
                 {formatMonth(month)}
@@ -53,49 +49,18 @@ const Index = ({ schedules = [], templates = [] }) => {
     };
 
     const handleNewMonth = async () => {
-        const { value: month } = await Swal.fire({
-            title: "Nuevo mes",
-            input: "text",
-            inputLabel: "Digite el mes en formato YYYY-MM",
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) {
-                    return "You need to write something!";
-                }
-            },
-        });
-        if (!month) return;
-
-        if (!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)) {
-            return Swal.fire({
-                position: "center",
-                icon: "warning",
-                title: "Alerta",
-                text: "Formato inválido. Use YYYY-MM.",
-            });
-        }
-
-        if (months[month]) {
-            return Swal.fire({
-                position: "center",
-                icon: "warning",
-                title: "Alerta",
-                text: "El mes ya existe.",
-            });
-        }
-
-        // Actualizamos ambos estados en una sola llamada para evitar carreras de condiciones
-        setMonths((prevMonths) => ({
-            ...prevMonths,
-            [month]: { posts: [] },
-        }));
-        setSelectedMonth(month);
+        setShowMonthYearSelect(true);
     };
 
+    const handleMonthYearSelectClose = () => {
+        setShowMonthYearSelect(false);
+    };
+
+
+
     const handleAddPost = () => {
-        console.log(selectedMonth);
         if (!selectedMonth) return;
-        const posts = months[selectedMonth]?.posts || [];
+        const posts = monthsData[selectedMonth]?.posts || [];
         if (posts.length >= 14) return alert("Máximo 14 publicaciones");
         setNewSchedule(true);
     };
@@ -113,85 +78,85 @@ const Index = ({ schedules = [], templates = [] }) => {
             if (result.isConfirmed) {
                 setLoading(true);
 
-                router.post(route("schedules.generatePosts"), {
-                    month: selectedMonth.split("-")[1],
-                    year: selectedMonth.split("-")[0],
-                },
-                {
-                    preserveScroll: true,
-                    preserveState: true,
-                    onSuccess: () => {
-                        setLoading(false);
+                router.post(
+                    route("schedules.generatePosts"),
+                    {
+                        month: selectedMonth.split("-")[1],
+                        year: selectedMonth.split("-")[0],
                     },
-                    onError: () => {
-                        setLoading(false);
-                    },
-                });
+                    {
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: () => {
+                            setLoading(false);
+                        },
+                        onError: () => {
+                            setLoading(false);
+                        },
+                    }
+                );
             }
         });
     };
 
+    useEffect(() => {
+        console.log(selectedSchedules);
+        console.log(selectedMonth);
+    }, [selectedSchedules]);
 
-    const handleGetImage = ()=>{
-
-        fetch(route("freepik.getImage", {id: "95ad8e3e-4f23-49b6-9e09-ef0d506b94aa"}), {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector(
-                    'meta[name="csrf-token"]'
-                ).content,
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success) {
-                    console.log("Imagen generada:", data.image);
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-    }
 
     return (
         <AuthenticatedLayout>
-            <div className="flex flex-wrap gap-2 justify-between items-end w-full space-x-4 bg-gray-200 shadow-gray-500 p-4 rounded-xl shadow-md border-gray-400 border">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Mes/Año
-                    </label>
-                    <select
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                    >
-                        {populateMonthSelect()}
-                    </select>
+            <Head title="Programación de publicaciones" />
+            <GrayContainer>
+                <div className="grid grid-cols-3 gap-2 items-center w-full">
+
+                <div className="flex gap-2 items-end">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                            Mes/Año
+                        </label>
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        >
+                            {populateMonthSelect()}
+                        </select>
+                    </div>
+                    <BlueButton className="h-10" onClick={handleNewMonth}>
+                        Nuevo Mes
+                    </BlueButton>
                 </div>
 
-                <BlueButton onClick={handleNewMonth}>Nuevo Mes</BlueButton>
+                <h3 className="text-xl font-semibold text-blue-900 text-center w-full">
+                    Programación de publicaciones
+                </h3>
 
-                <BlueButton onClick={handleGetImage}>Obtener Imagen</BlueButton>
-
-                {selectedSchedules?.length < 14 && !newSchedule && (
-                    <BlueButton className="flex gap-2" onClick={handleAddPost}>
-                        <FaPlus /> Agregar Publicación
-                    </BlueButton>
-                )}
-                {selectedSchedules?.length >= 5 && (
-                    <GreenButton
+                <div className="flex gap-2">
+                    {selectedSchedules?.length < 14 && !newSchedule && (
+                        <BlueButton
                         className="flex gap-2"
-                        onClick={handleGeneratePosts}
-                    >
-                        <FaCheck /> Generar Publicaciones
-                    </GreenButton>
-                )}
-            </div>
+                            onClick={handleAddPost}
+                        >
+                            <FaPlus /> Agregar Publicación
+                        </BlueButton>
+                    )}
+                    {selectedSchedules?.length >= 1 && (
+                        <GreenButton
+                            className="flex gap-2"
+                            onClick={handleGeneratePosts}
+                            >
+                            <FaCheck /> Generar Publicaciones
+                        </GreenButton>
+                    )}
+                </div>
+                </div>
+            </GrayContainer>
             <div className="mt-4 space-y-4 pb-10">
-                {selectedSchedules?.map((schedule, index) => (
+                {selectedSchedules && selectedSchedules?.map((schedule, index) => (
                     <Schedule
-                        key={index}
+                        key={schedule.id}
                         schedule={schedule}
                         templates={templates}
                         number={index + 1}
@@ -206,6 +171,7 @@ const Index = ({ schedules = [], templates = [] }) => {
                         number={selectedSchedules?.length + 1}
                     />
                 )}
+                
 
                 <div className="flex justify-center items-center mt-4 w-full bg-gray-200 p-4 rounded-xl">
                     {selectedSchedules?.length < 14 && !newSchedule ? (
@@ -224,16 +190,19 @@ const Index = ({ schedules = [], templates = [] }) => {
                     <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
             )}
+
+                <MonthYearSelect show={showMonthYearSelect} close={handleMonthYearSelectClose} setSelected={setSelectedMonth} months={months} />
         </AuthenticatedLayout>
     );
 };
+
 
 const formatMonth = (monthStr) => {
     if (!monthStr) return "";
     const [year, month] = monthStr.split("-");
     // Usamos el día 2 para evitar problemas de zona horaria en el cambio de mes
     const date = new Date(year, parseInt(month, 10) - 1, 2);
-    return date.toLocaleString("es-ES", { month: "long", year: "numeric" });
+    return date.toLocaleString("es-ES", { month: "long", year: "numeric" }).charAt(0).toUpperCase() + date.toLocaleString("es-ES", { month: "long", year: "numeric" }).slice(1);
 };
 
 export default Index;

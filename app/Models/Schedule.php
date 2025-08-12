@@ -41,6 +41,6 @@ class Schedule extends Model
 
     public function posts()
     {
-        return $this->hasMany(SchedulePost::class);
+        return $this->hasMany(ScheduledPost::class);
     }
 }

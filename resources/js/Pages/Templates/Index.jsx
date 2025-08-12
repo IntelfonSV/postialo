@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import DefaultContainer from "@/Components/DefaultContainer";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
@@ -12,6 +12,7 @@ import Modal from "@/Components/Modal";
 import CloseModalButton from "@/Components/CloseModalButton";
 import { usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
+import GrayContainer from "@/Components/GrayContainer";
 function Index({ templates = [] }) {
     const [items, setItems] = useState(templates);
     const [preview, setPreview] = useState(null);
@@ -132,19 +133,21 @@ function Index({ templates = [] }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex justify-between">
-                    <h3 className="text-xl font-semibold">Plantillas</h3>
+        <AuthenticatedLayout>
+            <GrayContainer>
+                <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                    <div></div>
+                    <h3 className="text-xl font-semibold w-full text-blue-900 text-center">
+                        Plantillas
+                    </h3>
                     <BlueButton
                         onClick={handleNew}
-                        className="flex items-center gap-2 hover:bg-gray-200 px-2 h-8 rounded"
+                        className="flex items-center gap-2 hover:bg-gray-200 px-2 h-8 rounded w-fit"
                     >
                         <FaPlus /> Nueva plantilla
                     </BlueButton>
                 </div>
-            }
-        >
+            </GrayContainer>
             <DefaultContainer className="p-2 rounded-xl">
                 <div className="w-full">
                     {items.length === 0 ? (
@@ -204,7 +207,12 @@ function Index({ templates = [] }) {
                                         </div>
                                     </div>
                                     <textarea
-                                        className={"w-full border p-3 rounded-lg mt-4 " + (tpl.id && tpl.id !== editingId ? "bg-gray-200" : "bg-gray-100")}
+                                        className={
+                                            "w-full border p-3 rounded-lg mt-4 " +
+                                            (tpl.id && tpl.id !== editingId
+                                                ? "bg-gray-200"
+                                                : "bg-gray-100")
+                                        }
                                         rows="6"
                                         value={tpl.html_code}
                                         onChange={(e) =>

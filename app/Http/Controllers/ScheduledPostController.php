@@ -15,10 +15,11 @@ class ScheduledPostController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
         $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
-        $scheduledPosts = ScheduledPost::with('schedule')->get();
+        $posts = Schedule::where('user_id', $user->id)->with('posts')->get();
         return Inertia::render('ScheduledPosts/Index', [
-            'scheduledPosts' => $scheduledPosts,
+            'scheduledPosts' => $posts,
             'months' => $months,
         ]);
     }
@@ -60,7 +61,13 @@ class ScheduledPostController extends Controller
      */
     public function update(Request $request, ScheduledPost $scheduledPost)
     {
-        //
+        $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $scheduledPost->update($request->all());
+
+        return back()->with('success', 'Publicación actualizada exitosamente');
     }
 
     /**

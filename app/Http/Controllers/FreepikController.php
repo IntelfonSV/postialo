@@ -17,7 +17,7 @@ class FreepikController extends Controller
             'x-freepik-api-key' => config('services.freepik.api_key'),
         ])->post('https://api.freepik.com/v1/ai/text-to-image/flux-dev', [
             'prompt' => $prompt,
-            'webhook_url' => 'https://1196f1bbff00.ngrok-free.app/api/freepik/saveImage',
+            'webhook_url' => 'https://1952ff0fa74c.ngrok-free.app/api/freepik/saveImage',
             'aspect_ratio' => 'square_1_1',
             'colors' => [],
             'num_images' => 1,

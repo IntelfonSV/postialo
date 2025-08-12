@@ -6,7 +6,7 @@ export default function GuestLayout({ children }) {
         <div className="flex min-h-screen flex-col items-center bg-[#002073] pt-6 sm:justify-center sm:pt-0">
             <div>
                 <Link href="/" className='text-white font-bold text-3xl'>
-                SocialPro
+                Post<span className="text-red-500">IA</span>lo
                 </Link>
             </div>
 
