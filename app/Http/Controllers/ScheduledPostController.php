@@ -20,7 +20,7 @@ class ScheduledPostController extends Controller
         $posts = Schedule::where('user_id', $user->id)
         ->with(['posts' => function ($q) {
             $q->orderBy('network', 'asc');
-        }])
+        }])->with('template')
         ->get();
         return Inertia::render('ScheduledPosts/Index', [
             'scheduledPosts' => $posts,

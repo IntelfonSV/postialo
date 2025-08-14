@@ -8,7 +8,7 @@ import ElevenLabsWidget from "@/Components/ElevenLabsWidget";
 
 function Index({ brandIdentity }) {
     const user = usePage().props.auth.user;
-    console.log(user);
+    console.log(brandIdentity);
     const [editBrandIdentity, seteditBrandIdentity] = useState(false);
     return (
         <AuthenticatedLayout>

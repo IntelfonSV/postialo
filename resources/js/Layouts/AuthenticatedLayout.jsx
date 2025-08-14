@@ -10,6 +10,8 @@ import Swal from 'sweetalert2';
 export default function AuthenticatedLayout({ header, children }) {
 
     const {auth, flash} = usePage().props;
+    const props = usePage().props;
+    console.log(props);
     useEffect(() => {
         if (flash?.success) {
             Swal.fire({

@@ -173,13 +173,17 @@ class ScheduleController extends Controller
 
         $freepik = new FreepikController();
         $data = $freepik->generateImage($request->prompt_image);
+
+        if($data['status'] == 'error'){
+            return back()->with('error', 'Error al generar la imagen');
+        }
     
         $schedule->update([
             'prompt_image' => $request->prompt_image,
             'task_id' => $data['task_id'],
         ]);
 
-            sleep(10);
+        sleep(10);
 
         return back()->with('success', 'Imagen regenerada exitosamente');
     }

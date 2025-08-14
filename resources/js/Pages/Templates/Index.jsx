@@ -282,10 +282,12 @@ function Index({ templates = [] }) {
                         </h4>
                         <CloseModalButton close={handleClosePreview} />
                     </div>
-                    <iframe
-                        srcDoc={preview.html_code}
-                        className="w-full h-[600px]"
-                    />
+                    <div className="flex justify-center items-center h-[480px] md:h-[700px]">
+                        <iframe
+                            srcDoc={preview.html_code}
+                            className="w-full h-[300px] sm:h-[700px]"
+                        />
+                    </div>
                 </Modal>
             )}
         </AuthenticatedLayout>

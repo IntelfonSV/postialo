@@ -102,8 +102,9 @@ class FreepikController extends Controller
                 // 4. Guardar imagen
                 $fileName = "freepik_images/{$taskId}_{$index}.{$extension}";
                 Storage::disk('public')->put($fileName, $imageData);
-
+                
                 $schedule = Schedule::where('task_id', $taskId)->first();
+                Storage::disk('public')->delete($schedule->image);
                 $schedule->update([
                     'status' => 'generated',
                     'image' => $fileName,

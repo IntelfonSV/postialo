@@ -2,9 +2,17 @@ import DangerButton from "@/Components/DangerButton";
 import DefaultContainer from "@/Components/DefaultContainer";
 import GreenButton from "@/Components/GreenButton";
 import { useForm } from "@inertiajs/react";
-import { useState } from "react";
 
 export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
+    let guidelines = {};
+    if (!(brandIdentity.guidelines_json.facebook || brandIdentity.guidelines_json.instagram || brandIdentity.guidelines_json.x)) {
+        guidelines = brandIdentity.guidelines_json         
+        ? JSON.parse(brandIdentity.guidelines_json) 
+        : {};
+    }else{
+        guidelines = brandIdentity.guidelines_json   
+    }
+
     const {data, setData, post, put, processing, errors} = useForm({
         id: brandIdentity?.id || "",
         company_identity: brandIdentity?.company_identity || "",
@@ -12,22 +20,23 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         products_services: brandIdentity?.products_services || "",
         company_history: brandIdentity?.company_history || "",
         facebook: {
-            tone: brandIdentity?.guidelines_json?.facebook?.tone || "",
-            guidelines: brandIdentity?.guidelines_json?.facebook?.guidelines || "",
-            audience: brandIdentity?.guidelines_json?.facebook?.audience || "",
+            tone: guidelines?.facebook?.tone || "",
+            guidelines: guidelines?.facebook?.guidelines || "",
+            audience: guidelines?.facebook?.audience || "",
         },
         instagram: {
-            tone: brandIdentity?.guidelines_json?.instagram?.tone || "",
-            guidelines: brandIdentity?.guidelines_json?.instagram?.guidelines || "",
-            audience: brandIdentity?.guidelines_json?.instagram?.audience || "",
+            tone: guidelines?.instagram?.tone || "",
+            guidelines: guidelines?.instagram?.guidelines || "",
+            audience: guidelines?.instagram?.audience || "",
         },
         x: {
-            tone: brandIdentity?.guidelines_json?.x?.tone || "",
-            guidelines: brandIdentity?.guidelines_json?.x?.guidelines || "",
-            audience: brandIdentity?.guidelines_json?.x?.audience || "",
+            tone: guidelines?.x?.tone || "",
+            guidelines: guidelines?.x?.guidelines || "",
+            audience: guidelines?.x?.audience || "",
         },
     });
-    
+
+
     const handleChange = (e, section, key) => {
         if (section) {
             setData({
@@ -64,7 +73,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         (edit ? "" : " bg-gray-50");
 
     return (
-        <div className="w-full max-w-6xl mx-auto p-4">
+        <div className="w-full max-w-6xl mx-auto p-4 mb-20">
             <form onSubmit={handleSubmit} className="w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Información General */}

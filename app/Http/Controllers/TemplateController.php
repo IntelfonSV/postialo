@@ -14,7 +14,7 @@ class TemplateController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $templates = Template::where('user_id', $user->id)->get();
+        $templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
         return Inertia::render('Templates/Index', [
             'templates' => $templates,
         ]);

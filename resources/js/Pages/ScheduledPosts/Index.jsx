@@ -14,9 +14,13 @@ import Loading from "@/Components/Loading";
 import StatusHelper from "@/Helpers/StatusHelper";
 import RegenerateTextModal from "./Partials/RegenerateTextModal";
 import EditTextModal from "./Partials/EditTextModal";
+import ImagePreview from "./Partials/ImagePreview";
 
 function Index({ scheduledPosts, months }) {
     const { TranslateStatus, badge } = StatusHelper();
+
+    console.log(scheduledPosts);
+    
 
     const [posts, setPosts] = useState([]);
     const [networks, setNetworks] = useState({
@@ -198,17 +202,19 @@ function Index({ scheduledPosts, months }) {
                                 ).toLocaleDateString()}
                             </h3>
 
-                            <div className="grid grid-cols-1 md:flex gap-4">
+                            <div className="grid grid-cols-1 lg:flex gap-4">
                                 <div className="w-full justify-center md:w-fit flex justify-center items-center flex-col">
-                                    <img
-                                        className="w-64 h-64 object-cover rounded-xl"
+                                    {/* <img
+                                        className="w-84 h-84 object-cover rounded-xl"
                                         src={
                                             obj.image
                                                 ? `storage/${obj.image}`
                                                 : "storage/no_image.jpg"
                                         }
                                         alt=""
-                                    />
+                                    /> */}
+                                    <ImagePreview className="w-96 h-96 object-cover rounded-xl" templateHtml={obj.template.html_code} imageUrl={obj.image} />
+                                    {obj.status != "approved" && (
                                     <button
                                         className="rounded-full p-1 hover:bg-blue-100 mt-1"
                                         onClick={() =>
@@ -218,6 +224,7 @@ function Index({ scheduledPosts, months }) {
                                     >
                                         <IoReloadCircleSharp className="w-7 h-7  text-blue-500" />
                                     </button>
+                                    )}
                                 </div>
                                 <div className="flex flex-col items-center w-full gap-2">
                                     {obj.posts
@@ -247,8 +254,10 @@ function Index({ scheduledPosts, months }) {
                                                             )}
                                                         </span>
                                                     </div>
+                                                        { row.status !== "approved" &&
                                                     <div>
-                                                        <button
+
+                                                            <button
                                                             onClick={() =>
                                                                 handleApprove(
                                                                     row
@@ -260,12 +269,12 @@ function Index({ scheduledPosts, months }) {
                                                             <FaCheck className="w-6 h-6 text-green-500" />
                                                         </button>
                                                         <button
-                                                            onClick={() =>
-                                                                handleEdit(row)
+                                                        onClick={() =>
+                                                            handleEdit(row)
                                                             }
                                                             title="Editar"
                                                             className="rounded-full p-1 hover:bg-blue-100"
-                                                        >
+                                                            >
                                                             <FaEdit className="w-6 h-6 text-blue-500" />
                                                         </button>
                                                         <button
@@ -276,10 +285,11 @@ function Index({ scheduledPosts, months }) {
                                                                 )
                                                             }
                                                             title="Volver a generar"
-                                                        >
+                                                            >
                                                             <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
                                                         </button>
                                                     </div>
+                                                        }
                                                 </div>
                                                 <div className="w-full">
                                                     <p className="whitespace-pre-line py-2 w-full">

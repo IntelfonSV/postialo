@@ -128,7 +128,10 @@ class BrandIdentityController extends Controller
                 return $v;
             };
 
-            $identity = new \App\Models\BrandIdentity();
+            $identity = BrandIdentity::where('user_id', $userId)->first();
+            if (!$identity) {
+                $identity = new BrandIdentity();
+            }
 
             // OBLIGATORIO: asignar user_id real (NO auth() en webhook)
             $identity->user_id = $userId;
@@ -153,9 +156,8 @@ class BrandIdentityController extends Controller
 
             $productos = $nv($r['productos'] ?? null);
             $servicios = $nv($r['servicios'] ?? null);
-            $identity->products_services = ($productos !== null || $servicios !== null)
-                ? json_encode(['productos' => $productos, 'servicios' => $servicios], JSON_UNESCAPED_UNICODE)
-                : null;
+            $identity->products_services = (($productos !== null) ? "Productos: ".$productos : "") . "\n" . (($servicios !== null) ? "Servicios: ".$servicios : "");
+            
 
             $fb = $r['lineamientos_facebook']  ?? [];
             $ig = $r['lineamientos_instagram'] ?? [];
