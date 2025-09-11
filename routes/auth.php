@@ -56,4 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    Route::post('validate-password', [PasswordController::class, 'validatePassword'])
+        ->name('password.validate');
 });

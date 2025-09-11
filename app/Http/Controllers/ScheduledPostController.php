@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\ScheduledPost;
 use App\Models\Schedule;
+use App\Models\Template;
 use Illuminate\Http\Request;
-
+use App\Models\User;
 use Inertia\Inertia;
+use App\Http\Controllers\AssistantController;
+use App\Models\ScheduledPostText;
 
 class ScheduledPostController extends Controller
 {
@@ -16,15 +19,31 @@ class ScheduledPostController extends Controller
     public function index()
     {
         $user = auth()->user();
+        $user->load('roles');
+        if($user->hasRole('admin')){
+            $users = User::all();
+            $posts = Schedule::whereIn('status', ['generated', 'approved', 'published'])
+            ->with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')
+            ->with('user')->orderBy('id', 'asc')->get();
+        }else{
+            $posts = Schedule::where('user_id', $user->id)->whereIn('status', ['generated', 'approved', 'published'])
+            ->with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')->orderBy('id', 'asc')
+            ->get();
+        }
+
         $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
-        $posts = Schedule::where('user_id', $user->id)
-        ->with(['posts' => function ($q) {
-            $q->orderBy('network', 'asc');
-        }])->with('template')
-        ->get();
+
+
+        $templates = Template::where('user_id', $user->id)->get();
         return Inertia::render('ScheduledPosts/Index', [
             'scheduledPosts' => $posts,
             'months' => $months,
+            'templates' => $templates,
+            'users' => $users ?? null,
         ]);
     }
 
@@ -74,6 +93,20 @@ class ScheduledPostController extends Controller
         return back()->with('success', 'Publicación actualizada exitosamente');
     }
 
+
+    public function updateStatus(Request $request, ScheduledPost $scheduledPost)
+    {
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $scheduledPost->update([    
+            'status' => $request->input('status'),
+        ]);
+
+        return back()->with('success', 'Publicación actualizada exitosamente');
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -101,6 +134,10 @@ class ScheduledPostController extends Controller
 
 
     public function regenerateText(Request $request, ScheduledPost $scheduledPost){
+        $count = $scheduledPost->texts()->count();
+        if($count >= 3){
+            return back()->with('error', 'No se puede generar más de 3 textos');
+        }
         $user_prompt = "Modifica el copy de la publicación:
         copy original: {$request->content}
         Objetivo: {$request->objective}
@@ -116,10 +153,24 @@ class ScheduledPostController extends Controller
             'user_prompt' => $user_prompt,
         ]);
 
+        $scheduledPostText = ScheduledPostText::create([
+            'scheduled_post_id' => $scheduledPost->id,
+            'content' => $response,
+        ]);
 
-           $scheduledPost->update([
-            'content' => $response
-            ]);
+        $scheduledPost->update([
+            'selected_text_id' => $scheduledPostText->id,
+        ]);
+        return back()->with('success', 'Publicación actualizada exitosamente');
+    }
+
+    public function updateText(Request $request, ScheduledPost $scheduledPost){
+        $request->validate([
+            'text_id' => 'required|exists:scheduled_post_texts,id',
+        ]);
+        $scheduledPost->update([
+            'selected_text_id' => $request->text_id,
+        ]);
         return back()->with('success', 'Publicación actualizada exitosamente');
     }
 }

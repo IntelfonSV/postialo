@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Template;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,9 +15,15 @@ class TemplateController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
+        if($user->hasRole('admin')) {
+            $users = User::all();
+            $templates = Template::orderBy('id', 'asc')->get();
+        }else{
+            $templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
+        }
         return Inertia::render('Templates/Index', [
             'templates' => $templates,
+            'users' => $users ?? null,
         ]);
     }
 
@@ -38,9 +45,12 @@ class TemplateController extends Controller
             'name' => 'required|string|max:255',
             'html_code' => 'nullable|string',
         ]);
+        $user = auth()->user();
+        if($user->hasRole('admin') || $user->id == $request->user_id) {
 
         $template = Template::create($validated);
-        return back()->with("success", "Plantilla creada correctamente");
+        return back()->with("success", "Plantilla creada correctamente");}
+        return back()->with("error", "No tienes permiso para crear plantillas para este usuario");
     }
 
     /**

@@ -1,6 +1,6 @@
 import BlueButton from "@/Components/BlueButton";
 import DangerButton from "@/Components/DangerButton";
-import { router, useForm } from "@inertiajs/react";
+import { router, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import StatusHelper from "@/Helpers/StatusHelper";
@@ -11,8 +11,10 @@ function Schedule({
     setNewSchedule = () => {},
     selectedMonth = "",
     number = null,
+    user = null,
 }) {
     const { TranslateStatus, badge } = StatusHelper();
+    const { auth } = usePage().props;
     
     const SOCIAL_NETWORKS = ["facebook", "instagram", "x"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
@@ -23,6 +25,7 @@ function Schedule({
         objective: schedule?.objective || "",
         prompt_image: schedule?.prompt_image || "",
         networks: schedule?.networks || [],
+        user_id:user?.id || auth.user.id,
         template_id: schedule?.template_id || "",
         status: schedule?.status || "pending",
         scheduled_date: schedule?.scheduled_date ? schedule.scheduled_date.split("T")[0] : "",
@@ -39,11 +42,21 @@ function Schedule({
 
 
     const handleSave = () => {
+        //valida que ningun campo este vacion 
+        // if (Object.values(data).some((value) => value === "")) {
+        //     Swal.fire({
+        //         icon: 'error',
+        //         title: 'Error',
+        //         text: 'Todos los campos son obligatorios',
+        //     });
+        //     return;
+        // }
         if (data.id) {
             put(route("schedules.update", data.id), {
                 preserveScroll: true,
                 onSuccess: () => {
                     setEdit(false);
+                    reset();
                 },
             });
         } else {
@@ -107,6 +120,17 @@ function Schedule({
                     <p className="font-bold text-lg text-gray-800">
                         Publicación # <span className="font-normal text-gray-800">{number}</span>
                     </p>
+                    {
+                        user ? (
+                            <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">Usuario:
+                                <span className={badge('in_progress')}>{user.name}</span>
+                            </p>
+                        ) : (
+                            <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">Usuario:
+                                <span className={badge('in_progress')}>{auth.user.name}</span>
+                            </p>
+                        )
+                    }
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                     <div>

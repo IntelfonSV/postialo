@@ -11,7 +11,7 @@ function EditTextModal({ show, close, editElement, setLoading }) {
 
     useEffect(() => {
         setData({
-            content: editElement?.content,
+            content: editElement?.selected_text?.content,
         });
     }, [editElement]);
 
@@ -19,12 +19,15 @@ function EditTextModal({ show, close, editElement, setLoading }) {
         e.preventDefault();
         setLoading(true);
         close();
-        put(route("scheduled-posts.update", {scheduled_post: editElement.id}), {
+        put(route("scheduled-post-texts.update-content", {scheduled_post_text: editElement?.selected_text?.id}), {
             preserveScroll: true,
             onSuccess: () => {
                 setLoading(false);
             },
             onFinish: () => {
+                setLoading(false);
+            },
+            onError: () => {
                 setLoading(false);
             },
         });

@@ -43,7 +43,7 @@ const StatusHelper = () => {
             case "pending":
                 return "bg-yellow-100 text-yellow-800 rounded-full px-2 py-2";
             case "generated":
-                return "bg-green-100 text-green-800 rounded-full px-2 py-2";
+                return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
             case "published":
                 return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
             case "facebook":

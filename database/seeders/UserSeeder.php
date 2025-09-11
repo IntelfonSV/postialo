@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         // Usuario Admin
         $admin = User::create([
             'email' => 'admin@red.com.sv',
-            'client_name' => 'Admin company',
+            'name' => 'Admin company',
             'password' => Hash::make('password'),
         ]);
         $admin->assignRole('admin');
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         // Usuario Normal
         $user = User::create(
             ['email' => 'user@red.com.sv',
-            'client_name' => 'User company',
+            'name' => 'User company',
             'password' => Hash::make('password'),
             ]
         );

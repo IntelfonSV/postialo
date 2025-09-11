@@ -19,8 +19,7 @@ class Schedule extends Model
         'networks',
         'template_id',
         'status',
-        'task_id',
-        'image',
+        'selected_image_id',
         'scheduled_date',
     ];
 
@@ -38,6 +37,19 @@ class Schedule extends Model
     {
         return $this->belongsTo(Template::class);
     }
+
+    // Todas las imágenes generadas
+    public function images()
+    {
+        return $this->hasMany(ScheduleImage::class);
+    }
+    
+    // Imagen final seleccionada
+    public function selectedImage()
+    {
+        return $this->belongsTo(ScheduleImage::class, 'selected_image_id');
+    }
+    
 
     public function posts()
     {

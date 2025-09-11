@@ -15,7 +15,7 @@ function RegenerateTextModal({show, close, editElement, setLoading}) {
 
     useEffect(() => {
         setData({
-            content: editElement?.content ?? "",
+            content: editElement?.selected_text?.content ?? "",
             network: editElement?.network ?? "",
             changes: editElement?.changes ?? "",
         });
@@ -55,7 +55,7 @@ function RegenerateTextModal({show, close, editElement, setLoading}) {
                                 
                                 <div>
                                     <p>Contenido original</p>
-                                    <p>{editElement?.content}</p>
+                                    <p>{editElement?.selected_text?.content}</p>
                                 </div>
                                 <div>   
                                     <label

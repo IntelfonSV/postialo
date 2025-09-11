@@ -6,6 +6,7 @@ use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\CallEvaluator;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\ScheduleController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -41,4 +42,7 @@ Route::post('/user-confirm', function (Request $request) {
     Log::info($request->all());
     return $request->all();
 })->name('call-evaluator.userConfirm');
+
+Route::get('/schedules/{user}', [ScheduleController::class, 'getSchedules'])->name('getSchedules');
+
 

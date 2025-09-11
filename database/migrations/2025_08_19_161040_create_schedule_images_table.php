@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scheduled_posts', function (Blueprint $table) {
+        Schema::create('schedule_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('schedule_id')->constrained()->onDelete('cascade');
-            $table->string('network'); // facebook, instagram, x, etc.
-            $table->enum('status', ['draft', 'approved', 'published'])->default('draft');
+            $table->string('image_path');
+            $table->string('generated_image_path')->nullable();
+            $table->boolean('is_approved')->default(false);
             $table->timestamps();
-            $table->index(['schedule_id', 'network'], 'idx_schedule_post_network');
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scheduled_posts');
+        Schema::dropIfExists('schedule_images');
     }
 };

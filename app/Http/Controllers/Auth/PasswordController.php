@@ -26,4 +26,15 @@ class PasswordController extends Controller
 
         return back();
     }
+
+    public function validatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        return response()->json([
+            'message' => 'Password validated successfully',
+        ]);
+    }
 }

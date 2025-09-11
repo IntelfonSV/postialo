@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Head, router } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import DefaultContainer from "@/Components/DefaultContainer";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
@@ -13,15 +12,40 @@ import CloseModalButton from "@/Components/CloseModalButton";
 import { usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import GrayContainer from "@/Components/GrayContainer";
-function Index({ templates = [] }) {
+import ImagePreview from "../ScheduledPosts/Partials/ImagePreview";
+function Index({ templates = [], auth, users }) {
     const [items, setItems] = useState(templates);
     const [preview, setPreview] = useState(null);
-    const user = usePage().props.auth.user;
     const [editingId, setEditingId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
+
+    const params = new URLSearchParams(window.location.search);
+    const urlUser = params.get("user");
+    useEffect(() => {
+        if(users?.length > 0 && selectedUser){
+            //cambiar la url
+            const params = new URLSearchParams(window.location.search);
+            params.set("user", selectedUser.id);
+            const newUrl = window.location.pathname + "?" + params.toString();
+            window.history.pushState(null, "", newUrl);
+        }
+    }, [selectedUser]);
+
+    //variable desde la url user
+    useEffect(() => {
+        if(urlUser){
+            setSelectedUser(users.find((user) => user.id == urlUser));
+        }else{
+            setSelectedUser(auth.user);
+        }
+    }, []);
 
     useEffect(() => {
-        setItems(templates);
-    }, [templates]);
+        if(selectedUser){
+            setItems(templates.filter((tpl) => tpl.user_id == selectedUser.id));
+        }
+    }, [templates, users, selectedUser]);
+
 
     const handleNew = async () => {
         if (items.length >= 3) {
@@ -61,8 +85,8 @@ function Index({ templates = [] }) {
     const handleChange = (index, value, field) => {
         setItems(
             items.map((tpl, i) =>
-                i === index ? { ...tpl, [field]: value } : tpl
-            )
+                i === index ? { ...tpl, [field]: value } : tpl,
+            ),
         );
     };
 
@@ -79,13 +103,13 @@ function Index({ templates = [] }) {
                     onSuccess: () => {
                         setEditingId(null);
                     },
-                }
+                },
             );
         } else {
             router.post(
                 route("templates.store"),
                 {
-                    user_id: user.id,
+                    user_id: selectedUser.id,
                     name: tpl.name,
                     html_code: tpl.html_code,
                 },
@@ -94,7 +118,7 @@ function Index({ templates = [] }) {
                     onSuccess: (templates) => {
                         setEditingId(null);
                     },
-                }
+                },
             );
         }
     };
@@ -111,13 +135,13 @@ function Index({ templates = [] }) {
                     router.delete(route("templates.destroy", plantilla.id), {
                         onSuccess: () => {
                             setItems(
-                                items.filter((tpl) => tpl.id !== plantilla.id)
+                                items.filter((tpl) => tpl.id !== plantilla.id),
                             );
                         },
                     });
                 } else {
                     setItems(
-                        items.filter((tpl) => tpl.uuid !== plantilla.uuid)
+                        items.filter((tpl) => tpl.uuid !== plantilla.uuid),
                     );
                 }
             }
@@ -140,17 +164,48 @@ function Index({ templates = [] }) {
                     <h3 className="text-xl font-semibold w-full text-blue-900 text-center">
                         Plantillas
                     </h3>
-                    <BlueButton
-                        onClick={handleNew}
-                        className="flex items-center gap-2 hover:bg-gray-200 px-2 h-8 rounded w-fit"
-                    >
-                        <FaPlus /> Nueva plantilla
-                    </BlueButton>
+                    {auth.user.roles.includes("admin") && (
+                        <BlueButton
+                            onClick={handleNew}
+                            className="flex items-center gap-2 hover:bg-gray-200 px-2 h-8 rounded w-fit"
+                        >
+                            <FaPlus /> Nueva plantilla
+                        </BlueButton>
+                    )}
                 </div>
             </GrayContainer>
+            {auth.user.roles.includes("admin") && (
+                <GrayContainer>
+                    <div className="grid grid-cols-1 md:grid-cols-3 items-center w-full">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Usuario
+                            </label>
+                            <select
+                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                value={selectedUser?.id}
+                                onChange={(e) =>
+                                    setSelectedUser(
+                                        users.find(
+                                            (user) => user.id == e.target.value,
+                                        ),
+                                    )
+                                }
+                            >
+                                {users?.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </GrayContainer>
+            )}
+
             <DefaultContainer className="p-2 rounded-xl">
                 <div className="w-full">
-                    {items.length === 0 ? (
+                    {items.length === 0 && auth.user.roles.includes("admin") ? (
                         <Card>
                             <div className="text-center py-8">
                                 <h4 className="text-xl font-bold text-gray-700 mb-2">
@@ -162,14 +217,34 @@ function Index({ templates = [] }) {
                                 </p>
                             </div>
                         </Card>
+                    ) : items.length === 0 ? (
+                        <Card>
+                            <div className="text-center py-8">
+                                <h4 className="text-xl font-bold text-gray-700 mb-2">
+                                    Sin plantillas
+                                </h4>
+                                <p className="text-gray-500">
+                                    No tienes plantillas creadas.
+                                </p>
+                            </div>
+                        </Card>
                     ) : (
-                        <div className="flex flex-col gap-6">
+                        <div
+                            className={
+                                auth.user.roles.includes("admin")
+                                    ? "flex flex-col gap-6"
+                                    : "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+                            }
+                        >
                             {items.map((tpl, index) => (
                                 <Card key={tpl.id}>
                                     <div className="template-header flex justify-between items-center">
                                         <div className="w-full">
                                             <div className="flex justify-between">
-                                                {tpl.id === editingId ? (
+                                                {tpl.id === editingId &&
+                                                auth.user.roles.includes(
+                                                    "admin",
+                                                ) ? (
                                                     <input
                                                         className="w-full h-8 rounded border border-gray-300"
                                                         type="text"
@@ -178,7 +253,7 @@ function Index({ templates = [] }) {
                                                             handleChange(
                                                                 index,
                                                                 e.target.value,
-                                                                "name"
+                                                                "name",
                                                             )
                                                         }
                                                     />
@@ -188,12 +263,15 @@ function Index({ templates = [] }) {
                                                     </h4>
                                                 )}
                                                 {tpl.id &&
+                                                    auth.user.roles.includes(
+                                                        "admin",
+                                                    ) &&
                                                     tpl.id !== editingId && (
                                                         <button
                                                             className="flex items-center gap-2 hover:bg-gray-200 px-2 h-8 rounded"
                                                             onClick={() =>
                                                                 setEditingId(
-                                                                    tpl.id
+                                                                    tpl.id,
                                                                 )
                                                             }
                                                         >
@@ -206,68 +284,92 @@ function Index({ templates = [] }) {
                                             </div>
                                         </div>
                                     </div>
-                                    <textarea
-                                        className={
-                                            "w-full border p-3 rounded-lg mt-4 " +
-                                            (tpl.id && tpl.id !== editingId
-                                                ? "bg-gray-200"
-                                                : "bg-gray-100")
-                                        }
-                                        rows="6"
-                                        value={tpl.html_code}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                index,
-                                                e.target.value,
-                                                "html_code"
-                                            )
-                                        }
-                                        disabled={
-                                            tpl.id
-                                                ? !(tpl.id == editingId)
-                                                : false
-                                        }
-                                    />
-                                    <div className="flex justify-between gap-4 mt-4">
-                                        <div className="flex gap-3">
-                                            <BlueButton
-                                                onClick={() =>
-                                                    handlePreview(tpl)
-                                                }
-                                            >
-                                                Preview
-                                            </BlueButton>
-
-                                            {(!tpl?.id ||
-                                                tpl.id === editingId) && (
-                                                <GreenButton
-                                                    onClick={() =>
-                                                        handleSave(tpl)
-                                                    }
-                                                >
-                                                    Guardar
-                                                </GreenButton>
-                                            )}
-
-                                            {tpl.id && editingId === tpl.id && (
-                                                <DangerButton
-                                                    onClick={() =>
-                                                        setEditingId(null)
-                                                    }
-                                                >
-                                                    Cancelar
-                                                </DangerButton>
-                                            )}
-                                        </div>
-
-                                        <DangerButton
-                                            className="btn btn--outline btn--sm flex items-center gap-2"
-                                            onClick={() => handleDelete(tpl)}
-                                        >
-                                            <FaTrash />
-                                            {tpl.id ? "Eliminar" : "Cancelar"}
-                                        </DangerButton>
+                                    <div className="flex justify-center">
+                                        <ImagePreview
+                                            imageUrl={
+                                                "freepik_images/d3343111-0fdf-4b53-9245-490b5b3e6dda_0.jpg"
+                                            }
+                                            templateHtml={tpl.html_code}
+                                            className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
+                                        />
                                     </div>
+
+                                    {auth.user.roles.includes("admin") && (
+                                        <div>
+                                            <textarea
+                                                className={
+                                                    "w-full border p-3 rounded-lg mt-4 " +
+                                                    (tpl.id &&
+                                                    tpl.id !== editingId
+                                                        ? "bg-gray-200"
+                                                        : "bg-gray-100")
+                                                }
+                                                rows="6"
+                                                value={tpl.html_code}
+                                                onChange={(e) =>
+                                                    handleChange(
+                                                        index,
+                                                        e.target.value,
+                                                        "html_code",
+                                                    )
+                                                }
+                                                disabled={
+                                                    tpl.id
+                                                        ? !(tpl.id == editingId)
+                                                        : false
+                                                }
+                                            />
+                                            <div className="flex justify-between gap-4 mt-4">
+                                                <div className="flex gap-3">
+                                                    <BlueButton
+                                                        onClick={() =>
+                                                            handlePreview(tpl)
+                                                        }
+                                                    >
+                                                        Preview
+                                                    </BlueButton>
+
+                                                    {(!tpl?.id ||
+                                                        tpl.id ===
+                                                            editingId) && (
+                                                        <GreenButton
+                                                            onClick={() =>
+                                                                handleSave(tpl)
+                                                            }
+                                                        >
+                                                            Guardar
+                                                        </GreenButton>
+                                                    )}
+
+                                                    {tpl.id &&
+                                                        editingId ===
+                                                            tpl.id && (
+                                                            <DangerButton
+                                                                onClick={() =>
+                                                                    setEditingId(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Cancelar
+                                                            </DangerButton>
+                                                        )}
+                                                </div>
+
+                                                <DangerButton
+                                                    className="btn btn--outline btn--sm flex items-center gap-2"
+                                                    onClick={() =>
+                                                        handleDelete(tpl)
+                                                    }
+                                                >
+                                                    <FaTrash />
+                                                    {tpl.id
+                                                        ? "Eliminar"
+                                                        : "Cancelar"}
+                                                </DangerButton>
+                                            </div>
+                                        </div>
+                                    )}
                                 </Card>
                             ))}
                         </div>
@@ -275,7 +377,12 @@ function Index({ templates = [] }) {
                 </div>
             </DefaultContainer>
             {preview && (
-                <Modal closeable show onClose={handleClosePreview}>
+                <Modal
+                    className="w-full"
+                    closeable
+                    show
+                    onClose={handleClosePreview}
+                >
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                         <h4 className="text-xl font-bold text-gray-800">
                             Vista Previa

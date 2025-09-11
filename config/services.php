@@ -41,5 +41,7 @@ return [
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
     ],
-
+    'ideogram' => [
+        'api_key' => env('IDEOGRAM_API_KEY'),
+    ],
 ];

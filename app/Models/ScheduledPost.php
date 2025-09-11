@@ -9,12 +9,22 @@ class ScheduledPost extends Model
     protected $fillable = [
         'schedule_id',
         'network',
-        'content',
+        'selected_text_id',
         'status',
     ];
 
     public function schedule()
     {
         return $this->belongsTo(Schedule::class);
+    }
+
+    public function texts()
+    {
+        return $this->hasMany(ScheduledPostText::class);
+    }
+
+    public function selectedText()
+    {
+        return $this->belongsTo(ScheduledPostText::class, 'selected_text_id');
     }
 }

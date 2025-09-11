@@ -5,12 +5,12 @@ import { useForm } from "@inertiajs/react";
 
 export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
     let guidelines = {};
-    if (!(brandIdentity.guidelines_json.facebook || brandIdentity.guidelines_json.instagram || brandIdentity.guidelines_json.x)) {
-        guidelines = brandIdentity.guidelines_json         
-        ? JSON.parse(brandIdentity.guidelines_json) 
+    if (!(brandIdentity?.guidelines_json?.facebook || brandIdentity?.guidelines_json?.instagram || brandIdentity?.guidelines_json?.x)) {
+        guidelines = brandIdentity?.guidelines_json         
+        ? JSON.parse(brandIdentity?.guidelines_json) 
         : {};
     }else{
-        guidelines = brandIdentity.guidelines_json   
+        guidelines = brandIdentity?.guidelines_json   
     }
 
     const {data, setData, post, put, processing, errors} = useForm({
