@@ -11,18 +11,15 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
 
   const handleBuy = async () => {
     setError("");
-    // Abrí la pestaña sincronamente SIN 'noopener,noreferrer'
-    const win = window.open("", "_blank"); 
-  
     try {
       setProcessing(true);
-  
+
       const payload = {
         product_id: productId,
         qty,
         custom_params: customParams,
       };
-  
+
       const res = await fetch("/billing/pay", {
         method: "POST",
         credentials: "same-origin",
@@ -33,26 +30,24 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
         },
         body: JSON.stringify(payload),
       });
-  
+
       const data = await res.json().catch(() => ({}));
-  
+
       if (res.ok && data?.url) {
-        // navegá la pestaña ya abierta
-        if (win) win.location.replace(data.url);
-        else window.open(data.url, "_blank");
+        // 1) Intento abrir en nueva pestaña cuando YA tengo la URL
+        const newWin = window.open(data.url, "_blank");
+        // 2) Si el navegador bloquea el popup, abrimos en la misma pestaña
+        if (!newWin) window.location.href = data.url;
       } else {
-        if (win) win.close();
         setError(data?.message || "No se pudo generar el enlace de pago.");
       }
     } catch (e) {
-      if (win) win.close();
       setError("Error conectando con el servidor.");
       console.error(e);
     } finally {
       setProcessing(false);
     }
   };
-  
 
   return (
     <div className="-m-5">
