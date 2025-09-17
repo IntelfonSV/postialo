@@ -1,23 +1,24 @@
 import React, { useState } from "react";
 
-export default function PricingCard({ productId = 1, qty = 1, customParams = {} }) {
+export default function PricingCard({ product }) {
   const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState("");
 
   const getCsrf = () => {
     const meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.getAttribute("content") : "";
   };
 
+  const money = (n, c = product?.currency || "USD") =>
+    new Intl.NumberFormat("es-SV", { style: "currency", currency: c }).format(n ?? 0);
+
   const handleBuy = async () => {
-    setError("");
     try {
       setProcessing(true);
 
       const payload = {
-        product_id: productId,
-        qty,
-        custom_params: customParams,
+        product_id: product?.id,
+        qty: 1,
+        custom_params: {},
       };
 
       const res = await fetch("/billing/pay", {
@@ -34,16 +35,14 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
       const data = await res.json().catch(() => ({}));
 
       if (res.ok && data?.url) {
-        // 1) Intento abrir en nueva pestaña cuando YA tengo la URL
-        const newWin = window.open(data.url, "_blank");
-        // 2) Si el navegador bloquea el popup, abrimos en la misma pestaña
-        if (!newWin) window.location.href = data.url;
+        const newWin = window.open(data.url, "_blank");   // abre solo cuando ya hay URL
+        if (!newWin) window.location.href = data.url;      // fallback misma pestaña si bloquean popup
       } else {
-        setError(data?.message || "No se pudo generar el enlace de pago.");
+        alert(data?.message || "No se pudo generar el enlace de pago.");
       }
     } catch (e) {
-      setError("Error conectando con el servidor.");
       console.error(e);
+      alert("Error conectando con el servidor.");
     } finally {
       setProcessing(false);
     }
@@ -78,8 +77,15 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
             />
           </div>
           <div className="p-6 text-white">
+
+          {product?.name && (
+            <div className="text-blue-900 text-lg font-semibold mt-1">
+              {product.name}
+            </div>
+          )}
+
             <div className="text-4xl font-black text-blue-900">
-              $150.00
+              {money(product?.price ?? 150)}{" "}
               <span className="text-base font-bold">/mes</span>
             </div>
             <p className="text-blue-900 text-lg mt-2 mb-3">
@@ -107,22 +113,12 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
                 Acceso a hoja de indicaciones para dictar contenido
               </li>
             </ul>
-
-            {error && (
-              <div className="mt-4 text-red-700 bg-red-100 border border-red-200 rounded-lg px-3 py-2">
-                {error}
-              </div>
-            )}
-
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleBuy}
-                disabled={processing}
-                className={`${
-                  processing ? "opacity-70 cursor-not-allowed" : ""
-                } bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition`}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition"
               >
-                {processing ? "Procesando..." : "Comprar ahora"}
+                Comprar ahora
               </button>
               <a
                 href="/contactus"
@@ -139,7 +135,9 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
       {processing && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/70 text-white z-[9999]">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-          <p className="mt-4 font-bold">Estamos procesando tu pago...</p>
+          <p className="mt-4 font-bold">
+            Estamos procesando tu pago...
+          </p>
         </div>
       )}
 
@@ -149,7 +147,8 @@ export default function PricingCard({ productId = 1, qty = 1, customParams = {} 
           <div className="text-center md:text-left">
             © {new Date().getFullYear()} PostIAlo
           </div>
-          <div className="text-center md:text-right"></div>
+          <div className="text-center md:text-right">
+          </div>
         </div>
       </footer>
 

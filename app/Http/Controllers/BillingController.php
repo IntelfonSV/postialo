@@ -7,18 +7,20 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Product;
+
 
 class BillingController extends Controller
 {
 
 
-    public function show()
-    {
-        // Aquí muestras la vista React con Inertia
-        return Inertia::render('Billing/Index', [
-            'subscription' => auth()->user()->subscription
-        ]);
-    }
+    // public function show()
+    // {
+    //     // Aquí muestras la vista React con Inertia
+    //     return Inertia::render('Billing/Index', [
+    //         'subscription' => auth()->user()->subscription
+    //     ]);
+    // }
 
     // public function pay(Request $request)
     // {
@@ -32,6 +34,20 @@ class BillingController extends Controller
 
     //     return redirect()->route('dashboard')->with('success', 'Pago realizado con éxito.');
     // }
+
+
+    public function show(Request $request)
+    {
+        $products = Product::query()
+            ->where('active', true)
+            ->orderBy('id')
+            ->get(['id', 'name', 'price', 'currency', 'description']); // agrega 'desc' si existe en tu tabla
+
+        return Inertia::render('Billing/Index', [
+            'subscription' => auth()->user()->subscription,
+            'products' => $products,
+        ]);
+    }
 
     public function pay(Request $request)
     {
