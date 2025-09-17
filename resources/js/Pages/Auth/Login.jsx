@@ -99,7 +99,11 @@ export default function Login({ status, canResetPassword }) {
                         Ingresar
                     </BlueButton>
                 </div>
+                <div className="mt-4">
+                    No tienes una cuenta? <Link className="text-blue-600 hover:text-blue-700" href={route("register")}>Regístrate</Link>
+                </div>
             </form>
+
         </GuestLayout>
     );
 }

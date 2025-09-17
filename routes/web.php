@@ -25,15 +25,29 @@ use Spatie\Permission\Contracts\Role;
 //     ]);
 // });
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', function () {
+        return redirect()->route('guides');
+    });
+    Route::inertia('guides', 'Guides/FacebookAccessGuide')
+        ->name('guides');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
 
-    
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Se ha enviado un nuevo correo de verificación.');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -66,3 +80,5 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 require __DIR__.'/auth.php';
+require __DIR__.'/billing.php';
+
