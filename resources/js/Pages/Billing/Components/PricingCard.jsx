@@ -1,13 +1,58 @@
 import React, { useState } from "react";
 
-export default function PricingCard() {
+export default function PricingCard({ productId = 1, qty = 1, customParams = {} }) {
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleBuy = () => {
-    setProcessing(true);
-    // Aquí integras tu pasarela de pago. Simulación:
-    setTimeout(() => setProcessing(false), 2000);
+  const getCsrf = () => {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute("content") : "";
   };
+
+  const handleBuy = async () => {
+    setError("");
+    // Abrí la pestaña sincronamente SIN 'noopener,noreferrer'
+    const win = window.open("", "_blank"); 
+  
+    try {
+      setProcessing(true);
+  
+      const payload = {
+        product_id: productId,
+        qty,
+        custom_params: customParams,
+      };
+  
+      const res = await fetch("/billing/pay", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRF-TOKEN": getCsrf(),
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await res.json().catch(() => ({}));
+  
+      if (res.ok && data?.url) {
+        // navegá la pestaña ya abierta
+        if (win) win.location.replace(data.url);
+        else window.open(data.url, "_blank");
+      } else {
+        if (win) win.close();
+        setError(data?.message || "No se pudo generar el enlace de pago.");
+      }
+    } catch (e) {
+      if (win) win.close();
+      setError("Error conectando con el servidor.");
+      console.error(e);
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
 
   return (
     <div className="-m-5">
@@ -67,12 +112,22 @@ export default function PricingCard() {
                 Acceso a hoja de indicaciones para dictar contenido
               </li>
             </ul>
+
+            {error && (
+              <div className="mt-4 text-red-700 bg-red-100 border border-red-200 rounded-lg px-3 py-2">
+                {error}
+              </div>
+            )}
+
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleBuy}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition"
+                disabled={processing}
+                className={`${
+                  processing ? "opacity-70 cursor-not-allowed" : ""
+                } bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition`}
               >
-                Comprar ahora
+                {processing ? "Procesando..." : "Comprar ahora"}
               </button>
               <a
                 href="/contactus"
@@ -89,9 +144,7 @@ export default function PricingCard() {
       {processing && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/70 text-white z-[9999]">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-          <p className="mt-4 font-bold">
-            Estamos procesando tu pago...
-          </p>
+          <p className="mt-4 font-bold">Estamos procesando tu pago...</p>
         </div>
       )}
 
@@ -101,8 +154,7 @@ export default function PricingCard() {
           <div className="text-center md:text-left">
             © {new Date().getFullYear()} PostIAlo
           </div>
-          <div className="text-center md:text-right">
-          </div>
+          <div className="text-center md:text-right"></div>
         </div>
       </footer>
 
