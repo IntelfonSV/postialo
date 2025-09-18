@@ -531,8 +531,6 @@ class BillingController extends Controller
         }
     }
 
-
-
     public function cancel(Request $request)
     {
         // Aquí integras Stripe, PayPal, o el gateway que uses
@@ -558,4 +556,18 @@ class BillingController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Pago realizado con éxito.');
     }
+
+    public function thanksPage(Request $request)
+    {
+        // Aquí integras Stripe, PayPal, o el gateway que uses
+        // Si el pago es exitoso:
+        $token = $request->input('token');
+        $ern   = $request->input('comprobante');
+
+        return Inertia::render('Billing/ThanksPage', [
+            'token' => $token,
+            'ern'   => $ern,
+        ]);
+    }
+
 }

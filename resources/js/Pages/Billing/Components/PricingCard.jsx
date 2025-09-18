@@ -35,8 +35,8 @@ export default function PricingCard({ product }) {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok && data?.url) {
-        const newWin = window.open(data.url, "_blank");   // abre solo cuando ya hay URL
-        if (!newWin) window.location.href = data.url;      // fallback misma pestaña si bloquean popup
+        // Redirigir en la misma pestaña
+        window.location.href = data.url;
       } else {
         alert(data?.message || "No se pudo generar el enlace de pago.");
       }
