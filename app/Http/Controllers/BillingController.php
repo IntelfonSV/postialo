@@ -70,6 +70,10 @@ class BillingController extends Controller
         $ern     = 'POSTIALO-' . now()->format('YmdHis') . '-' . $product->id;
         $today   = now()->toDateString();
 
+        // NEW: construir custom params asegurando convención paramX
+        $customParams = $data['custom_params'] ?? [];
+        $customParams['param1'] = (string)$userId; // ← id de usuario en param1
+
         \DB::beginTransaction();
         try {
             // 1) payment_sessions (tu schema real)
@@ -78,7 +82,7 @@ class BillingController extends Controller
             $session->permissions   = 'initial_payment,automatic_charges,receive_payments';
             $session->currency      = $product->currency ?? 'USD';
             $session->country_code  = 'SV';
-            $session->custom_params = json_encode($data['custom_params'] ?? []);
+            $session->custom_params = json_encode($customParams); // NEW: usar customParams con param1
             $session->provider      = 'pagadito';
             $session->status        = 'initiated';
             // auth_token / provider_url / provider_code / provider_ref se llenan después
@@ -159,7 +163,8 @@ class BillingController extends Controller
                     'price'       => (float)$product->price,
                 ]],
             ]],
-            'custom_params'   => $data['custom_params'] ?? new \stdClass(),
+            // NEW: enviar objeto con param1 (id usuario)
+            'custom_params'   => $customParams ?: new \stdClass(),
         ];
 
         $endpoint = rtrim(config('services.pagadito.endpoint'), '/');
@@ -241,6 +246,7 @@ class BillingController extends Controller
             return response()->json(['ok' => false, 'message' => 'Error interno al generar link recurrente'], 500);
         }
     }
+
 
 
     public function cancel(Request $request)
