@@ -9,6 +9,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { TbSum } from "react-icons/tb";
 import { FaUsers } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
+import { MdCancel } from "react-icons/md";
 export default function Dashboard({
     users_count,
     schedules_count,
@@ -18,6 +19,7 @@ export default function Dashboard({
     schedules_approved,
     schedules_published,
     templates_count,
+    schedules_cancelled,
 }) {
     const user = usePage().props.auth.user;
     return (
@@ -38,7 +40,7 @@ export default function Dashboard({
                     )}
                     <SmallCard
                         title="Total de publicaciones"
-                        bg="bg-red-600"
+                        bg="bg-gray-600"
                         value={schedules_count}
                         icon={<TbSum className="h-10 w-10 text-white"></TbSum>}
                         onClick={() => router.get(route("schedules.index"))}
@@ -92,6 +94,15 @@ export default function Dashboard({
                         value={schedules_published}
                         icon={
                             <FaCalendarCheck className="h-10 w-10 text-white" />
+                        }
+                        onClick={() => router.get(route("scheduled-posts.index"))}
+                    ></SmallCard>
+                    <SmallCard
+                        title="Publicaciones canceladas"
+                        bg="bg-red-500"
+                        value={schedules_cancelled}
+                        icon={
+                            <MdCancel className="h-10 w-10 text-white" />
                         }
                         onClick={() => router.get(route("scheduled-posts.index"))}
                     ></SmallCard>

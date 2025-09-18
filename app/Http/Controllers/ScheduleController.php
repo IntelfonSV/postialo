@@ -155,17 +155,19 @@ class ScheduleController extends Controller
                 Storage::disk('public')->delete($schedule->image);
             }
 
-            $image = $imageController->generateImage($schedule->prompt_image);
+            $response = $imageController->generateImage($schedule->prompt_image);
 
-            if($image != 'error'){
+            if($response['status'] === 'success'){
                 $scheduleImage = ScheduleImage::create([
                     'schedule_id' => $schedule->id,
-                    'image_path' => $image,
+                    'image_path' => $response['image'],
                 ]);
 
                 $schedule->update([
                     'selected_image_id' => $scheduleImage->id,
                 ]);
+            }else{
+                return back()->with('error', $response['message']);
             }   
 
             $social_networks = json_encode($schedule->networks);
@@ -227,10 +229,10 @@ class ScheduleController extends Controller
             'prompt_image' => 'required',
         ]);
         $imageController = new GenerateImageController();
-        $image = $imageController->generateImage($request->prompt_image);
+        $response = $imageController->generateImage($request->prompt_image);
 
-        if($image == 'error'){
-            return back()->with('error', 'Error al generar la imagen');
+        if($response['status'] == 'error'){
+            return back()->with('error', $response['message']);
         }
 
         // if($schedule->image){
@@ -238,7 +240,7 @@ class ScheduleController extends Controller
         // }
         $scheduleImage = ScheduleImage::create([
             'schedule_id' => $schedule->id,
-            'image_path' => $image,
+            'image_path' => $response['image'],
         ]);
         $schedule->update([
             'prompt_image' => $request->prompt_image,
@@ -338,5 +340,14 @@ class ScheduleController extends Controller
         ]);
         
         return back()->with('success', 'Posts enviados exitosamente');
-        }
+
+    }
+
+    public function cancelSchedule(Schedule $schedule){
+        $schedule->update([
+            'status' => 'cancelled',
+        ]);
+        return back()->with('success', 'Publicación cancelada exitosamente');
+    }
+
 }

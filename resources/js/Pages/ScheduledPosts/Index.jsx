@@ -6,7 +6,9 @@ import Loading from "@/Components/Loading";
 import ImageSection from "./Partials/ImageSection";
 import TextSection from "./Partials/TextSection";
 import StatusHelper from "@/Helpers/StatusHelper";
-import { FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaTimes } from "react-icons/fa";
+import { IoCloseSharp } from "react-icons/io5";
+import Swal from "sweetalert2";
 
 function Index({ scheduledPosts, months, templates, users, auth }) {
     const { TranslateStatus, badge } = StatusHelper();
@@ -19,14 +21,14 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
 
     const [selectedUser, setSelectedUser] = useState(auth.user);
     const [selectedMonth, setselectedMonth] = useState(
-        months.length > 0 ? months[0].month + "-" + months[0].year : ""
+        months.length > 0 ? months[0].month + "-" + months[0].year : "",
     );
     useEffect(() => {
         const posts_filtered = scheduledPosts.filter(
             (obj) =>
                 obj.month == selectedMonth.split("-")[0] &&
-                obj.year == selectedMonth.split("-")[1] && 
-                obj.user_id == selectedUser.id
+                obj.year == selectedMonth.split("-")[1] &&
+                obj.user_id == selectedUser.id,
         );
         console.log(posts_filtered);
         setPosts(posts_filtered);
@@ -34,6 +36,38 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
 
     const handleMonthChange = (event) => {
         setselectedMonth(event.target.value);
+    };
+
+    const handleCancel = (post) => {
+        Swal.fire({
+            title: "Cancelar publicación",
+            text: "¿Estás seguro de cancelar la publicación? Al cancelar la publicación, se eliminará de la lista de publicaciones pendientes y no se publicará!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                router.put(
+                    route("schedules.cancel", { schedule: post.id }),
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            setLoading(false);
+                        },
+                        onError: () => {
+                            setLoading(false);
+                        },
+                        onFinish: () => {
+                            setLoading(false);
+                        },
+                    },
+                );
+            }
+        });
     };
 
     const [loading, setLoading] = useState(false);
@@ -132,49 +166,88 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                     </div>
                 </div>
             </GrayContainer>
-
             <br />
             {users?.length > 0 && auth.user.roles.includes("admin") && (
-            <GrayContainer>
-                <div className="grid grid-cols-1 md:grid-cols-3 items-center w-full">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Usuario
-                        </label>
-                        <select
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            onChange={(e) => setSelectedUser(users.find((user) => user.id == e.target.value))}
-                        >
-                            {users.map((user) => (
-                                <option
-                                    key={user.id}
-                                    value={user.id}
-                                >
-                                    {user.name}
-                                </option>
-                            ))}
-                        </select>
+                <GrayContainer>
+                    <div className="grid grid-cols-1 md:grid-cols-3 items-center w-full">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Usuario
+                            </label>
+                            <select
+                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                onChange={(e) =>
+                                    setSelectedUser(
+                                        users.find(
+                                            (user) => user.id == e.target.value,
+                                        ),
+                                    )
+                                }
+                            >
+                                {users.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </GrayContainer>
+                </GrayContainer>
             )}
             <div className="flex flex-col gap-2 pb-10">
                 {posts.length > 0 ? (
                     posts.map((obj) => (
                         <div
                             key={obj.id + "-" + obj.status}
-                            className="py-12 px-3 md:p-6 bg-white rounded-2xl shadow-lg shadow-black/50 w-full border-gray-200 border relative"
+                            className="bg-white rounded-2xl shadow-lg shadow-black/50 w-full border-gray-200 border relative"
                         >
-                            <h3 className="text-lg font-semibold w-full text-blue-900">
-                                {new Date(
-                                    obj.scheduled_date
-                                ).toLocaleDateString()}
-                            </h3>
+                            <div
+                                className={
+                                    "flex items-center justify-between w-full mb-5 " +
+                                    badge(obj.status) +
+                                    " rounded-xl"
+                                }
+                            >
+                                <h3 className="text-lg font-semibold w-full text-blue-900">
+                                    {new Date(
+                                        obj.scheduled_date,
+                                    ).toLocaleDateString()}
+                                </h3>
 
-                            <div className="absolute top-3 right-2">
-                                <span className={badge(obj.status)}>
-                                    {TranslateStatus(obj.status)}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={badge(obj.status)}>
+                                        {TranslateStatus(obj.status)}
+                                    </span>
+                                    {obj.status == "approved" && (
+                                        <button
+                                            className={
+                                                "ml-2 flex md:w-40 items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-xl"
+                                            }
+                                            onClick={() =>
+                                                handlePublishNow(obj)
+                                            }
+                                        >
+                                            <FaCheckCircle className="w-5 h-5" />
+                                            <span className="hidden sm:block">Publicar</span> <span className="hidden md:block">ahora</span>
+                                        </button>
+                                    )}
+                                    {obj.status != "cancelled" &&
+                                        obj.status != "rejected" &&
+                                        obj.status != "published" && (
+                                            <button
+                                                className={
+                                                    "ml-2 flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-xl"
+                                                }
+                                                onClick={() =>
+                                                    handleCancel(obj)
+                                                }
+                                            >
+                                                <IoCloseSharp className="w-5 h-5" />
+                                                <span className="hidden sm:block">Cancelar</span> <span className="hidden md:block">publicación</span>
+                                            </button>
+                                        )}
+
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 lg:flex gap-4">
@@ -199,9 +272,7 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                     </div>
                 )}
             </div>
-
-            {scheduledPosts.map((obj) => obj.status === "approved").length >
-                0 && (
+            {posts.filter((obj) => obj.status == "approved").length > 0 && (
                 <div className="flex justify-center w-full">
                     <button
                         onClick={() => {
@@ -209,11 +280,11 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                         }}
                         className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
                     >
-                        Enviar publicaciones
+                        Enviar publicaciones aprobadas
                     </button>
                 </div>
             )}
-<br /> <br />
+            <br /> <br />
             {loading && (
                 <Loading
                     title="Generando contenido..."

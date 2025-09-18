@@ -30,10 +30,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('guides');
     });
-    Route::inertia('guides', 'Guides/FacebookAccessGuide')
-        ->name('guides');
 });
 
+Route::inertia('guides', 'Guides/FacebookAccessGuide')
+    ->name('guides');
 
 
 
@@ -48,9 +48,6 @@ Route::post('/email/verification-notification', function (Request $request) {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('templates', TemplateController::class)->names('templates');
     Route::resource('brand-identities', BrandIdentityController::class)->names('brand-identities');
     Route::resource('schedules', ScheduleController::class);
@@ -72,6 +69,7 @@ Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
     Route::put('/schedules/{schedule}/approve-texts', [ScheduleController::class, 'approveTexts'])->name('schedules.approve-texts');
     Route::put('/schedules/{schedule}/approve-image', [ScheduleController::class, 'approveImage'])->name('schedules.approve-image');
     Route::post('/schedules/send', [ScheduleController::class, 'sendSchedules'])->name('schedules.send');
+    Route::put('/schedules/{schedule}/cancel', [ScheduleController::class, 'cancelSchedule'])->name('schedules.cancel');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

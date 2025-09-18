@@ -89,7 +89,7 @@ function ImageSection({ schedule, setLoading, templates }) {
             </div>
             }
             <div className="flex items-center gap-2 mt-2">
-                {!schedule.selected_image.is_approved &&
+                { schedule.status != "cancelled" && !schedule.selected_image.is_approved &&
                     schedule.images.length < 3 && (
                         <button
                             className="rounded-full p-1 hover:bg-purple-100 mt-1 lg:px-2 flex items-center gap-2 text-purple-500"
@@ -101,7 +101,7 @@ function ImageSection({ schedule, setLoading, templates }) {
                         </button>
 
                     )}  
-                    {!schedule.selected_image.is_approved && (
+                    {schedule.status != "cancelled" && !schedule.selected_image.is_approved && (
                 <button
                     className="rounded-full flex items-center p-1 text-pink-500 hover:bg-pink-100 mt-1 lg:px-2"
                     title="Cambiar plantilla"
@@ -111,7 +111,7 @@ function ImageSection({ schedule, setLoading, templates }) {
                     <span className="hidden lg:block">Plantillas</span>
                 </button>
                 )}
-                {schedule.images.length > 1 && !schedule.selected_image.is_approved && (
+                {schedule.images.length > 1 && schedule.status != "cancelled" && !schedule.selected_image.is_approved && (
                     <button
                         className="rounded-full flex gap-2 items-center p-1 text-blue-500 hover:bg-blue-100 mt-1 lg:px-2"
                         title="Cambiar imagen de la publicación"
@@ -123,7 +123,7 @@ function ImageSection({ schedule, setLoading, templates }) {
                 )}
             </div>
             <br />
-            {!schedule.selected_image.is_approved && (
+            {!schedule.selected_image.is_approved && schedule.status != "cancelled" && (
             <GreenButton
                 title="Aprobar Imagen"
                 onClick={() => handleApproveImage(schedule)}

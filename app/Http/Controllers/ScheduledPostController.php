@@ -22,7 +22,7 @@ class ScheduledPostController extends Controller
         $user->load('roles');
         if($user->hasRole('admin')){
             $users = User::all();
-            $posts = Schedule::whereIn('status', ['generated', 'approved', 'published'])
+            $posts = Schedule::whereIn('status', ['generated', 'approved', 'published', 'cancelled'])
             ->with(['posts' => function ($q) {
                 $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
             }])->with('template')->with('selectedImage')->with('images')

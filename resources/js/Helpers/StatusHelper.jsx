@@ -23,6 +23,8 @@ const StatusHelper = () => {
                 return "Instagram";
             case "x":
                 return "X";
+            case "cancelled":
+                return "Cancelado";
             default:
                 return "Desconocido";
         }
@@ -52,6 +54,8 @@ const StatusHelper = () => {
                 return "bg-pink-100 text-pink-800 rounded-full px-2 py-2";
             case "x":
                 return "bg-cyan-100 text-cyan-800 rounded-full px-2 py-2";
+            case "cancelled":
+                return "bg-red-100 text-red-800 rounded-full px-2 py-2";
             default:
                 return "bg-gray-200 text-gray-800 rounded-full p-2";
 

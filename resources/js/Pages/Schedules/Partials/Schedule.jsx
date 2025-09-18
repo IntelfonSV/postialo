@@ -15,7 +15,9 @@ function Schedule({
 }) {
     const { TranslateStatus, badge } = StatusHelper();
     const { auth } = usePage().props;
-    
+
+    console.log(usePage().props);
+
     const SOCIAL_NETWORKS = ["facebook", "instagram", "x"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
         id: schedule?.id || null,
@@ -25,32 +27,40 @@ function Schedule({
         objective: schedule?.objective || "",
         prompt_image: schedule?.prompt_image || "",
         networks: schedule?.networks || [],
-        user_id:user?.id || auth.user.id,
+        user_id: user?.id || auth.user.id,
         template_id: schedule?.template_id || "",
         status: schedule?.status || "pending",
-        scheduled_date: schedule?.scheduled_date ? schedule.scheduled_date.split("T")[0] : "",
+        scheduled_date: schedule?.scheduled_date
+            ? schedule.scheduled_date.split("T")[0]
+            : "",
     });
-
 
     const [edit, setEdit] = useState(false);
     const [disabled, setDisabled] = useState(schedule?.id ? true : false);
-
 
     useEffect(() => {
         schedule?.id ? setDisabled(!edit) : setEdit(true);
     }, [edit]);
 
-
     const handleSave = () => {
-        //valida que ningun campo este vacion 
-        // if (Object.values(data).some((value) => value === "")) {
-        //     Swal.fire({
-        //         icon: 'error',
-        //         title: 'Error',
-        //         text: 'Todos los campos son obligatorios',
-        //     });
-        //     return;
-        // }
+        //valida que ningun campo este vacion individualmente
+        let isValid = true;
+        Object.keys(data).forEach((key) => {
+            if (key !== "template_id") {
+                if (data[key] === "") {
+                    isValid = false;
+                }
+            }
+        });
+        if (!isValid) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Todos los campos con * son obligatorios",
+            });
+            return;
+        }
+
         if (data.id) {
             put(route("schedules.update", data.id), {
                 preserveScroll: true,
@@ -62,9 +72,17 @@ function Schedule({
         } else {
             post(route("schedules.store"), {
                 preserveScroll: true,
+                preserveState: true,
                 onSuccess: () => {
                     setNewSchedule(false);
                     reset();
+                },
+                onError: () => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "No se pudo guardar la publicación",
+                    });
                 },
             });
         }
@@ -90,27 +108,48 @@ function Schedule({
     };
 
     const handleDelete = () => {
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: "No podrás revertir esto!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, bórralo'
-      }).then((result) => {
-        if (result.isConfirmed) {
-            router.delete(route("schedules.destroy", schedule.id), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setNewSchedule(false);
-                    reset();
-                },
-            });
-        }
-      })
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, bórralo",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route("schedules.destroy", schedule.id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setNewSchedule(false);
+                        reset();
+                    },
+                });
+            }
+        });
     };
 
+    const handleCancelSchedule = () => {
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Al cancelar la publicación, se eliminará de la lista de publicaciones pendientes y no se publicará!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.put(route("schedules.cancel", schedule.id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setNewSchedule(false);
+                        reset();
+                    },
+                });
+            }
+        });
+    };
 
     return (
         <div className="bg-white rounded-xl shadow-lg shadow-gray-800/50 p-2 md:p-4 space-y-2 border-gray-200 border">
@@ -118,24 +157,32 @@ function Schedule({
             <div className="flex flex-wrap gap-2 justify-between items-start bg-gray-200 p-5 rounded-xl">
                 <div>
                     <p className="font-bold text-lg text-gray-800">
-                        Publicación # <span className="font-normal text-gray-800">{number}</span>
+                        Publicación #{" "}
+                        <span className="font-normal text-gray-800">
+                            {number}
+                        </span>
                     </p>
-                    {
-                        user ? (
-                            <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">Usuario:
-                                <span className={badge('in_progress')}>{user.name}</span>
-                            </p>
-                        ) : (
-                            <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">Usuario:
-                                <span className={badge('in_progress')}>{auth.user.name}</span>
-                            </p>
-                        )
-                    }
+                    {user ? (
+                        <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">
+                            Usuario:
+                            <span className={badge("in_progress")}>
+                                {user.name}
+                            </span>
+                        </p>
+                    ) : (
+                        <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">
+                            Usuario:
+                            <span className={badge("in_progress")}>
+                                {auth.user.name}
+                            </span>
+                        </p>
+                    )}
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                     <div>
                         <label className="block text-xs font-medium text-gray-500">
-                            Fecha
+                            Fecha{" "}
+                            {edit && <span className="text-red-500">*</span>}
                         </label>
                         <input
                             type="date"
@@ -154,9 +201,7 @@ function Schedule({
                         <label className="block text-xs font-medium text-gray-500 mb-2">
                             Estado
                         </label>
-                        <span
-                            className={badge(data.status)}
-                        >
+                        <span className={badge(data.status)}>
                             {TranslateStatus(data.status)}
                         </span>
                     </div>
@@ -168,7 +213,8 @@ function Schedule({
                 <div className="grid md:grid-cols-3 gap-2 md:col-span-2">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Idea
+                            Idea{" "}
+                            {edit && <span className="text-red-500">*</span>}
                         </label>
                         <textarea
                             value={data.idea}
@@ -184,7 +230,8 @@ function Schedule({
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Objetivo
+                            Objetivo{" "}
+                            {edit && <span className="text-red-500">*</span>}
                         </label>
                         <textarea
                             value={data.objective}
@@ -201,7 +248,8 @@ function Schedule({
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Prompt Imagen
+                            Prompt Imagen{" "}
+                            {edit && <span className="text-red-500">*</span>}
                         </label>
                         <textarea
                             value={data.prompt_image}
@@ -282,12 +330,16 @@ function Schedule({
                             {processing ? "Guardando..." : "Guardar Cambios"}
                         </BlueButton>
                     ) : !edit && schedule?.id ? (
-                        <BlueButton
-                            onClick={() => handleEdit()}
-                            disabled={processing}
-                        >
-                            Editar
-                        </BlueButton>
+                        <div>
+                            { schedule.status === "pending" &&
+                                 <BlueButton
+                                    onClick={() => handleEdit()}
+                                    disabled={processing}
+                                >
+                                    Editar
+                                </BlueButton>
+                            }
+                        </div>
                     ) : (
                         <BlueButton
                             onClick={() => handleSave()}
@@ -307,16 +359,26 @@ function Schedule({
                     )}
                 </div>
 
-                <div>
-                    {schedule?.id && (
-                        <DangerButton
-                            onClick={() => handleDelete()}
-                            disabled={processing}
-                        >
-                            Eliminar
-                        </DangerButton>
-                    )}
-                </div>
+                {schedule?.id && (
+                    <div>
+                        {schedule.status === "pending" ? (
+                            <DangerButton
+                                onClick={() => handleDelete()}
+                                disabled={processing}
+                            >
+                                Eliminar
+                            </DangerButton>
+                        ) : schedule.status != "cancelled" ? (
+                            <DangerButton
+                                onClick={() => handleCancelSchedule()}
+                                disabled={processing}
+                            >
+                                Cancelar publicación
+                            </DangerButton>
+                        ) : ''
+                        }
+                    </div>
+                )}
             </div>
         </div>
     );

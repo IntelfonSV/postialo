@@ -23,15 +23,19 @@ class GenerateImageController extends Controller
             'rendering_speed' => 'QUALITY',
             'style_type' => 'REALISTIC'
         ]);
+        
 
-        //dd($response->json());
+        if (isset($response->json()['error'])) {
+            return ["status" => "error", "message" => $response->json()['error']];
+        }
+        
         //en data.url esta la url de la imagen quiero retornar la imagen
         if($response->json()['data'][0]['url'] == null){
-            return 'error';
+            return ["status" => "error", "message" => "No se pudo generar la imagen"];
         }
             
         $image = $this->saveImage($response->json()['data'][0]['url']);
-        return $image;
+        return ["status" => "success", "image" => $image];
     }
 
     private function saveImage($url)

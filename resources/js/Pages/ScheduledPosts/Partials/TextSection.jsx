@@ -69,11 +69,15 @@ function TextSection({ schedule, networks, setLoading }) {
                                 <span className={badge(row.network)}>
                                     {TranslateStatus(row.network)}
                                 </span>
+                                {schedule.status == "cancelled" ?  <span className={badge(schedule.status)}>
+                                    Cancelada
+                                </span> : 
                                 <span className={badge(row.status)}>
                                     {TranslateStatus(row.status)}
                                 </span>
+                                }
                             </div>
-                            {row.status !== "approved" && (
+                            {row.status !== "approved" && schedule.status != "cancelled" && (
                                 <div className="flex flex-wrap justify-end  items-center gap-2">
                                     <button
                                         onClick={() => handleEdit(row)}
@@ -121,7 +125,7 @@ function TextSection({ schedule, networks, setLoading }) {
                         </div>
                     </div>
                 ))}
-            {!schedule.posts.every((post) => post.status === "approved") && (
+            {!schedule.posts.every((post) => post.status === "approved") && schedule.status != "cancelled" && (
                 <div>
                     <hr className="w-full mt-2 mb-2 border-gray-200 border-2" />
 

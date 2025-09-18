@@ -261,7 +261,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
 
                         {selectedSchedules?.length >= 1 &&
                             selectedSchedules.filter(
-                                (schedule) => schedule.status != "generated"
+                                (schedule) => schedule.status != "generated" && schedule.status != "cancelled"
                             ).length >= 1 && (
                                 <GreenButton
                                     className="flex gap-2"
