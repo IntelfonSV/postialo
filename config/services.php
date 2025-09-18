@@ -44,4 +44,11 @@ return [
     'ideogram' => [
         'api_key' => env('IDEOGRAM_API_KEY'),
     ],
+    'pagadito' => [
+        'endpoint'       => env('PAGADITO_ENDPOINT', 'https://api.pagadito.com'),
+        'recurring_path' => env('PAGADITO_RECURRING_PATH', '/v1/recurring/link'),
+        'uid'            => env('PAGADITO_UID'),
+        'wsk'            => env('PAGADITO_WSK'),
+    ],
+
 ];

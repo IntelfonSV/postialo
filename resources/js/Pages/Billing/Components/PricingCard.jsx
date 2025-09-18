@@ -1,12 +1,51 @@
 import React, { useState } from "react";
 
-export default function PricingCard() {
+export default function PricingCard({ product }) {
   const [processing, setProcessing] = useState(false);
 
-  const handleBuy = () => {
-    setProcessing(true);
-    // Aquí integras tu pasarela de pago. Simulación:
-    setTimeout(() => setProcessing(false), 2000);
+  const getCsrf = () => {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute("content") : "";
+  };
+
+  const money = (n, c = product?.currency || "USD") =>
+    new Intl.NumberFormat("es-SV", { style: "currency", currency: c }).format(n ?? 0);
+
+  const handleBuy = async () => {
+    try {
+      setProcessing(true);
+
+      const payload = {
+        product_id: product?.id,
+        qty: 1,
+        custom_params: {},
+      };
+
+      const res = await fetch("/billing/pay", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRF-TOKEN": getCsrf(),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data?.url) {
+        // Redirigir en la misma pestaña
+        window.location.href = data.url;
+      } else {
+        alert(data?.message || "No se pudo generar el enlace de pago.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error conectando con el servidor.");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -38,8 +77,15 @@ export default function PricingCard() {
             />
           </div>
           <div className="p-6 text-white">
+
+          {product?.name && (
+            <div className="text-blue-900 text-lg font-semibold mt-1">
+              {product.name}
+            </div>
+          )}
+
             <div className="text-4xl font-black text-blue-900">
-              $150.00
+              {money(product?.price ?? 150)}{" "}
               <span className="text-base font-bold">/mes</span>
             </div>
             <p className="text-blue-900 text-lg mt-2 mb-3">
