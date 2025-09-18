@@ -7,6 +7,7 @@ use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\CallEvaluator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\Api\PasarelaController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -46,3 +47,5 @@ Route::post('/user-confirm', function (Request $request) {
 Route::get('/schedules/{user}', [ScheduleController::class, 'getSchedules'])->name('getSchedules');
 
 
+Route::post('/webhook-gateway', [PasarelaController::class, 'webhook'])
+    ->name('pagadito.webhook');
