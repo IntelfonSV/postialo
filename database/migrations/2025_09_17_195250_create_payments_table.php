@@ -24,6 +24,7 @@ return new class extends Migration
             $t->char('country_code', 3)->default('SV');
 
             $t->string('status', 32)->default('initiated')->index(); // initiated|registered|pending|completed|failed|canceled|expired
+            $t->string('master_token', 128)->nullable()->index();  
             $t->string('pending_token', 128)->nullable()->index();   // token_pending por cargo (si aplica)
             $t->string('reference', 128)->nullable()->index();       // referencia de la pasarela
 

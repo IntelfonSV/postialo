@@ -36,7 +36,7 @@ return new class extends Migration
             $t->timestamps();
 
             // Índices/uniques útiles
-            $t->unique(['provider', 'provider_token']); // Postgres permite múltiples NULL
+            $t->index(['provider', 'provider_token']);  // Postgres permite múltiples NULL
             $t->index('provider_reference');
             $t->index(['user_id', 'status']);
         });

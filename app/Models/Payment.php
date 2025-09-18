@@ -21,6 +21,7 @@ class Payment extends Model
         'currency',
         'country_code',
         'status',
+        'master_token',
         'pending_token',
         'reference',
     ];
