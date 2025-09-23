@@ -1,5 +1,9 @@
 # Etapa 1: instalar dependencias PHP con Composer
-FROM composer:2 AS build-php
+FROM php:8.4-cli AS build-php
+RUN apt-get update && apt-get install -y \
+    git unzip libpq-dev libjpeg-dev libpng-dev \
+    && docker-php-ext-install exif gd pdo_pgsql
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader
