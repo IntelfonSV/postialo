@@ -39,6 +39,10 @@ RUN php artisan migrate --graceful --ansi --force
 
 RUN php artisan storage:link
 
+#install nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
+    && apt-get install -y nodejs
+
 # Instalar dependencias JS y compilar assets
 RUN npm install && npm run build
 
