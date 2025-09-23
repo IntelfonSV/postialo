@@ -10,7 +10,8 @@ services:
     ports:
       - "88:80"
     volumes:
-      - .:/var/www/html
+      - app_storage:/var/www/html/storage
+      - app_cache:/var/www/html/bootstrap/cache
     depends_on:
       - db
   db:
@@ -28,3 +29,6 @@ services:
 
 volumes:
   pgdata:
+  app_storage:
+  app_cache:
+
