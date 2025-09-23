@@ -22,6 +22,7 @@ use App\Models\PaymentTransaction;
 
 
 
+
 class BillingController extends Controller
 {
 
@@ -50,6 +51,7 @@ class BillingController extends Controller
 
     public function show(Request $request)
     {
+        $user = auth()->user();
         $products = Product::query()
             ->where('active', true)
             ->orderBy('id')
@@ -58,6 +60,7 @@ class BillingController extends Controller
         return Inertia::render('Billing/Index', [
             'subscription' => auth()->user()->subscription,
             'products' => $products,
+            'demos' => $user->demos(),
         ]);
     }
 
@@ -265,8 +268,7 @@ class BillingController extends Controller
         $userId  = auth()->id();
         $qty     = (float)($data['qty'] ?? 1);
 
-        /** @var \App\Models\Product $product */
-        $product = \App\Models\Product::findOrFail($data['product_id']);
+        $product = Product::findOrFail($data['product_id']);
 
         $amountPerCharge = round((float)$product->price * $qty, 2);
         $today           = now()->toDateString();
@@ -284,10 +286,14 @@ class BillingController extends Controller
             $countryCode = 'SV';
         }
 
+        $datesCarbon = \App\Services\Payment\ScheduleGenerator::generate(now(), $intervalMonths, 1, true);
+
+        \Log::info('Dates Carbon', ['dates' => $datesCarbon]);
+
         \DB::beginTransaction();
         try {
-            // 1) payment_sessions
-            $session = new \App\Models\PaymentSession();
+            // 1) payment_sessions  
+            $session = new PaymentSession();
             $session->user_id       = $userId;
             $session->permissions   = 'initial_payment,automatic_charges,receive_payments';
             $session->currency      = $product->currency ?? 'USD';
@@ -297,6 +303,7 @@ class BillingController extends Controller
             $session->status        = 'initiated';
             $session->save();
 
+         
             // 2) Fechas -> Carbon[] -> ['Y-m-d', ...] para evitar ISO-8601 en JSON
             $datesCarbon = \App\Services\Payment\ScheduleGenerator::generate(now(), $intervalMonths, 1, true);
             $dateStrings = collect(\App\Services\Payment\ScheduleGenerator::asYmdArray($datesCarbon))
@@ -331,10 +338,11 @@ class BillingController extends Controller
                 }
 
                 // 3) payments (UNO por cada fecha programada)
-                $p = new \App\Models\Payment();
+                $p = new Payment();
                 $p->payment_session_id = $session->id;
                 $p->user_id            = $userId;
                 $p->charge_date        = $dateStr;              // 'Y-m-d'
+                $p->valid_until        = \Carbon\Carbon::parse($dateStr)->addMonths($intervalMonths)->format('Y-m-d');
                 $p->amount             = $amountPerCharge;
                 $p->currency           = $session->currency;
                 $p->country_code       = $session->country_code;
@@ -346,8 +354,8 @@ class BillingController extends Controller
                 $p->save();
 
                 // 4) payment_items (FK a payments.id) — UNO por cada payment
-                $item = new \App\Models\PaymentItem();
-                $item->payment_id  = $p->id;
+                $item = new PaymentItem();
+                $item->payment_id    = $p->id;
                 $item->product_id  = $product->id;
                 $item->description = $product->name;
                 $item->price       = (float)$product->price;
@@ -356,7 +364,7 @@ class BillingController extends Controller
                 $item->save();
 
                 // 5) payment_transactions (snapshot del intento)
-                $txn = new \App\Models\PaymentTransaction();
+                $txn = new PaymentTransaction();
                 $txn->payment_id         = $p->id;
                 $txn->user_id            = $userId;
                 $txn->transacted_at      = now();
@@ -390,13 +398,14 @@ class BillingController extends Controller
             \DB::rollBack();
             \Log::error('DB persist failed before Pagadito', ['e' => [
                 'class'   => get_class($e),
+                dd($e),
                 'message' => $e->getMessage(),
             ]]);
             return response()->json(['ok' => false, 'message' => 'Error al preparar la sesión de pago'], 500);
         }
 
         // 6) Construcción de pending_charges (1:1 con payments) con fecha en Y-m-d
-        $maxCharges = (int) config('services.pagadito.max_charges', 6); // opcional
+        $maxCharges = (int) config('services.pagadito.max_charges', 12); // opcional
         $pendingCharges = [];
 
         foreach (collect($paymentsCreated)->take($maxCharges) as $idx => $p) {
@@ -517,6 +526,9 @@ class BillingController extends Controller
             }
 
             return response()->json(['url' => $url]);
+            //redirect to $url
+            //dd($url);
+            //return redirect()->away($url);
         } catch (\Throwable $e) {
             $session->status = 'failed';
             $session->save();

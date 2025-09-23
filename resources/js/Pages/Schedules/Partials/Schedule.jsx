@@ -18,7 +18,7 @@ function Schedule({
 
     console.log(usePage().props);
 
-    const SOCIAL_NETWORKS = ["facebook", "instagram", "x"];
+    const SOCIAL_NETWORKS = ["facebook", "instagram"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
         id: schedule?.id || null,
         month: schedule?.month || selectedMonth.split("-")[1],

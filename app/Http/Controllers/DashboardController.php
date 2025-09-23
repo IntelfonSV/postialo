@@ -21,6 +21,7 @@ class DashboardController extends Controller
 
             $schedules = Schedule::where('user_id', $user->id)->orderBy('id', 'asc')->get();
             $templates = Template::where('user_id', $user->id)->count();
+            $activeDemo = $user->demos()->where('valid_until', '>=', now())->first();
         }
 
         $schedules_count = $schedules->count();
@@ -30,6 +31,7 @@ class DashboardController extends Controller
         $schedules_approved = $schedules->where('status', 'approved')->count();
         $schedules_published = $schedules->where('status', 'published')->count();
         $schedules_cancelled = $schedules->where('status', 'cancelled')->count();
+
 
 
         return Inertia::render('Dashboard', [
@@ -42,7 +44,8 @@ class DashboardController extends Controller
             'users_count' => $users_count ?? null,
             'templates_count' => $templates,
             'schedules_cancelled' => $schedules_cancelled,
-            ]);
+            'activeDemo' => $activeDemo ?? null,
+            ]); 
     }
 
 

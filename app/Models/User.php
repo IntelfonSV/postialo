@@ -70,9 +70,38 @@ class User extends Authenticatable implements MustVerifyEmail
         return $subscription && $subscription->isActive();
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
-public function sendPasswordResetNotification($token)
-{
-    $this->notify(new ResetPasswordNotification($token));
-}
+    public function hasActivePayment()
+    {
+        return $this->payments()->where('status', 'COMPLETED')->where('valid_until', '>=', now())->exists();
+    }
+
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function demos()
+    {
+        return $this->hasMany(Demo::class);
+    }
+
+    public function hasActiveDemo()
+    {
+        return $this->demos()->where('valid_until', '>=', now())->exists();
+    }
+
+    public function logos() {
+        return $this->hasMany(Logo::class);
+    }
+    
+    public function activeLogo() {
+        return $this->hasOne(Logo::class)->where('is_active', true);
+    }
+    
 }

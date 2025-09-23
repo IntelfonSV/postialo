@@ -16,8 +16,18 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->get();
+
         return Inertia::render('Users/Index', [
-            'users' => $users,
+            'users' => $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'roles' => $user->roles,
+                    'hasActivePayment' => $user->hasActivePayment(),
+                    'hasActiveDemo' => $user->hasActiveDemo(),
+                ];
+            }),
         ]);
     }
 
@@ -33,6 +43,8 @@ class UserController extends Controller
         $schedules_approved = $schedules->where('status', 'approved')->count();
         $schedules_published = $schedules->where('status', 'published')->count();
         $templates_count = Template::where('user_id', $user->id)->count();
+        $payments = $user->payments()->orderBy('id', 'asc')->get();
+        
         
         return Inertia::render('Users/Show', [
             'user' => $user,
@@ -43,6 +55,9 @@ class UserController extends Controller
             'schedules_approved' => $schedules_approved,
             'schedules_published' => $schedules_published,
             'templates_count' => $templates_count,
+            'payments' => $payments,  
+            'demo' => $user->demos()->where('valid_until', '>=', now())->first(),
+            'hasActivePayment' => $user->hasActivePayment(),
         ]);
     }
 
@@ -114,5 +129,25 @@ class UserController extends Controller
         $user->syncRoles($request->roles);
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
+    }
+
+    public function activateDemo(User $user)
+    {
+        $user->demos()->create([
+            'valid_until' => now()->addDays(30),
+        ]);
+        return back()->with('success', 'Demo activado exitosamente.');
+    }
+
+    public function demo()
+    {
+        $user = auth()->user();
+        if ($user->demos()->exists()) {
+            return redirect(route('dashboard'))->with('error', 'Ya has utilizado tu demo.');
+        }
+        $user->demos()->create([
+            'valid_until' => now()->addDays(30),
+        ]);
+        return redirect(route('dashboard'))->with('success', 'Demo activado exitosamente.');
     }
 }

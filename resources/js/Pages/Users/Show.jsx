@@ -3,7 +3,13 @@ import SmallCard from "@/Components/SmallCard";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { FaCalendarCheck, FaCheck, FaEdit, FaUsers } from "react-icons/fa";
+import {
+    FaCalendarCheck,
+    FaCalendarPlus,
+    FaCheck,
+    FaEdit,
+    FaUsers,
+} from "react-icons/fa";
 import { MdOutlinePending } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { TbSum } from "react-icons/tb";
@@ -11,6 +17,8 @@ import DeleteUserForm from "../Profile/Partials/DeleteUserForm";
 import BackButton from "@/Components/BackButton";
 import BlueButton from "@/Components/BlueButton";
 import { HiTemplate } from "react-icons/hi";
+import DataTable from "react-data-table-component";
+import StatusHelper from "@/Helpers/StatusHelper";
 
 function Show({
     auth,
@@ -22,7 +30,17 @@ function Show({
     schedules_approved,
     schedules_published,
     templates_count,
+    payments,
+    demo,
+    hasActivePayment,
 }) {
+    console.log(payments);
+    console.log(demo);
+    const {TranslateStatus, badge} = StatusHelper();
+
+    const activateDemo = () => {
+        router.post(route("users.activate-demo", user.id));
+    };
     return (
         <AuthenticatedLayout>
             <Head title="Detalles del Usuario" />
@@ -71,7 +89,6 @@ function Show({
                             </div>
                         </div>
                     </div>
-
                     <GrayContainer className="mt-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                             <SmallCard
@@ -139,6 +156,51 @@ function Show({
                             ></SmallCard>
                         </div>
                     </GrayContainer>
+                    {!hasActivePayment && (
+                        <GrayContainer>
+                            {!demo ? (
+                                <div className="flex justify-center w-full">
+                                    <BlueButton
+                                        className="flex gap-4"
+                                        onClick={activateDemo}
+                                    >
+                                        <FaCalendarPlus className="h-5 w-5" />
+                                        Activar mes de prueba
+                                    </BlueButton>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                        Demo activado
+                                    </h3>
+                                    <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">
+                                        Vence el:
+                                    </p>
+                                    <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">
+                                        {new Date(
+                                            demo?.valid_until,
+                                        ).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            )}
+                        </GrayContainer>
+                    )}
+                    {payments.length > 0 && (
+                        <GrayContainer>
+                            <DataTable
+                                columns={[
+                                    { name: "ID", selector: row => row.id },
+                                    { name: "Fecha", selector: row => new Date(row.charge_date).toLocaleDateString() },
+                                    {name:'Descripción', selector: row => row.description},
+                                    { name: "Monto", selector: row => row.amount },
+                                    { name: "Estado", selector: row => <span className={badge(row.status.toLowerCase())}>{TranslateStatus(row.status.toLowerCase())}</span> },
+                                ]}
+                                data={payments}
+                                fixedHeader
+                                fixedHeaderScrollHeight="500px"
+                            />
+                        </GrayContainer>
+                    )}
                     <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                         <DeleteUserForm user={user} />
                     </div>

@@ -23,6 +23,7 @@ function Index({ users }) {
                 row.roles ? row.roles.map((role) => role.name).join(", ") : "",
             sortable: true,
         },
+        {name: "Suscripción", selector: (row) => row.hasActiveSubscription ? <span className="text-green-500">Activa</span> : row.hasActiveDemo ? <span className="text-yellow-500">Demo</span> : <span className="text-red-500">Inactiva</span>, sortable: true},
         {
             name: "Acciones",
             cell: (row) => (

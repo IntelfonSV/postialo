@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('guides');
     });
+
+    Route::post('/users/demo', [UserController::class, 'demo'])->name('users.demo');
 });
 
 Route::inertia('guides', 'Guides/FacebookAccessGuide')
@@ -68,13 +70,17 @@ Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
     Route::get('/generate-image/{schedule}', [GenerateImageController::class, 'generateImageFromHtml'])->name('generate-image');
     Route::put('/schedules/{schedule}/approve-texts', [ScheduleController::class, 'approveTexts'])->name('schedules.approve-texts');
     Route::put('/schedules/{schedule}/approve-image', [ScheduleController::class, 'approveImage'])->name('schedules.approve-image');
-    Route::post('/schedules/send', [ScheduleController::class, 'sendSchedules'])->name('schedules.send');
+    //Route::post('/schedules/send', [ScheduleController::class, 'sendSchedules'])->name('schedules.send');
+    Route::put('/schedules/send/{schedule}', [ScheduleController::class, 'sendSchedule'])->name('schedules.send');
     Route::put('/schedules/{schedule}/cancel', [ScheduleController::class, 'cancelSchedule'])->name('schedules.cancel');
+
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class)->names('users');
+    Route::post('users/{user}/activate-demo', [UserController::class, 'activateDemo'])->name('users.activate-demo');
 });
+
 
 
 require __DIR__.'/auth.php';

@@ -20,12 +20,19 @@ export default function Dashboard({
     schedules_published,
     templates_count,
     schedules_cancelled,
+    activeDemo = null,  
 }) {
     const user = usePage().props.auth.user;
     return (
         <AuthenticatedLayout>
             <Head title="Dashboard" />
 
+            {
+                activeDemo && 
+                <div className="bg-red-500 text-white p-4 rounded-lg justify-center items-center flex w-full"> 
+                    <p className="text-lg">Tu demo expira el {new Date(activeDemo.valid_until).toLocaleDateString()}</p>
+                </div>
+            }
             <GrayContainer>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                     {user.roles.includes("admin") && (

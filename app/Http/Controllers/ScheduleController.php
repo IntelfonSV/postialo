@@ -13,6 +13,8 @@ use App\Models\ScheduleImage;
 use App\Models\ScheduledPostText;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use App\Models\BrandIdentity;
+
 class ScheduleController extends Controller
 
 {
@@ -31,7 +33,8 @@ class ScheduleController extends Controller
             $schedules = Schedule::with('user')->get();
             $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }else{
-            $templates = Template::where('user_id', $user->id)->get();
+            //$templates = Template::where('user_id', $user->id)->get();
+            $templates = Template::orderBy('id', 'asc')->get();
             $schedules = Schedule::where('user_id', $user->id)->orderBy('id', 'asc')->get();
             $months =  Schedule::where('user_id', $user->id)->select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }
@@ -170,26 +173,45 @@ class ScheduleController extends Controller
                 return back()->with('error', $response['message']);
             }   
 
+            $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
+            $system_prompt = "Esta es la informacion de identidad de marca:
+                company_identity: {$brandIdentity->company_identity}
+                mission_vision: {$brandIdentity->mission_vision}
+                products_services: {$brandIdentity->products_services}
+                company_history: {$brandIdentity->company_history}
+                lINEAMIENTOS PARA LAS REDES SOCIALES :
+               
+            " . json_encode($brandIdentity->guidelines_json);
+
             $social_networks = json_encode($schedule->networks);
-            $user_prompt = "Genera un copy por cada red social indicada usando:
+            $user_prompt = "
+            Sos un agente de copywriting para redes sociales (Facebook, Instagram, Twitter), adaptados a las características de cada plataforma.
+            
+            Genera un copy por cada red social indicada usando:
             Tema: {$schedule->idea}
             Redes Sociales: {$social_networks}
             Objetivo: {$schedule->objective}
             Reglas:
+            1. Recibís instrucciones con tema, objetivo, red y formato.
+            2.Redactás copies completos, claros, extensos y específicos. Nunca generales ni vagos.
+            3.Solo generás los copies. No des introducción, explicación ni conclusión.
             Salida: JSON por cada red social, solo con el texto de la publicación.
             Sin formato Markdown ni backticks.
             Para Twitter: máximo 250 caracteres.
+            **antes del cierre obligatorio agrega 2 saltos de linea**
+
             **Responde en formato json para cada red social**
             de esta manera:
-            
             {
                 \"facebook\": \"publicación para facebook\",
                 \"instagram\": \"publicación para instagram\",
                 \"x\": \"publicación para x\"
-            }";
+            }
+            ";
 
             $response = $assistant->generateContent([
                 'user_prompt' => $user_prompt,
+                'system_prompt' => $system_prompt,
             ]);
 
             $post = json_decode($response, true);
@@ -328,8 +350,11 @@ class ScheduleController extends Controller
         ->where('status', 'approved')
         ->orderBy('id', 'desc')
         ->with('posts.selectedText')
+        ->with('user')
         ->with('selectedImage')
         ->get();
+
+        //dd(json_encode($schedules));
     
         // URL del webhook
         $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
@@ -348,6 +373,22 @@ class ScheduleController extends Controller
             'status' => 'cancelled',
         ]);
         return back()->with('success', 'Publicación cancelada exitosamente');
+    }
+
+    public function sendSchedule(Schedule $schedule){
+        $schedule->load('posts.selectedText', 'selectedImage', 'user');
+        $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
+        $schedules[] = $schedule;
+
+        //dd(json_encode($schedules));
+
+        //dd(json_encode($schedule));
+        $response = Http::post($webhook, [
+            'schedules' => $schedules        
+        ]);
+
+        return back()->with('success', 'Posts enviados exitosamente');
+        
     }
 
 }

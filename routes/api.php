@@ -8,6 +8,7 @@ use App\Http\Controllers\CallEvaluator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\Api\PasarelaController;
+use App\Http\Controllers\ScheduledPostController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -49,3 +50,5 @@ Route::get('/schedules/{user}', [ScheduleController::class, 'getSchedules'])->na
 
 Route::post('/webhook-gateway', [PasarelaController::class, 'webhook'])
     ->name('pagadito.webhook');
+
+Route::post('/post/publish', [ScheduledPostController::class, 'publishPost'])->name('post.publish');

@@ -10,25 +10,36 @@ import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import Swal from "sweetalert2";
 
-function Index({ scheduledPosts, months, templates, users, auth }) {
+function Index({ scheduledPosts = [], months = [], templates = [], users = [], auth }) {
     const { TranslateStatus, badge } = StatusHelper();
     const [posts, setPosts] = useState([]);
     const [networks, setNetworks] = useState({
         facebook: true,
         instagram: true,
-        x: true,
     });
-
-    const [selectedUser, setSelectedUser] = useState(auth.user);
+    
+    const params = new URLSearchParams(window.location.search);
+    const urlUser = params.get("user");
+    const [selectedUser, setSelectedUser] = useState(null);
     const [selectedMonth, setselectedMonth] = useState(
         months.length > 0 ? months[0].month + "-" + months[0].year : "",
     );
+
     useEffect(() => {
+        if (urlUser) {
+            setSelectedUser(users.find((user) => user.id == urlUser));
+        } else {
+            setSelectedUser(auth.user);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!selectedUser) return;
         const posts_filtered = scheduledPosts.filter(
             (obj) =>
                 obj.month == selectedMonth.split("-")[0] &&
                 obj.year == selectedMonth.split("-")[1] &&
-                obj.user_id == selectedUser.id,
+                obj.user_id == selectedUser?.id,
         );
         console.log(posts_filtered);
         setPosts(posts_filtered);
@@ -37,6 +48,7 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
     const handleMonthChange = (event) => {
         setselectedMonth(event.target.value);
     };
+    const [loading, setLoading] = useState(false);
 
     const handleCancel = (post) => {
         Swal.fire({
@@ -70,7 +82,38 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
         });
     };
 
-    const [loading, setLoading] = useState(false);
+    const handlePublishNow = (post) => {
+        Swal.fire({
+            title: "Publicar publicación",
+            text: "¿Estás seguro de publicar el contenido inmediatamente? Al publicar el contenido, se publicará en su redes sociales!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, publicar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                router.put(
+                    route("schedules.send", { schedule: post.id }),
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            setLoading(false);
+                        },
+                        onError: () => {
+                            setLoading(false);
+                        },
+                        onFinish: () => {
+                            setLoading(false);
+                        },
+                    },
+                );
+            }
+        });
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title="Publicaciones Programadas" />
@@ -141,28 +184,6 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 hover:cursor-pointer"
                             />
                         </div>
-
-                        <div className="flex items-center gap-2 bg-white hover:bg-gray-100 p-2 rounded">
-                            <label
-                                className="block text-sm font-medium text-gray-700 hover:cursor-pointer"
-                                htmlFor="x"
-                            >
-                                X
-                            </label>
-                            <input
-                                type="checkbox"
-                                id="x"
-                                name="x"
-                                checked={networks.x}
-                                onChange={(e) =>
-                                    setNetworks({
-                                        ...networks,
-                                        x: e.target.checked,
-                                    })
-                                }
-                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 hover:cursor-pointer"
-                            />
-                        </div>
                     </div>
                 </div>
             </GrayContainer>
@@ -185,7 +206,7 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                                 }
                             >
                                 {users.map((user) => (
-                                    <option key={user.id} value={user.id}>
+                                    <option key={user.id} value={user.id} selected={user.id == selectedUser?.id}>
                                         {user.name}
                                     </option>
                                 ))}
@@ -228,7 +249,12 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                                             }
                                         >
                                             <FaCheckCircle className="w-5 h-5" />
-                                            <span className="hidden sm:block">Publicar</span> <span className="hidden md:block">ahora</span>
+                                            <span className="hidden sm:block">
+                                                Publicar
+                                            </span>{" "}
+                                            <span className="hidden md:block">
+                                                ahora
+                                            </span>
                                         </button>
                                     )}
                                     {obj.status != "cancelled" &&
@@ -243,10 +269,14 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                                                 }
                                             >
                                                 <IoCloseSharp className="w-5 h-5" />
-                                                <span className="hidden sm:block">Cancelar</span> <span className="hidden md:block">publicación</span>
+                                                <span className="hidden sm:block">
+                                                    Cancelar
+                                                </span>{" "}
+                                                <span className="hidden md:block">
+                                                    publicación
+                                                </span>
                                             </button>
                                         )}
-
                                 </div>
                             </div>
 
@@ -272,7 +302,7 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                     </div>
                 )}
             </div>
-            {posts.filter((obj) => obj.status == "approved").length > 0 && (
+            {/* {posts.filter((obj) => obj.status == "approved").length > 0 && (
                 <div className="flex justify-center w-full">
                     <button
                         onClick={() => {
@@ -283,7 +313,7 @@ function Index({ scheduledPosts, months, templates, users, auth }) {
                         Enviar publicaciones aprobadas
                     </button>
                 </div>
-            )}
+            )} */}
             <br /> <br />
             {loading && (
                 <Loading

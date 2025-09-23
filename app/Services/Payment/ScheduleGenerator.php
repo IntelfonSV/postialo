@@ -27,7 +27,7 @@ class ScheduleGenerator
         $cursor = $start instanceof Carbon ? $start->copy() : Carbon::parse($start);
         $cursor->startOfDay();
 
-        $end = $cursor->copy()->addYears($years);
+        $end = $cursor->copy()->addYears($years)->subMonth();
         $dates = collect();
 
         if ($includeStart) {
@@ -47,6 +47,7 @@ class ScheduleGenerator
         }
 
         return $dates;
+
     }
 
     /**

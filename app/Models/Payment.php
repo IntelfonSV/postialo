@@ -17,6 +17,7 @@ class Payment extends Model
         'ern',
         'description',
         'charge_date',
+        'valid_until',
         'amount',
         'currency',
         'country_code',
@@ -51,6 +52,7 @@ class Payment extends Model
     {
         return $this->hasMany(PaymentTransaction::class);
     }
+
 
     // Scopes útiles
     public function scopeByErn($q, string $ern) { return $q->where('ern', $ern); }

@@ -18,7 +18,7 @@ return new class extends Migration
             $t->string('ern', 64)->unique();          // clave del cargo (uno por pending_charge)
             $t->string('description', 255);
             $t->date('charge_date')->nullable();
-
+            $t->date('valid_until')->nullable();
             $t->decimal('amount', 12, 2)->default(0); // se recalcula server-side
             $t->char('currency', 3)->default('USD');
             $t->char('country_code', 3)->default('SV');

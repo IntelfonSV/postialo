@@ -42,7 +42,7 @@ function Index({ templates = [], auth, users }) {
 
     useEffect(() => {
         if(selectedUser){
-            setItems(templates.filter((tpl) => tpl.user_id == selectedUser.id));
+            //setItems(templates.filter((tpl) => tpl.user_id == selectedUser.id));
         }
     }, [templates, users, selectedUser]);
 

@@ -25,6 +25,18 @@ const StatusHelper = () => {
                 return "X";
             case "cancelled":
                 return "Cancelado";
+            case "failed":
+                return "Fallido";
+            case "succeeded":
+                return "Exitoso";
+            case "processing":
+                return "Procesando";
+            case "published":
+                return "Publicado";
+            case "completed":
+                return "Completado";
+            case "initiated":
+                return "Iniciado";
             default:
                 return "Desconocido";
         }
@@ -56,6 +68,16 @@ const StatusHelper = () => {
                 return "bg-cyan-100 text-cyan-800 rounded-full px-2 py-2";
             case "cancelled":
                 return "bg-red-100 text-red-800 rounded-full px-2 py-2";
+            case "failed":
+                return "bg-red-100 text-red-800 rounded-full px-2 py-2";
+            case "succeeded":
+                return "bg-green-100 text-green-800 rounded-full px-2 py-2";
+            case "processing":
+                return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
+            case "completed":
+                return "bg-green-100 text-green-800 rounded-full px-2 py-2";
+            case "initiated":
+                return "bg-blue-100 text-blue-800 rounded-full px-2 py-2";
             default:
                 return "bg-gray-200 text-gray-800 rounded-full p-2";
 

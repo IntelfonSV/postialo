@@ -19,7 +19,8 @@ class TemplateController extends Controller
             $users = User::all();
             $templates = Template::orderBy('id', 'asc')->get();
         }else{
-            $templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
+           //$templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
+           $templates = Template::orderBy('id', 'asc')->get();
         }
         return Inertia::render('Templates/Index', [
             'templates' => $templates,

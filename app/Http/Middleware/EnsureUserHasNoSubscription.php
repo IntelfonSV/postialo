@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckSubscription
+class EnsureUserHasNoSubscription
 {
     /**
      * Handle an incoming request.
@@ -18,15 +18,16 @@ class CheckSubscription
         $user = auth()->user();
 
         if ($user->hasRole('admin')) {
-            return $next($request);
+            return redirect()->route('dashboard')->with('error', 'No Necesitas una suscripción para acceder a esta página.');
         }
         if ($user->hasActivePayment()) {
-            return $next($request);
+            return redirect()->route('dashboard')->with('error', 'Ya tienes una suscripción activa.');
         }
         
         if ($user->hasActiveDemo()) {
-            return $next($request);
+            return redirect()->route('dashboard')->with('error', 'Ya tienes una demo activa.');
         }
-        return redirect()->route('billing.show')->with('error', 'Tu suscripción no está activa, por favor realiza el pago.');
+        
+        return $next($request);
     }
 }

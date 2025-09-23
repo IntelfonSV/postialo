@@ -11,11 +11,11 @@ export default defineConfig({
         react(),
     ],
     server: {
-        host: '127.0.0.1', // permite acceso en red
+        host: '172.16.1.68', // permite acceso en red
         port: 5173,
         cors: true,
         hmr: {
-            host: '127.0.0.1', // tu IP local
+            host: '172.16.1.68', // tu IP local
         },
     },
 });
