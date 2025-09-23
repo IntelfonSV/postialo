@@ -39,7 +39,8 @@ class ScheduledPostController extends Controller
         $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
 
 
-        $templates = Template::where('user_id', $user->id)->get();
+        //$templates = Template::where('user_id', $user->id)->get();
+        $templates = Template::all();
         return Inertia::render('ScheduledPosts/Index', [
             'scheduledPosts' => $posts,
             'months' => $months,
