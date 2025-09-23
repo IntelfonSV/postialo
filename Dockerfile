@@ -3,13 +3,13 @@ FROM php:8.4-apache
 
 # Instalar dependencias necesarias
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpq-dev \
-    libonig-dev nodejs npm \
-    && docker-php-ext-install pdo pdo_pgsql
+    libpq-dev git unzip libjpeg-dev libpng-dev \
+    && docker-php-ext-install pdo pdo_pgsql gd exif \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Habilitar mod_rewrite de Apache
-#RUN a2enmod rewrite
-
+RUN a2enmod rewrite
+RUN git config --global --add safe.directory /var/www/html
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
