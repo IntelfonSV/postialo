@@ -65,13 +65,22 @@ COPY --from=build-assets /app/public/build ./public/build
 # Habilitar mod_rewrite
 RUN a2enmod rewrite
 
+# Configurar Apache para que apunte a /public
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+    && echo '<Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>' > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel
+
 # Cache de Laravel (ojo: no incluyo route:cache por si hay conflictos)
 RUN php artisan config:cache && php artisan event:cache && php artisan view:cache
 
 # Enlazar storage
 RUN php artisan storage:link || true
 
-# Permisos
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Permisos correctos para Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
