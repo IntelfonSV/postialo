@@ -25,7 +25,7 @@ class Schedule extends Model
 
     protected $casts = [
         'networks' => 'array',
-        'scheduled_date' => 'date',
+        'scheduled_date' => 'datetime',
     ];
 
     public function user()

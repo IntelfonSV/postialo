@@ -78,8 +78,14 @@ class ScheduleController extends Controller
             'prompt_image' => 'required',
             'networks' => 'required|array',
             'template_id' => 'nullable|exists:templates,id',
-            'scheduled_date' => 'required|date|after_or_equal:today',
+            'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
         ]);
+
+        $scheduledDateUtc = \Carbon\Carbon::createFromFormat(
+            'Y-m-d\TH:i',
+            $request->scheduled_date,
+            config('app.timezone') // ejemplo: 'America/El_Salvador'
+        )->utc();
 
         //return json_encode($request->all());
         $schedule = Schedule::create($request->all());
@@ -107,13 +113,15 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, Schedule $schedule)
     {
+
+        //dd($request->all());
         $request->validate([
             'idea' => 'required',
             'objective' => 'required',
             'prompt_image' => 'required',
             'networks' => 'required|array',
-            'template_id' => 'required|exists:templates,id',
-            'scheduled_date' => 'required|date|after_or_equal:today',
+            'template_id' => 'nullable|exists:templates,id',
+            'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
         ]);
 
         $schedule->update($request->all());
@@ -174,6 +182,23 @@ class ScheduleController extends Controller
             }   
 
             $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
+            $website = $brandIdentity->website ?? null;
+            $whatsapp = $brandIdentity->whatsapp_number ?? null;
+            $wa_base_url = $whatsapp ? "https://wa.me/" . preg_replace('/\D/', '', $whatsapp) : null;
+            $closing = "";
+            if ($website) {
+                $closing .= "✨ Visita nuestra página para descubrir más productos: {$website}\n\n";
+            }
+            if ($wa_base_url) {
+                $closing .= "📲 Escríbenos por WhatsApp y te ayudamos con todo lo que necesites.\n👉 {$wa_base_url}\n" . 
+                " también agregale mensaje prellenado para iniciar conversación en WhatsApp: por ejemplo  {$wa_base_url}?text=Hola%2C%20me%20interesa%20la%20Alexa%20Echo%20Dot%205ta%20generacion
+                    - Mensaje máximo 10 palabras, tono claro y directo.
+                    - Sin emojis, sin hashtags, sin comillas.
+                    - Codifica la frase en URL  
+                    - usa el tema y el objetivo para crear la frase
+                ";
+            }
+            
             $system_prompt = "Esta es la informacion de identidad de marca:
                 company_identity: {$brandIdentity->company_identity}
                 mission_vision: {$brandIdentity->mission_vision}
@@ -181,7 +206,10 @@ class ScheduleController extends Controller
                 company_history: {$brandIdentity->company_history}
                 lINEAMIENTOS PARA LAS REDES SOCIALES :
                
-            " . json_encode($brandIdentity->guidelines_json);
+            " . json_encode($brandIdentity->guidelines_json) . "
+            Cierre obligatorio (si aplica):
+            {$closing}";
+
 
             $social_networks = json_encode($schedule->networks);
             $user_prompt = "
@@ -208,6 +236,8 @@ class ScheduleController extends Controller
                 \"x\": \"publicación para x\"
             }
             ";
+
+
 
             $response = $assistant->generateContent([
                 'user_prompt' => $user_prompt,
@@ -339,32 +369,36 @@ class ScheduleController extends Controller
         }
     }
 
+    //quiza ya no se use 
     public function getSchedules(User $user){
         $schedules = Schedule::where('user_id', $user->id)->where('status', 'approved')->orderBy('id', 'desc')->with('posts.selectedText')->with('selectedImage')->get();
         return response()->json($schedules);
     }
 
-    public function sendSchedules(){
-        $user = auth()->user();
-        $schedules = Schedule::where('user_id', $user->id)
-        ->where('status', 'approved')
+    public function publishSchedules(){
+       // return response()->json(["now" =>now()]);
+        $schedules = Schedule::where('status', 'approved')
+        ->where('scheduled_date', '<=', now())  //en utc sin localstring
         ->orderBy('id', 'desc')
-        ->with('posts.selectedText')
+        ->with(['posts' => function ($query) {
+            $query->where('status', 'approved')->with('selectedText');
+        }])
         ->with('user')
         ->with('selectedImage')
         ->get();
 
-        //dd(json_encode($schedules));
-    
-        // URL del webhook
         $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
+        foreach ($schedules as $schedule) {
+            $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
+            $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
+            $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
+            
+            $response = Http::post($webhook, [
+                'schedule' => $schedule        
+            ]);
+        }
         
-        // Enviar como JSON
-        $response = Http::post($webhook, [
-            'schedules' => $schedules->toArray()
-        ]);
-        
-        return back()->with('success', 'Posts enviados exitosamente');
+        return response()->json($schedules);
 
     }
 
@@ -378,13 +412,15 @@ class ScheduleController extends Controller
     public function sendSchedule(Schedule $schedule){
         $schedule->load('posts.selectedText', 'selectedImage', 'user');
         $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
-        $schedules[] = $schedule;
 
         //dd(json_encode($schedules));
 
         //dd(json_encode($schedule));
+        $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
+        $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
+        $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
         $response = Http::post($webhook, [
-            'schedules' => $schedules        
+            'schedule' => $schedule        
         ]);
 
         return back()->with('success', 'Posts enviados exitosamente');

@@ -125,7 +125,7 @@ function TextSection({ schedule, networks, setLoading }) {
                         </div>
                     </div>
                 ))}
-            {!schedule.posts.every((post) => post.status === "approved") && schedule.status != "cancelled" && (
+            {!schedule.posts.every((post) => (post.status === "approved" || post.status === "published")) && schedule.status != "cancelled" && (
                 <div>
                     <hr className="w-full mt-2 mb-2 border-gray-200 border-2" />
 

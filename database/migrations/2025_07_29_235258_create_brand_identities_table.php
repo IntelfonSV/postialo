@@ -19,6 +19,11 @@ return new class extends Migration
             $table->text('products_services')->nullable();
             $table->text('company_history')->nullable();
             $table->json('guidelines_json')->nullable();
+            $table->string('website')->nullable();
+            $table->string('whatsapp_number')->nullable();
+            $table->string('facebook_page_id')->nullable();
+            $table->string('instagram_account_id')->nullable();
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
     }

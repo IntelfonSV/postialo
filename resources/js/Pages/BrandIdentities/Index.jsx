@@ -12,7 +12,7 @@ function Index({ brandIdentity }) {
     const [editBrandIdentity, seteditBrandIdentity] = useState(false);
     return (
         <AuthenticatedLayout>
-            <div>
+            <div className="w-full">
                 <GrayContainer>
                     <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 items-center">
                         <div></div>
@@ -33,13 +33,15 @@ function Index({ brandIdentity }) {
                     </div>
                 </GrayContainer>
                 <Head title="Identidad de Marca" />
+            </div>
+            <div className="w-full">
                 <BrandIdentityForm
                     edit={editBrandIdentity}
                     setEdit={seteditBrandIdentity}
                     brandIdentity={brandIdentity}
                 />
-                <ElevenLabsWidget user={user} />
             </div>
+            <ElevenLabsWidget user={user} />
         </AuthenticatedLayout>
     );
 }

@@ -27,6 +27,10 @@ class BrandIdentityController extends Controller
             'mission_vision' => 'string',
             'products_services' => 'string',
             'company_history' => 'string',
+            'website' => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'facebook_page_id' => 'required|string',
+            'instagram_account_id' => 'string',
             'facebook.tone' => 'nullable|string',
             'facebook.guidelines' => 'nullable|string',
             'facebook.audience' => 'nullable|string',
@@ -77,6 +81,10 @@ class BrandIdentityController extends Controller
             'mission_vision' => 'string',
             'products_services' => 'string',
             'company_history' => 'string',
+            'website' => 'nullable|string',
+            'whatsapp_number' => 'nullable|string',
+            'facebook_page_id' => 'nullable|string',
+            'instagram_account_id' => 'nullable|string',
             'facebook.tone' => 'nullable|string',
             'facebook.guidelines' => 'nullable|string',
             'facebook.audience' => 'nullable|string',
@@ -99,6 +107,10 @@ class BrandIdentityController extends Controller
         $brandIdentity->products_services = $validated['products_services'] ?? null;
         $brandIdentity->company_history = $validated['company_history'] ?? null;
         $brandIdentity->guidelines_json = $guidelines_json;
+        $brandIdentity->website = $validated['website'] ?? null;
+        $brandIdentity->whatsapp_number = $validated['whatsapp_number'] ?? null;
+        $brandIdentity->facebook_page_id = $validated['facebook_page_id'] ?? null;
+        $brandIdentity->instagram_account_id = $validated['instagram_account_id'] ?? null;
         $brandIdentity->save();
         return back()->with('success', 'Identidad de marca actualizada correctamente');
     }

@@ -195,19 +195,19 @@ class ScheduledPostController extends Controller
      */
     public function publishPost(Request $request){
 
-        if($request->schedule_id == null || $request->id == null){
+        if($request->id == null){
             return response()->json([
-                'message' => 'No se proporciono el id del schedule o del post',
-            ]);
-        }
-        $schedule = Schedule::with('posts')->findOrFail($request->schedule_id);
-        $scheduledPost = ScheduledPost::findOrFail($request->id);
-        if($request->status == 'published'){
-            $schedule->update([
-                'status' => 'published',
+                'message' => 'No se proporciono el id del post',
             ]);
         }
 
+        $scheduledPost = ScheduledPost::findOrFail($request->id);
+        if($request->status == 'published'){
+            $scheduledPost->update([
+                'status' => 'published',
+            ]);
+        }
+        $schedule = Schedule::findOrFail($scheduledPost->schedule_id);
         //si todos los post estan en estado publish, actualizar el schedule a published
         if ($schedule->posts->every(fn($post) => $post->status === 'published')) {
             $schedule->update(['status' => 'published']);

@@ -233,7 +233,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                 {selectedSchedules &&
                     selectedSchedules?.map((schedule, index) => (
                         <Schedule
-                            key={`schedule-${schedule.id}-${schedule.status}`}
+                            key={`schedule-${schedule.id}-${schedule.status}-${schedule.scheduled_date}-${schedule.template_id}`}
                             schedule={schedule}
                             templates={templates}
                             number={index + 1}

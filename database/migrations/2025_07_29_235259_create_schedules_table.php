@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreignId('template_id')->nullable();
             $table->foreign('template_id')->references('id')->on('templates')->nullOnDelete();
             $table->enum('status', ['pending', 'in_progress', 'generated', 'approved', 'published', 'rejected'])->default('pending');
-            $table->date('scheduled_date')->nullable();
+            $table->timestampTz('scheduled_date')->nullable();
             $table->timestamps();
             $table->index(['user_id', 'year', 'month'], 'idx_publications_user_date');
         });

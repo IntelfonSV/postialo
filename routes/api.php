@@ -45,10 +45,12 @@ Route::post('/user-confirm', function (Request $request) {
     return $request->all();
 })->name('call-evaluator.userConfirm');
 
-Route::get('/schedules/{user}', [ScheduleController::class, 'getSchedules'])->name('getSchedules');
 
 
 Route::post('/webhook-gateway', [PasarelaController::class, 'webhook'])
-    ->name('pagadito.webhook');
+->name('pagadito.webhook');
 
-Route::post('/post/publish', [ScheduledPostController::class, 'publishPost'])->name('post.publish');
+Route::put('/scheduledPost', [ScheduledPostController::class, 'publishPost'])->name('post.publish');
+
+Route::get('/schedules/publish', [ScheduleController::class, 'publishSchedules'])->name('schedules.publish');
+Route::get('/schedules/{user}', [ScheduleController::class, 'getSchedules'])->name('getSchedules');

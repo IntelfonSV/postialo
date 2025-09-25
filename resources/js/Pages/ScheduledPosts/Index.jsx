@@ -10,14 +10,20 @@ import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import Swal from "sweetalert2";
 
-function Index({ scheduledPosts = [], months = [], templates = [], users = [], auth }) {
+function Index({
+    scheduledPosts = [],
+    months = [],
+    templates = [],
+    users = [],
+    auth,
+}) {
     const { TranslateStatus, badge } = StatusHelper();
     const [posts, setPosts] = useState([]);
     const [networks, setNetworks] = useState({
         facebook: true,
         instagram: true,
     });
-    
+
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
     const [selectedUser, setSelectedUser] = useState(null);
@@ -206,7 +212,11 @@ function Index({ scheduledPosts = [], months = [], templates = [], users = [], a
                                 }
                             >
                                 {users.map((user) => (
-                                    <option key={user.id} value={user.id} selected={user.id == selectedUser?.id}>
+                                    <option
+                                        key={user.id}
+                                        value={user.id}
+                                        selected={user.id == selectedUser?.id}
+                                    >
                                         {user.name}
                                     </option>
                                 ))}
@@ -230,9 +240,7 @@ function Index({ scheduledPosts = [], months = [], templates = [], users = [], a
                                 }
                             >
                                 <h3 className="text-lg font-semibold w-full text-blue-900">
-                                    {new Date(
-                                        obj.scheduled_date,
-                                    ).toLocaleDateString()}
+                                {new Date(obj.scheduled_date.slice(0, 16)).toLocaleString()}
                                 </h3>
 
                                 <div className="flex items-center gap-2">

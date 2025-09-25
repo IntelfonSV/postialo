@@ -31,7 +31,7 @@ function Schedule({
         template_id: schedule?.template_id || "",
         status: schedule?.status || "pending",
         scheduled_date: schedule?.scheduled_date
-            ? schedule.scheduled_date.split("T")[0]
+            ? schedule.scheduled_date.slice(0, 16)
             : "",
     });
 
@@ -50,6 +50,10 @@ function Schedule({
                 if (data[key] === "") {
                     isValid = false;
                 }
+            }
+
+            if (data[key] === 'networks' && data[key].length === 0) {
+                isValid = false;
             }
         });
         if (!isValid) {
@@ -129,6 +133,7 @@ function Schedule({
         });
     };
 
+
     const handleCancelSchedule = () => {
         Swal.fire({
             title: "¿Estás seguro?",
@@ -185,7 +190,7 @@ function Schedule({
                             {edit && <span className="text-red-500">*</span>}
                         </label>
                         <input
-                            type="date"
+                            type="datetime-local"
                             value={data.scheduled_date}
                             onChange={(e) =>
                                 setData("scheduled_date", e.target.value)

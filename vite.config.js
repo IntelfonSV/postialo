@@ -15,6 +15,7 @@ export default defineConfig({
         port: 5173,
         cors: true,
         hmr: {
+            //host: 'portal.postialo.net',
             host: '172.16.1.68', // tu IP local
         },
     },
