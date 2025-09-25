@@ -11,12 +11,13 @@ export default defineConfig({
         react(),
     ],
     server: {
-        host: '172.16.1.68', // permite acceso en red
+        //host: '172.16.1.68', // permite acceso en red
+        host: '0.0.0.0',
         port: 5173,
         cors: true,
         hmr: {
-            //host: 'portal.postialo.net',
-            host: '172.16.1.68', // tu IP local
+            host: 'portal.postialo.net',
+            //host: '172.16.1.68', // tu IP local
         },
     },
 });
