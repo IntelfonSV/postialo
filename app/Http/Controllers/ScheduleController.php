@@ -156,19 +156,20 @@ class ScheduleController extends Controller
         }else{
             $schedules = Schedule::where('user_id', $user->id)->where('month', $request->month)->where('year', $request->year)->where('status', 'pending')->get();
         }
-        
+
+        $brandIdentity = BrandIdentity::where('user_id', $user->id)->first();
+        if (!$brandIdentity) {
+            return back()->with('error', 'No se ha completado la informacion de identidad de marca para el usuario');
+        }
+
         $imageController = new GenerateImageController();
         $assistant = new AssistantController();
         try{
-            foreach ($schedules as $schedule) {
-                
-                $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
-                if (!$brandIdentity) {
-                    return back()->with('error', 'No se ha completado la informacion de identidad de marca para el usuario');
-                }
-                if($schedule->image){
-                    Storage::disk('public')->delete($schedule->image);
-                }
+        foreach ($schedules as $schedule) {
+
+            if($schedule->image){
+                Storage::disk('public')->delete($schedule->image);
+            }
 
             $response = $imageController->generateImage($schedule->prompt_image);
 
@@ -184,7 +185,8 @@ class ScheduleController extends Controller
             }else{
                 return back()->with('error', $response['message']);
             }   
-
+            
+            
             $website = $brandIdentity->website ?? null;
             $whatsapp = $brandIdentity->whatsapp_number ?? null;
             $wa_base_url = $whatsapp ? "https://wa.me/" . preg_replace('/\D/', '', $whatsapp) : null;
@@ -195,7 +197,7 @@ class ScheduleController extends Controller
             if ($wa_base_url) {
                 $closing .= "📲 Escríbenos por WhatsApp y te ayudamos con todo lo que necesites.\n👉 {$wa_base_url}\n" . 
                 " también agregale mensaje prellenado para iniciar conversación en WhatsApp: por ejemplo  {$wa_base_url}?text=Hola%2C%20me%20interesa%20la%20Alexa%20Echo%20Dot%205ta%20generacion
-                - Mensaje máximo 10 palabras, tono claro y directo.
+                    - Mensaje máximo 10 palabras, tono claro y directo.
                     - Sin emojis, sin hashtags, sin comillas.
                     - Codifica la frase en URL  
                     - usa el tema y el objetivo para crear la frase
