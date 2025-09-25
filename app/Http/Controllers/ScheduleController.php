@@ -156,15 +156,19 @@ class ScheduleController extends Controller
         }else{
             $schedules = Schedule::where('user_id', $user->id)->where('month', $request->month)->where('year', $request->year)->where('status', 'pending')->get();
         }
-
+        
         $imageController = new GenerateImageController();
         $assistant = new AssistantController();
         try{
-        foreach ($schedules as $schedule) {
-
-            if($schedule->image){
-                Storage::disk('public')->delete($schedule->image);
-            }
+            foreach ($schedules as $schedule) {
+                
+                $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
+                if (!$brandIdentity) {
+                    return back()->with('error', 'No se ha completado la informacion de identidad de marca para el usuario');
+                }
+                if($schedule->image){
+                    Storage::disk('public')->delete($schedule->image);
+                }
 
             $response = $imageController->generateImage($schedule->prompt_image);
 
@@ -181,7 +185,6 @@ class ScheduleController extends Controller
                 return back()->with('error', $response['message']);
             }   
 
-            $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
             $website = $brandIdentity->website ?? null;
             $whatsapp = $brandIdentity->whatsapp_number ?? null;
             $wa_base_url = $whatsapp ? "https://wa.me/" . preg_replace('/\D/', '', $whatsapp) : null;
@@ -192,11 +195,17 @@ class ScheduleController extends Controller
             if ($wa_base_url) {
                 $closing .= "📲 Escríbenos por WhatsApp y te ayudamos con todo lo que necesites.\n👉 {$wa_base_url}\n" . 
                 " también agregale mensaje prellenado para iniciar conversación en WhatsApp: por ejemplo  {$wa_base_url}?text=Hola%2C%20me%20interesa%20la%20Alexa%20Echo%20Dot%205ta%20generacion
-                    - Mensaje máximo 10 palabras, tono claro y directo.
+                - Mensaje máximo 10 palabras, tono claro y directo.
                     - Sin emojis, sin hashtags, sin comillas.
                     - Codifica la frase en URL  
                     - usa el tema y el objetivo para crear la frase
                 ";
+            }
+
+            if($closing){
+                $closing = "\n\n" . $closing;
+            }else{
+                $closing = "\n\n Escribir un cierre obligatorio incitando al usuario a que se ponga en contacto con nosotros";
             }
             
             $system_prompt = "Esta es la informacion de identidad de marca:
@@ -207,7 +216,8 @@ class ScheduleController extends Controller
                 lINEAMIENTOS PARA LAS REDES SOCIALES :
                
             " . json_encode($brandIdentity->guidelines_json) . "
-            Cierre obligatorio (si aplica):
+            Cierre obligatorio:
+            Antes del cierre obligatorio agrega 2 saltos de linea
             {$closing}";
 
 
@@ -226,8 +236,6 @@ class ScheduleController extends Controller
             Salida: JSON por cada red social, solo con el texto de la publicación.
             Sin formato Markdown ni backticks.
             Para Twitter: máximo 250 caracteres.
-            **antes del cierre obligatorio agrega 2 saltos de linea**
-
             **Responde en formato json para cada red social**
             de esta manera:
             {
@@ -410,12 +418,15 @@ class ScheduleController extends Controller
     }
 
     public function sendSchedule(Schedule $schedule){
-        $schedule->load('posts.selectedText', 'selectedImage', 'user');
+        $schedule->load([
+            'posts'=> function($query){
+                $query->where('status', 'approved')->with('selectedText');
+            },
+            'selectedImage',
+            'user',
+        ]); 
+
         $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
-
-        //dd(json_encode($schedules));
-
-        //dd(json_encode($schedule));
         $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
         $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
         $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
