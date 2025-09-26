@@ -63,7 +63,7 @@ function TextSection({ schedule, networks, setLoading }) {
                     return networks[post.network];
                 })
                 .map((row) => (
-                    <div key={row.id} className="w-full">
+                    <div key={`${row.id}-${row.network}-${row.status}`} className="w-full">
                         <div className="flex items-center w-full gap-2 bg-gray-200 p-2 rounded-xl justify-between">
                             <div className="flex  items-center gap-2">
                                 <span className={badge(row.network)}>
@@ -77,7 +77,7 @@ function TextSection({ schedule, networks, setLoading }) {
                                 </span>
                                 }
                             </div>
-                            {row.status !== "approved" && schedule.status != "cancelled" && (
+                            {(row.status !== "approved" && schedule.status != "cancelled") && (
                                 <div className="flex flex-wrap justify-end  items-center gap-2">
                                     <button
                                         onClick={() => handleEdit(row)}
