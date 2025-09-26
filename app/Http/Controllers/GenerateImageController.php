@@ -62,53 +62,53 @@ class GenerateImageController extends Controller
         $schedule->load('template', 'selectedImage');
     
         $html = $schedule->template->html_code ?? '';
-        $fullImagePath = storage_path('app/public/' . $schedule->selectedImage->image_path);
-        if (!is_file($fullImagePath)) {
-            throw new \RuntimeException("Imagen no encontrada: {$fullImagePath}");
+        $bgPath = storage_path('app/public/' . $schedule->selectedImage->image_path);
+        if (!is_file($bgPath)) {
+            throw new \RuntimeException("Imagen no encontrada: {$bgPath}");
         }
     
         $finalHtml = preg_replace(
             '/<img\s+class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
-            '<img class="background-img" src="' . $fullImagePath . '" $1>',
+            '<img class="background-img" src="' . $bgPath . '" $1>',
             $html
         );
     
-        $filename   = 'published/' . Str::uuid() . '.png';
+        $dir = 'published';
+        if (!Storage::disk('public')->exists($dir)) {
+            Storage::disk('public')->makeDirectory($dir);
+        }
+        $filename   = $dir . '/' . Str::uuid() . '.png';
         $outputPath = Storage::disk('public')->path($filename);
     
-        // (opcional recomendado) perfil/cache para Chrome en storage
-        $chromeBase = storage_path('app/chrome');
+        $chromeBase = storage_path('app/chrome'); // coincide con XDG_* del pool
         @mkdir($chromeBase, 0775, true);
         @mkdir($chromeBase.'/cache', 0775, true);
-        @mkdir($chromeBase.'/data', 0775, true);
+        @mkdir($chromeBase.'/data',  0775, true);
     
-        $browsershot = Browsershot::html($finalHtml)
+        Browsershot::html($finalHtml)
             ->windowSize(630, 630)
             ->waitUntilNetworkIdle(true)
             ->quality(90)
             ->timeout(120)
             ->setNodeBinary('/usr/bin/node')
             ->setNpmBinary('/usr/bin/npm')
-    
-            // >>> AQUÍ: Chrome de Puppeteer <<<
-            ->setChromePath('/var/www/.cache/puppeteer/chrome/linux-140.0.7339.207/chrome-linux64/chrome')
-    
+            ->setChromePath('/usr/bin/google-chrome')
             ->noSandbox()
             ->addChromiumArguments([
-                // sin "--" (Browsershot los añade)
-                'headless',
+                // sin "--"
+                'headless=new',
                 'no-sandbox',
                 'disable-dev-shm-usage',
                 'disable-gpu',
                 'disable-setuid-sandbox',
+                'no-first-run',
+                // perfil/cache en storage (escribible por www-data)
+                'user-data-dir=' . $chromeBase,
+                'data-path='     . $chromeBase . '/data',
+                'disk-cache-dir='. $chromeBase . '/cache',
+            ])
+            ->save($outputPath);
     
-                // Perfil propio (evita rarezas de permisos)
-                'user-data-dir='.$chromeBase,
-                'data-path='.$chromeBase.'/data',
-                'disk-cache-dir='.$chromeBase.'/cache',
-            ]);
-    
-        $browsershot->save($outputPath);
-        return $filename; // "published/....png"
+        return $filename; // => "published/xxxx.png"
     }
 }
