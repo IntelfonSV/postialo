@@ -81,9 +81,9 @@ class GenerateImageController extends Controller
             ->quality(90)
             ->timeout(60);
 
-        // Especificar rutas manualmente (ajusta según tu instalación)
-        $browsershot->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
-                   ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
+        // Especificar rutas manualmente (ajusta según tu instalación) si esta en nvm hay que especificar
+        // $browsershot->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
+        //            ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
 
         $browsershot->save(Storage::disk('public')->path($filename));
         Storage::disk('public')->url($filename);
