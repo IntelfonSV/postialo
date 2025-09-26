@@ -368,7 +368,7 @@ class ScheduleController extends Controller
 
     public function approveImage(Request $request, Schedule $schedule){
         $imageController = new GenerateImageController();
-        try {
+        // try {
             if($schedule->template){
             $image = $imageController->generateImageFromHtml($schedule);
             $schedule->selectedImage()->update([
@@ -390,9 +390,9 @@ class ScheduleController extends Controller
                 ]);
             }
             return back()->with('success', 'Imagen aprobada exitosamente');
-        } catch (\Throwable $th) {
+        // } catch (\Throwable $th) {
+        // }
             return back()->with('error', 'Error al generar la imagen');
-        }
     }
 
     //quiza ya no se use 

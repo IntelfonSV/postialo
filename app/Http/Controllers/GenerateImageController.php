@@ -57,69 +57,41 @@ class GenerateImageController extends Controller
         return $fileName;
     }
 
-    public function generateImageFromHtml(Schedule $schedule): string
+    public function generateImageFromHtml( Schedule $schedule)
     {
-        // 1) Cargar relaciones necesarias
         $schedule->load('template', 'selectedImage');
-    
-        // 2) HTML base del template
-        $html = $schedule->template->html_code ?? '';
-        if ($html === '') {
-            throw new \RuntimeException('Template HTML vacío.');
+        $html = $schedule->template->html_code;      
+        // 2. Construir la URL completa de la imagen en el servidor
+
+        if(env('APP_ENV') === 'local'){
+        $fullImageUrl =  storage_path('app/public/' . $schedule->selectedImage->image_path);
+        }else{
+        $fullImageUrl = rtrim(config('app.url'), '/') . Storage::url($schedule->selectedImage->image_path);
         }
-    
-        // 3) Resolver imagen de fondo desde el disk "public"
-        $relativeImagePath = $schedule->selectedImage->image_path ?? null;
-        if (!$relativeImagePath) {
-            throw new \RuntimeException('No se encontró image_path en selectedImage.');
-        }
-    
-        $absoluteImagePath = Storage::disk('public')->path($relativeImagePath);
-        if (!is_file($absoluteImagePath)) {
-            throw new \RuntimeException("Imagen no encontrada: {$absoluteImagePath}");
-        }
-    
-        // 4) Convertir a data URI (base64) para evitar problemas de red/CORS/file://
-        $mime = mime_content_type($absoluteImagePath) ?: 'image/png';
-        $imageData = base64_encode(file_get_contents($absoluteImagePath));
-        $dataUri = "data:{$mime};base64,{$imageData}";
-    
-        // 5) Reemplazar la <img class="background-img" ...> por la versión inline
+        // 3. Reemplazar el placeholder en el HTML
         $finalHtml = preg_replace(
-            '/<img\s+class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
-            '<img class="background-img" src="' . $dataUri . '" $1>',
+            '/<img class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
+            '<img class="background-img" src="' . $fullImageUrl . '" $1>',
             $html
         );
     
-        // 6) Asegurar directorio de salida en storage/app/public/published
-        $dir = 'published';
-        if (!Storage::disk('public')->exists($dir)) {
-            Storage::disk('public')->makeDirectory($dir);
-        }
+        // 4. Generar un nombre de archivo único
+        $filename = 'published/' . Str::uuid() . '.png';
     
-        // 7) Nombre de archivo final (PNG) — devolveremos esta ruta relativa
-        $filename = $dir . '/' . Str::uuid() . '.png';
-        $outputPath = Storage::disk('public')->path($filename);
-    
-        // 8) Configurar Browsershot / Chromium
-        $browsershot = Browsershot::html($finalHtml)
+        // 5. Usar Browsershot para generar y guardar la imagen
+            $browsershot = Browsershot::html($finalHtml)
             ->windowSize(630, 630)
-            ->deviceScaleFactor(2) // nitidez
             ->waitUntilNetworkIdle(true)
             ->quality(90)
-            ->timeout(120)
-            ->noSandbox()
-            ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'))
-            ->setChromeArguments([
-                '--disable-dev-shm-usage',
-                '--disable-setuid-sandbox',
-                '--disable-gpu',
-            ]);
-    
-        // 9) Render y guardado
-        $browsershot->save($outputPath);
-    
-        // 10) Retornar SOLO la ruta relativa dentro del disk 'public'
-        return $filename; // ej: "published/xxxxxxxx-xxxx-....png"
+            ->timeout(60);
+
+        // Especificar rutas manualmente (ajusta según tu instalación) si esta en nvm hay que especificar
+        // $browsershot->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
+        //            ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
+
+        $browsershot->save(Storage::disk('public')->path($filename));
+        Storage::disk('public')->url($filename);
+        dd($filename);
+        return $filename;
     }
 }
