@@ -62,8 +62,12 @@ class GenerateImageController extends Controller
         $schedule->load('template', 'selectedImage');
         $html = $schedule->template->html_code;      
         // 2. Construir la URL completa de la imagen en el servidor
+
+        if(env('APP_ENV') === 'local'){
         $fullImageUrl =  storage_path('app/public/' . $schedule->selectedImage->image_path);
-        
+        }else{
+        $fullImageUrl = rtrim(config('app.url'), '/') . Storage::url($schedule->selectedImage->image_path);
+        }
         // 3. Reemplazar el placeholder en el HTML
         $finalHtml = preg_replace(
             '/<img class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
