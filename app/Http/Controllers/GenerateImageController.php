@@ -57,41 +57,66 @@ class GenerateImageController extends Controller
         return $fileName;
     }
 
-    public function generateImageFromHtml( Schedule $schedule)
+    public function generateImageFromHtml(Schedule $schedule): string
     {
         $schedule->load('template', 'selectedImage');
-        $html = $schedule->template->html_code;      
-        // 2. Construir la URL completa de la imagen en el servidor
-
-        if(env('APP_ENV') === 'local'){
-        $fullImageUrl =  storage_path('app/public/' . $schedule->selectedImage->image_path);
-        }else{
-        $fullImageUrl = rtrim(config('app.url'), '/') . Storage::url($schedule->selectedImage->image_path);
+    
+        $html = $schedule->template->html_code ?? '';
+        if ($html === '') {
+            throw new \RuntimeException('Template HTML vacío.');
         }
-        // 3. Reemplazar el placeholder en el HTML
+    
+        $relativeImagePath = $schedule->selectedImage->image_path ?? null;
+        if (!$relativeImagePath) {
+            throw new \RuntimeException('No se encontró image_path en selectedImage.');
+        }
+    
+        $absoluteImagePath = Storage::disk('public')->path($relativeImagePath);
+        if (!is_file($absoluteImagePath)) {
+            throw new \RuntimeException("Imagen no encontrada: {$absoluteImagePath}");
+        }
+    
+        // Inline base64 para que Chromium no dependa de red/URL
+        $mime = mime_content_type($absoluteImagePath) ?: 'image/png';
+        $imageData = base64_encode(file_get_contents($absoluteImagePath));
+        $dataUri = "data:{$mime};base64,{$imageData}";
+    
         $finalHtml = preg_replace(
-            '/<img class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
-            '<img class="background-img" src="' . $fullImageUrl . '" $1>',
+            '/<img\s+class="background-img"[^>]*src="[^"]*"([^>]*)>/i',
+            '<img class="background-img" src="' . $dataUri . '" $1>',
             $html
         );
     
-        // 4. Generar un nombre de archivo único
-        $filename = 'published/' . Str::uuid() . '.png';
+        // Directorio de salida
+        $dir = 'published';
+        if (!Storage::disk('public')->exists($dir)) {
+            Storage::disk('public')->makeDirectory($dir);
+        }
     
-        // 5. Usar Browsershot para generar y guardar la imagen
-            $browsershot = Browsershot::html($finalHtml)
+        $filename   = $dir . '/' . Str::uuid() . '.png';
+        $outputPath = Storage::disk('public')->path($filename);
+    
+        $browsershot = Browsershot::html($finalHtml)
             ->windowSize(630, 630)
+            ->deviceScaleFactor(2)
             ->waitUntilNetworkIdle(true)
             ->quality(90)
-            ->timeout(60);
-
-        // Especificar rutas manualmente (ajusta según tu instalación) si esta en nvm hay que especificar
-        // $browsershot->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
-        //            ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
-
-        $browsershot->save(Storage::disk('public')->path($filename));
-        Storage::disk('public')->url($filename);
-        dd($filename);
-        return $filename;
+            ->timeout(120)
+            ->noSandbox()
+            ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'))
+            ->addChromiumArguments([
+                '--disable-dev-shm-usage',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+            ]);
+    
+        // Si instalaste node con rutas no estándar, podrías especificarlas:
+        // ->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
+        // ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
+    
+        $browsershot->save($outputPath);
+    
+        // Retorna SOLO la ruta relativa dentro del disk 'public'
+        return $filename; // "published/xxx.png"
     }
 }
