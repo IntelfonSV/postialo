@@ -57,10 +57,6 @@ class GenerateImageController extends Controller
         return $fileName;
     }
 
-    use Illuminate\Support\Facades\Storage;
-    use Illuminate\Support\Str;
-    use Spatie\Browsershot\Browsershot;
-    use App\Models\Schedule;
     
     public function generateImageFromHtml(Schedule $schedule): string
     {
