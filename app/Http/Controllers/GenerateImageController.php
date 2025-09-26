@@ -91,6 +91,7 @@ class GenerateImageController extends Controller
 
         $browsershot->save(Storage::disk('public')->path($filename));
         Storage::disk('public')->url($filename);
+        dd($filename);
         return $filename;
     }
 }
