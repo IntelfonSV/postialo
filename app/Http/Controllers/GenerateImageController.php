@@ -76,12 +76,11 @@ class GenerateImageController extends Controller
         $filename   = 'published/' . Str::uuid() . '.png';
         $outputPath = Storage::disk('public')->path($filename);
     
-        // (Opcional recomendado) perfil/cache para Chromium en storage
+        // (opcional recomendado) perfil/cache para Chrome en storage
         $chromeBase = storage_path('app/chrome');
         @mkdir($chromeBase, 0775, true);
         @mkdir($chromeBase.'/cache', 0775, true);
         @mkdir($chromeBase.'/data', 0775, true);
-        @mkdir($chromeBase.'/Crashpad', 0775, true);
     
         $browsershot = Browsershot::html($finalHtml)
             ->windowSize(630, 630)
@@ -90,25 +89,26 @@ class GenerateImageController extends Controller
             ->timeout(120)
             ->setNodeBinary('/usr/bin/node')
             ->setNpmBinary('/usr/bin/npm')
-            ->setChromePath('/usr/bin/chromium')
+    
+            // >>> AQUÍ: Chrome de Puppeteer <<<
+            ->setChromePath('/var/www/.cache/puppeteer/chrome/linux-140.0.7339.207/chrome-linux64/chrome')
+    
             ->noSandbox()
             ->addChromiumArguments([
-                // sin "--" (Browsershot los agrega)
+                // sin "--" (Browsershot los añade)
                 'headless',
                 'no-sandbox',
                 'disable-dev-shm-usage',
                 'disable-gpu',
                 'disable-setuid-sandbox',
-                'disable-features=Crashpad',
-                'disable-breakpad',
-                'no-crash-upload',
-                // usa el perfil escribible (evita rarezas de crashpad)
+    
+                // Perfil propio (evita rarezas de permisos)
                 'user-data-dir='.$chromeBase,
                 'data-path='.$chromeBase.'/data',
                 'disk-cache-dir='.$chromeBase.'/cache',
             ]);
     
         $browsershot->save($outputPath);
-        return $filename; // "published/xxxx.png"
+        return $filename; // "published/....png"
     }
 }
