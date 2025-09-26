@@ -79,11 +79,11 @@ function ImageSection({ schedule, setLoading, templates }) {
                 <ImagePreview
                 className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
                 templateHtml={schedule.template.html_code}
-                imageUrl={schedule.selected_image.image_path}
+                imageUrl={`storage/${schedule.selected_image.image_path}`}
             />: <div className="w-80 h-80 sm:w-96 sm:h-96">
             <img
                 className="w-full h-full rounded-xl"
-                src={'storage/' + schedule.selected_image.image_path}
+                src={`storage/${schedule.selected_image.image_path}`}
                 alt=""
             />
             </div>

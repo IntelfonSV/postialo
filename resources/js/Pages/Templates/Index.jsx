@@ -287,7 +287,7 @@ function Index({ templates = [], auth, users }) {
                                     <div className="flex justify-center">
                                         <ImagePreview
                                             imageUrl={
-                                                "freepik_images/d3343111-0fdf-4b53-9245-490b5b3e6dda_0.jpg"
+                                                "/images/template_image.jpg"
                                             }
                                             templateHtml={tpl.html_code}
                                             className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
@@ -390,9 +390,10 @@ function Index({ templates = [], auth, users }) {
                         <CloseModalButton close={handleClosePreview} />
                     </div>
                     <div className="flex justify-center items-center h-[480px] md:h-[700px]">
-                        <iframe
-                            srcDoc={preview.html_code}
-                            className="w-full h-[300px] sm:h-[700px]"
+                        <ImagePreview
+                            imageUrl={"images/template_image.jpg"}
+                            templateHtml={preview.html_code}
+                            className="w-[480px] h-[480px] sm:w-[700px] sm:h-[700px] object-cover rounded-xl"
                         />
                     </div>
                 </Modal>

@@ -11,7 +11,7 @@ function ImagePreview({templateHtml="", imageUrl="", className=""}) {
 
             const htmlConImagen = templateHtml.replace(
                 /<img class="background-img"[^>]*src="[^"]*"([^>]*)>/,
-                `<img class="background-img" src="storage/${imageUrl}" $1>`
+                `<img class="background-img" src="${imageUrl}" $1>`
             );
             
             setHtmlFinal(htmlConImagen);
@@ -29,7 +29,7 @@ function ImagePreview({templateHtml="", imageUrl="", className=""}) {
             className={className}
             />
         : imageUrl ?
-        <img src={"storage/"+imageUrl} className={className} /> : null}
+        <img src={imageUrl} className={className} /> : null}
         </div>
         );
 }
