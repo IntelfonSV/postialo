@@ -36,7 +36,7 @@ function TextSection({ schedule, networks, setLoading }) {
                     { status: "approved" },
                     {
                         preserveScroll: true,
-                    }
+                    },
                 );
             }
         });
@@ -63,85 +63,99 @@ function TextSection({ schedule, networks, setLoading }) {
                     return networks[post.network];
                 })
                 .map((row) => (
-                    <div key={`${row.id}-${row.network}-${row.status}`} className="w-full">
+                    <div
+                        key={`${row.id}-${row.network}-${row.status}`}
+                        className="w-full"
+                    >
                         <div className="flex items-center w-full gap-2 bg-gray-200 p-2 rounded-xl justify-between">
                             <div className="flex  items-center gap-2">
                                 <span className={badge(row.network)}>
                                     {TranslateStatus(row.network)}
                                 </span>
-                                {schedule.status == "cancelled" ?  <span className={badge(schedule.status)}>
-                                    Cancelada
-                                </span> : 
-                                <span className={badge(row.status)}>
-                                    {TranslateStatus(row.status)}
-                                </span>
-                                }
+                                {schedule.status == "cancelled" ? (
+                                    <span className={badge(schedule.status)}>
+                                        Cancelada
+                                    </span>
+                                ) : (
+                                    <span className={badge(row.status)}>
+                                        {TranslateStatus(row.status)}
+                                    </span>
+                                )}
                             </div>
-                            {(row.status !== "approved" && schedule.status != "cancelled") && (
-                                <div className="flex flex-wrap justify-end  items-center gap-2">
-                                    <button
-                                        onClick={() => handleEdit(row)}
-                                        title="Editar"
-                                        className="rounded-full p-1 bg-blue-50 hover:bg-blue-100 flex items-center gap-2 text-blue-500 lg:px-2"
-                                    >
-                                        <span className="hidden lg:block">
-                                            Editar
-                                        </span>
-                                        <FaEdit className="w-6 h-6 text-blue-500" />
-                                    </button>
-                                    {row.texts.length < 3 && (
+                            {row.status !== "approved" &&
+                                schedule.status != "cancelled" && (
+                                    <div className="flex flex-wrap justify-end  items-center gap-2">
                                         <button
-                                            className="rounded-full bg-purple-50 p-1 hover:bg-purple-100 flex items-center gap-2 text-purple-500 lg:px-2"
-                                            onClick={() => handleGenerate(row)}
-                                            title="Volver a generar"
+                                            onClick={() => handleEdit(row)}
+                                            title="Editar"
+                                            className="rounded-full p-1 bg-blue-50 hover:bg-blue-100 flex items-center gap-2 text-blue-500 lg:px-2"
                                         >
                                             <span className="hidden lg:block">
-                                                Regenerar texto
+                                                Editar
                                             </span>
-                                            <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
+                                            <FaEdit className="w-6 h-6 text-blue-500" />
                                         </button>
-                                    )}
-                                    {row.texts.length > 1 && (
-                                        <button
-                                            onClick={() =>
-                                                handleShowSelectTextModal(row)
-                                            }
-                                            title="Seleccionar texto"
-                                            className="rounded-full bg-pink-50 p-1 hover:bg-pink-100 flex items-center gap-2 text-pink-500 lg:px-2"
-                                        >
-                                            <span className="hidden lg:block">
-                                                Seleccionar texto
-                                            </span>
-                                            <BsChatRightTextFill className="w-5 h-5 text-pink-500" />
-                                        </button>
-                                    )}
-                                </div>
-                            )}
+                                        {row.texts.length < 3 && (
+                                            <button
+                                                className="rounded-full bg-purple-50 p-1 hover:bg-purple-100 flex items-center gap-2 text-purple-500 lg:px-2"
+                                                onClick={() =>
+                                                    handleGenerate(row)
+                                                }
+                                                title="Volver a generar"
+                                            >
+                                                <span className="hidden lg:block">
+                                                    Regenerar texto
+                                                </span>
+                                                <IoReloadCircleSharp className="w-6 h-6 text-purple-500" />
+                                            </button>
+                                        )}
+                                        {row.texts.length > 1 && (
+                                            <button
+                                                onClick={() =>
+                                                    handleShowSelectTextModal(
+                                                        row,
+                                                    )
+                                                }
+                                                title="Seleccionar texto"
+                                                className="rounded-full bg-pink-50 p-1 hover:bg-pink-100 flex items-center gap-2 text-pink-500 lg:px-2"
+                                            >
+                                                <span className="hidden lg:block">
+                                                    Seleccionar texto
+                                                </span>
+                                                <BsChatRightTextFill className="w-5 h-5 text-pink-500" />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                         </div>
                         <div className="w-full">
-                            <p className="whitespace-pre-line py-2 w-full">
+                            <p className="px-5 whitespace-pre-line break-words break-all overflow-hidden text-ellipsis py-2 w-full">
                                 {row.selected_text?.content}
                             </p>
                         </div>
                     </div>
                 ))}
-            {!schedule.posts.every((post) => (post.status === "approved" || post.status === "published")) && schedule.status != "cancelled" && (
-                <div>
-                    <hr className="w-full mt-2 mb-2 border-gray-200 border-2" />
-
+            {!schedule.posts.every(
+                (post) =>
+                    post.status === "approved" || post.status === "published",
+            ) &&
+                schedule.status != "cancelled" && (
                     <div>
-                        <GreenButton
-                            onClick={() => handleApproveTexts(schedule)}
-                            title="Aprobar Textos"
-                            className="gap-4"
-                        >
-                            <FaCheck className="w-5 h-5" />
-                            <span className="">Aprobar Textos</span>
-                        </GreenButton>
+                        <hr className="w-full mt-2 mb-2 border-gray-200 border-2" />
+
+                        <div>
+                            <GreenButton
+                                onClick={() => handleApproveTexts(schedule)}
+                                title="Aprobar Textos"
+                                className="gap-4"
+                            >
+                                <FaCheck className="w-5 h-5" />
+                                <span className="">Aprobar Textos</span>
+                            </GreenButton>
+                        </div>
+                        <br />
                     </div>
-                    <br />
-                </div>
-            )}
+                )}
 
             <SelectTextModal
                 show={showSelectTextModal}

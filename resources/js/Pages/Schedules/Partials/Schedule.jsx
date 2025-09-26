@@ -183,7 +183,7 @@ function Schedule({
                         </p>
                     )}
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg flex-wrap">
                     <div>
                         <label className="block text-xs font-medium text-gray-500">
                             Fecha{" "}
@@ -225,7 +225,7 @@ function Schedule({
                             value={data.idea}
                             onChange={(e) => setData("idea", e.target.value)}
                             className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            rows="2"
+                            rows="5"
                             disabled={disabled}
                         />
                         <div className="text-xs text-red-500">
@@ -244,7 +244,7 @@ function Schedule({
                                 setData("objective", e.target.value)
                             }
                             className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            rows="2"
+                            rows="5"
                             disabled={disabled}
                         />
                         <div className="text-xs text-red-500">
@@ -262,7 +262,7 @@ function Schedule({
                                 setData("prompt_image", e.target.value)
                             }
                             className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            rows="2"
+                            rows="5"
                             disabled={disabled}
                         />
                         <div className="text-xs text-red-500">

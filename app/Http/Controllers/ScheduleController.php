@@ -14,6 +14,7 @@ use App\Models\ScheduledPostText;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use App\Models\BrandIdentity;
+use Illuminate\Support\Facades\Log;
 
 class ScheduleController extends Controller
 
@@ -30,7 +31,7 @@ class ScheduleController extends Controller
         if($user->hasRole('admin')){
             $users = User::all();
             $templates = Template::all();
-            $schedules = Schedule::with('user')->get();
+            $schedules = Schedule::with('user')->orderBy('id', 'asc')->get();
             $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }else{
             //$templates = Template::where('user_id', $user->id)->get();
@@ -238,8 +239,10 @@ class ScheduleController extends Controller
             Salida: JSON por cada red social, solo con el texto de la publicación.
             Sin formato Markdown ni backticks.
             Para Twitter: máximo 250 caracteres.
-            **Responde en formato json para cada red social**
-            de esta manera:
+            Responde ÚNICAMENTE con un solo objeto JSON válido que contenga todas las redes sociales pedidas como claves.
+            No devuelvas múltiples objetos. 
+            No uses backticks, explicaciones ni texto fuera del JSON.
+            ejemplo:
             {
                 \"facebook\": \"publicación para facebook\",
                 \"instagram\": \"publicación para instagram\",
@@ -254,14 +257,19 @@ class ScheduleController extends Controller
                 'system_prompt' => $system_prompt,
             ]);
 
+
+            //return response()->json($response);
             $post = json_decode($response, true);
 
+
            foreach ($schedule->networks as $network) {
+            if (isset($post[$network])) {
+
                 $scheduled_post = ScheduledPost::create([
                     'schedule_id' => $schedule->id,
                     'network' => $network,
                     'scheduled_date' => $schedule->scheduled_date,
-                    ]);
+                ]);
     
                     $scheduled_post_text = ScheduledPostText::create([
                         'scheduled_post_id' => $scheduled_post->id,
@@ -271,7 +279,15 @@ class ScheduleController extends Controller
                     $scheduled_post->update([
                         'selected_text_id' => $scheduled_post_text->id,
                     ]);
+                }
             }
+            //si se generaron todos cambiar el estado 
+            // if($schedule->posts()->where('status', 'generated')->count() == count($schedule->networks)){
+            //     $schedule->update([
+            //         'status' => 'generated',
+            //     ]);
+            // }
+
            $schedule->update([
             'status' => 'generated',
         ]);
