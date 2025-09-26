@@ -9,7 +9,8 @@ class AssistantController extends Controller
 {
     public function generateContent($request)
     {
-    $client = OpenAI::client(env('OPENAI_API_KEY'));
+    $apiKey = config('services.openai.api_key');
+    $client = OpenAI::client($apiKey);        
     $response = $client->responses()->create([
         'model' => 'gpt-4o-mini',
         'input' => [
@@ -29,7 +30,8 @@ class AssistantController extends Controller
             abort(400, 'Falta user_prompt');
         }
 
-        $client = OpenAI::client(env('OPENAI_API_KEY'));
+        $apiKey = config('services.openai.api_key');
+        $client = OpenAI::client($apiKey);
 
         $response = $client->chat()->create([
             'model' => $model,
