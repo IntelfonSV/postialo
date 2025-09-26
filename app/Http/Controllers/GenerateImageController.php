@@ -57,6 +57,11 @@ class GenerateImageController extends Controller
         return $fileName;
     }
 
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Str;
+    use Spatie\Browsershot\Browsershot;
+    use App\Models\Schedule;
+    
     public function generateImageFromHtml(Schedule $schedule): string
     {
         $schedule->load('template', 'selectedImage');
@@ -76,7 +81,7 @@ class GenerateImageController extends Controller
             throw new \RuntimeException("Imagen no encontrada: {$absoluteImagePath}");
         }
     
-        // Inline base64 para que Chromium no dependa de red/URL
+        // Embebe la imagen como data URI para evitar dependencias de red/file://
         $mime = mime_content_type($absoluteImagePath) ?: 'image/png';
         $imageData = base64_encode(file_get_contents($absoluteImagePath));
         $dataUri = "data:{$mime};base64,{$imageData}";
@@ -92,9 +97,13 @@ class GenerateImageController extends Controller
         if (!Storage::disk('public')->exists($dir)) {
             Storage::disk('public')->makeDirectory($dir);
         }
-    
         $filename   = $dir . '/' . Str::uuid() . '.png';
         $outputPath = Storage::disk('public')->path($filename);
+    
+        // Dirs para perfil/cache de Chromium (evita crashpad issues)
+        $chromeBase = storage_path('app/chrome'); // fuera del "public" disk
+        @mkdir($chromeBase.'/cache', 0775, true);
+        @mkdir($chromeBase.'/data',  0775, true);
     
         $browsershot = Browsershot::html($finalHtml)
             ->windowSize(630, 630)
@@ -105,18 +114,28 @@ class GenerateImageController extends Controller
             ->noSandbox()
             ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'))
             ->addChromiumArguments([
-                '--disable-dev-shm-usage',
-                '--disable-setuid-sandbox',
-                '--disable-gpu',
+                // IMPORTANTE: sin "--" porque Browsershot los añade
+                'no-sandbox',
+                'disable-dev-shm-usage',
+                'disable-gpu',
+                'disable-setuid-sandbox',
+                // Crashpad/Breakpad off para evitar el error mostrado
+                'disable-crashpad',
+                'disable-breakpad',
+                // Perfil/cache a rutas escribibles
+                'user-data-dir=' . $chromeBase,
+                'data-path=' . $chromeBase . '/data',
+                'disk-cache-dir=' . $chromeBase . '/cache',
+                // Más estabilidad en contenedores/servers headless
+                'no-zygote',
+                'no-first-run',
+                'single-process',
+                'headless=new', // o 'headless' según versión de Chromium
             ]);
-    
-        // Si instalaste node con rutas no estándar, podrías especificarlas:
-        // ->setNodeBinary(env('BROWSERSHOT_NODE_BINARY'))
-        // ->setNpmBinary(env('BROWSERSHOT_NPM_BINARY'));
     
         $browsershot->save($outputPath);
     
-        // Retorna SOLO la ruta relativa dentro del disk 'public'
-        return $filename; // "published/xxx.png"
+        return $filename; // "published/xxxx.png"
     }
+    
 }
