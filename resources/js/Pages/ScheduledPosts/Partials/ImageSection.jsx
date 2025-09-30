@@ -82,7 +82,7 @@ function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
                 imageUrl={`storage/${schedule.selected_image.image_path}`}
                 whatsapp={brandIdentity?.whatsapp}
                 website={brandIdentity?.website}
-                logo={brandIdentity?.logos[0].image ? `storage/${brandIdentity?.logos[0].image}` : null}
+                logo={brandIdentity?.logos[0]?.image ? `storage/${brandIdentity?.logos[0]?.image}` : null}
             />: <div className="w-80 h-80 sm:w-96 sm:h-96">
             <img
                 className="w-full h-full rounded-xl"

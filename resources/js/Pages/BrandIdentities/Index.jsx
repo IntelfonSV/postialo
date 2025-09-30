@@ -38,7 +38,7 @@ function Index({ brandIdentity }) {
             </div>
             <div className="w-full">
                 <div className="w-full bg-gray-500 p-5 rounded-lg">
-                    <Logos logos={brandIdentity.logos} />
+                    <Logos logos={brandIdentity?.logos? brandIdentity?.logos : []} />
                     <BrandIdentityForm
                         edit={editBrandIdentity}
                         setEdit={seteditBrandIdentity}
