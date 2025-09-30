@@ -29,4 +29,9 @@ class BrandIdentity extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function logos()
+    {
+        return $this->hasMany(Logo::class);
+    }
 }

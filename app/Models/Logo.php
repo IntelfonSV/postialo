@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Logo extends Model
 {
-    protected $fillable = ['user_id', 'url', 'is_active'];
+    protected $fillable = ['brand_identity_id', 'image', 'is_active'];
 
-    public function user() {
-        return $this->belongsTo(User::class);
+    public function brandIdentity() {
+        return $this->belongsTo(BrandIdentity::class);
     }
 }

@@ -11,7 +11,9 @@ class BrandIdentityController extends Controller
 {
     public function index()
     {
-        $brandIdentity = BrandIdentity::where('user_id', Auth::id())->first();
+        $brandIdentity = BrandIdentity::where('user_id', Auth::id())
+        ->with('logos')
+        ->first();
         return Inertia::render('BrandIdentities/Index', [
             'brandIdentity' => $brandIdentity
         ]);

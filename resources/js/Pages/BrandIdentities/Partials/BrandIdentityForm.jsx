@@ -31,7 +31,6 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         whatsapp_number: brandIdentity?.whatsapp_number || "",
         facebook_page_id: brandIdentity?.facebook_page_id || "",
         instagram_account_id: brandIdentity?.instagram_account_id || "",
-        logo: brandIdentity?.logo || "",
         facebook: {
             tone: guidelines?.facebook?.tone || "",
             guidelines: guidelines?.facebook?.guidelines || "",
@@ -81,19 +80,20 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
     };
 
     const textAreaClasses =
-        "w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" +
+        "w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 disabled:bg-gray-100 disabled:text-gray-500" +
         (edit ? "" : " bg-gray-50");
 
     return (
-        <div className="w-full bg-gray-500 p-5 rounded-lg">
+
             <form onSubmit={handleSubmit} className="mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:flex xl:flex-row w-full justify-center">
-                    <DefaultContainer className="p-6 rounded-2xl shadow-lg shadow-gray-800/50 w-full">
+                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
                         {/* datos de red social */}
                         <h4 className="text-xl font-bold mb-6 text-[#002073]">
                             Datos de contacto y red social
                         </h4>
                         <div className="flex flex-col gap-6">
+                            <label htmlFor="facebook_page_id">ID de Facebook</label>
                             <input
                                 type="text"
                                 name="facebook_page_id"
@@ -103,6 +103,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+                            <label htmlFor="instagram_account_id">ID de Instagram</label>
                             <input
                                 type="text"
                                 name="instagram_account_id"
@@ -112,6 +113,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+                            <label htmlFor="website">Pagina web</label>
                             <input
                                 type="text"
                                 name="website"
@@ -121,6 +123,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+                            <label htmlFor="whatsapp_number">Numero de Whatsapp</label>
                             <input
                                 type="text"
                                 name="whatsapp_number"
@@ -130,23 +133,15 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <input
-                                type="file"
-                                name="logo"
-                                className={textAreaClasses}
-                                placeholder="Logo"
-                                value={data.logo}
-                                onChange={handleChange}
-                                disabled={!edit}
-                            />
                         </div>
                     </DefaultContainer>
                     {/* Información General */}
-                    <DefaultContainer className="p-6 rounded-2xl shadow-lg shadow-gray-800/50 w-full">
+                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
                         <h4 className="text-xl font-bold mb-6 text-[#002073]">
                             Información General
                         </h4>
                         <div className="flex flex-col gap-6">
+                            <label htmlFor="company_identity">Identidad de la Empresa</label>
                             <textarea
                                 name="company_identity"
                                 rows="5"
@@ -156,6 +151,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+                            <label htmlFor="mission_vision">Misión & Visión</label>
                             <textarea
                                 name="mission_vision"
                                 rows="5"
@@ -165,6 +161,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+                            <label htmlFor="products_services">Productos/Servicios</label>
                             <textarea
                                 name="products_services"
                                 rows="5"
@@ -174,6 +171,8 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
+
+                            <label htmlFor="company_history">Historia de la Compañía</label>
                             <textarea
                                 name="company_history"
                                 rows="5"
@@ -187,7 +186,8 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                     </DefaultContainer>
 
                     {/* Lineamientos por Red Social */}
-                    <DefaultContainer className="p-6 rounded-2xl shadow-lg shadow-gray-800/50 w-full">
+                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
+                    
                         <h4 className="text-xl font-bold mb-6 text-[#002073]">
                             Lineamientos por Red Social
                         </h4>
@@ -199,6 +199,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             ? "X (Twitter)"
                                             : network}
                                     </h5>
+                                    <label htmlFor="tone">Tono de comunicación</label>
                                     <div className="flex flex-col gap-3">
                                         <textarea
                                             rows="5"
@@ -210,6 +211,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             }
                                             disabled={!edit}
                                         />
+                                        <label htmlFor="guidelines">Guías de estilo y contenido</label>
                                         <textarea
                                             rows="5"
                                             className={textAreaClasses}
@@ -224,6 +226,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             }
                                             disabled={!edit}
                                         />
+                                        <label htmlFor="audience">Público objetivo</label>
                                         <textarea
                                             rows="5"
                                             className={textAreaClasses}
@@ -259,6 +262,6 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                     )}
                 </div>
             </form>
-        </div>
+
     );
 }

@@ -11,7 +11,7 @@ import GreenButton from "@/Components/GreenButton";
 import { router } from "@inertiajs/react";
 import Swal from "sweetalert2";
 
-function ImageSection({ schedule, setLoading, templates }) {
+function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
     const [regenerateImageModal, setRegenerateImageModal] = useState(false);
     const [regenerateImageElement, setRegenerateImageElement] = useState(null);
     const [showChangeTemplateModal, setShowChangeTemplateModal] =
@@ -80,6 +80,9 @@ function ImageSection({ schedule, setLoading, templates }) {
                 className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
                 templateHtml={schedule.template.html_code}
                 imageUrl={`storage/${schedule.selected_image.image_path}`}
+                whatsapp={brandIdentity?.whatsapp}
+                website={brandIdentity?.website}
+                logo={brandIdentity?.logos[0].image ? `storage/${brandIdentity?.logos[0].image}` : null}
             />: <div className="w-80 h-80 sm:w-96 sm:h-96">
             <img
                 className="w-full h-full rounded-xl"

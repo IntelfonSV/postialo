@@ -13,11 +13,13 @@ import { usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import GrayContainer from "@/Components/GrayContainer";
 import ImagePreview from "../ScheduledPosts/Partials/ImagePreview";
-function Index({ templates = [], auth, users }) {
+function Index({ templates = [], auth, users, brandIdentity }) {
     const [items, setItems] = useState(templates);
     const [preview, setPreview] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
+
+    console.log(brandIdentity);
 
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
@@ -286,9 +288,13 @@ function Index({ templates = [], auth, users }) {
                                     </div>
                                     <div className="flex justify-center">
                                         <ImagePreview
+                                            logo={brandIdentity?.logos?.[0]?.image ? ('/storage/' + brandIdentity?.logos?.[0]?.image) : ""}
+                                            whatsapp={brandIdentity?.whatsapp_number}
+                                            website={brandIdentity?.website}
                                             imageUrl={
                                                 "/images/template_image.jpg"
                                             }
+
                                             templateHtml={tpl.html_code}
                                             className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
                                         />
@@ -360,7 +366,7 @@ function Index({ templates = [], auth, users }) {
                                                     className="btn btn--outline btn--sm flex items-center gap-2"
                                                     onClick={() =>
                                                         handleDelete(tpl)
-                                                    }
+                                                    }whatsapp
                                                 >
                                                     <FaTrash />
                                                     {tpl.id
@@ -392,8 +398,11 @@ function Index({ templates = [], auth, users }) {
                     <div className="flex justify-center items-center h-[480px] md:h-[700px]">
                         <ImagePreview
                             imageUrl={"images/template_image.jpg"}
+                            logo={brandIdentity?.logos?.[0]?.image ? ('/storage/' + brandIdentity?.logos?.[0]?.image) : ""}
                             templateHtml={preview.html_code}
                             className="w-[480px] h-[480px] sm:w-[700px] sm:h-[700px] object-cover rounded-xl"
+                            whatsapp={brandIdentity?.whatsapp_number}
+                            website={brandIdentity?.website}
                         />
                     </div>
                 </Modal>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Loading from "./Loading";
-import { router } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 
 export default function DemoCard() {
     const [loading, setLoading] = useState(false);
@@ -25,14 +25,14 @@ export default function DemoCard() {
                 30 días sin costo.
             </p>
 
-            <button
-                onClick={onActivate}
+            <Link
                 disabled={loading}
+                href={route("demos.guide")}
                 className="w-full px-4 py-2 rounded-xl text-white font-medium transition 
                    bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {loading ? "Activando..." : "Activar mes de prueba"}
-            </button>
+            </Link>
 
             {loading && <Loading title={"Activando mes de prueba"} />}
         </div>

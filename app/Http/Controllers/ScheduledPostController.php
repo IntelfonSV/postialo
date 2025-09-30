@@ -38,6 +38,7 @@ class ScheduledPostController extends Controller
 
         $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
 
+        $brandIdentity = $user->brandIdentity->with('logos')->first();
 
         //$templates = Template::where('user_id', $user->id)->get();
         $templates = Template::all();
@@ -46,6 +47,7 @@ class ScheduledPostController extends Controller
             'months' => $months,
             'templates' => $templates,
             'users' => $users ?? null,
+            'brandIdentity' => $brandIdentity,
         ]);
     }
 

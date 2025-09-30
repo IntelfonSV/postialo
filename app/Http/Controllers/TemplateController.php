@@ -6,6 +6,7 @@ use App\Models\Template;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\BrandIdentity;
 
 class TemplateController extends Controller
 {
@@ -22,9 +23,12 @@ class TemplateController extends Controller
            //$templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
            $templates = Template::orderBy('id', 'asc')->get();
         }
+        $brandIdentity = $user->brandIdentity->with('logos')->first();
+
         return Inertia::render('Templates/Index', [
             'templates' => $templates,
             'users' => $users ?? null,
+            'brandIdentity' => $brandIdentity ?? null,
         ]);
     }
 

@@ -16,6 +16,7 @@ function Index({
     templates = [],
     users = [],
     auth,
+    brandIdentity,
 }) {
     const { TranslateStatus, badge } = StatusHelper();
     const [posts, setPosts] = useState([]);
@@ -23,6 +24,8 @@ function Index({
         facebook: true,
         instagram: true,
     });
+
+    console.log(brandIdentity);
 
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
@@ -294,6 +297,7 @@ function Index({
                                     schedule={obj}
                                     setLoading={setLoading}
                                     templates={templates}
+                                    brandIdentity={brandIdentity}
                                 />
                                 <TextSection
                                     schedule={obj}

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('logos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('url');
+            $table->foreignId('brand_identity_id')->constrained()->cascadeOnDelete();
+            $table->string('image');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

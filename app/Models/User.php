@@ -54,6 +54,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Schedule::class);
     }
 
+    public function brandIdentity()
+    {
+        return $this->hasOne(BrandIdentity::class);
+    }
+    
     public function templates()
     {
         return $this->hasMany(Template::class);
@@ -94,14 +99,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasActiveDemo()
     {
         return $this->demos()->where('valid_until', '>=', now())->exists();
-    }
-
-    public function logos() {
-        return $this->hasMany(Logo::class);
-    }
-    
-    public function activeLogo() {
-        return $this->hasOne(Logo::class)->where('is_active', true);
     }
     
 }

@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('whatsapp_number')->nullable();
             $table->string('facebook_page_id')->nullable();
             $table->string('instagram_account_id')->nullable();
-            $table->string('logo')->nullable();
             $table->timestamps();
         });
     }
