@@ -23,7 +23,11 @@ class TemplateController extends Controller
            //$templates = Template::where('user_id', $user->id)->orderBy('id', 'asc')->get();
            $templates = Template::orderBy('id', 'asc')->get();
         }
-        $brandIdentity = $user->brandIdentity->with('logos')->first();
+        if($user->brandIdentity){
+            $brandIdentity = $user->brandIdentity->with('logos')->first();
+        }else{
+            $brandIdentity = null;
+        }
 
         return Inertia::render('Templates/Index', [
             'templates' => $templates,
