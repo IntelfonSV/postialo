@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-function Logos({ logos }) {
+function Logos({ logos=[] }) {
     const { data, setData, post, processing, progress, errors, reset } =
         useForm({
             logo: null, // será un File
