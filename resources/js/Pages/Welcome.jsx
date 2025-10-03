@@ -197,7 +197,7 @@ export default function Welcome() {
               <Tooltip title="Iniciar creación con IA">
                 <Button
                   component={Link}
-                  href={route?.("scheduled-posts.create") ?? "#"}
+                  href={route?.("schedules.index") ?? "#"}
                   variant="contained"
                   className="!bg-[#002073] !px-5 !py-2.5 !rounded-xl"
                   startIcon={<FaRobot />}
