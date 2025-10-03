@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect(route('guides', absolute: false));
+        return redirect(route('home', absolute: false));
     }
 
     /**
