@@ -37,7 +37,7 @@ export default function Welcome() {
                   color="primary"
                   className="!bg-[#002073] !text-white !font-bold"
                 />
-                <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-[#002073] leading-tight">
+                <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-[#002073] leading-tight text-wrap">
                   ¡Bienvenido, {user.name}!
                 </h1>
                 <p className="mt-3 text-gray-600 text-lg">
@@ -51,7 +51,7 @@ export default function Welcome() {
                   <Tooltip title="Crear una publicación con IA">
                     <Button
                       component={Link}
-                      href={route?.("scheduled-posts.create") ?? "#"}
+                      href={route?.("schedules.index") ?? "#"}
                       variant="contained"
                       className="!bg-[#002073] !px-5 !py-2.5 !rounded-xl"
                       startIcon={<FaRobot />}
@@ -78,7 +78,7 @@ export default function Welcome() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-3 justify-center lg:justify-start">
+                <div className="mt-4 flex items-center gap-3 justify-center lg:justify-start flex-wrap">
                   <Chip
                     label="Publicación automática"
                     variant="outlined"
