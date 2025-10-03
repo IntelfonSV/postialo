@@ -60,6 +60,12 @@ class GenerateImageController extends Controller
     public function generateImageFromHtml(Schedule $schedule): string
     {
         $schedule->load('template', 'selectedImage');
+        $brandIdentity = $schedule->user->brandIdentity->with('logos')->first();
+
+        $safeText = static function (?string $txt): string {
+            return htmlspecialchars($txt ?? '', ENT_QUOTES, 'UTF-8', false);
+        };
+        
     
         $html = $schedule->template->html_code ?? '';
         $bgPath = storage_path('app/public/' . $schedule->selectedImage->image_path);
@@ -72,6 +78,47 @@ class GenerateImageController extends Controller
             '<img class="background-img" src="' . $bgPath . '" $1>',
             $html
         );
+
+        if($brandIdentity->logos[0]->image){
+            $logoPathFs = storage_path('app/public/' . $brandIdentity->logos[0]->image);
+            $replaced = preg_replace(
+                '/<img\s+class="logo"[^>]*src="[^"]*"([^>]*)>/iu',
+                '<img class="logo" src="' . $logoPathFs . '" $1>',
+                $finalHtml,
+                1
+            );
+            if ($replaced !== null) {
+                $finalHtml = $replaced;
+            }        
+        }
+
+        if ($brandIdentity->website !== null) {
+            $safeWebsite = $safeText($brandIdentity->website);
+            $replaced = preg_replace(
+                '/<span\s+class="website">.*?<\/span>/isu',
+                '<span class="website">' . $safeWebsite . '</span>',
+                $finalHtml,
+                1
+            );
+            if ($replaced !== null) {
+                $finalHtml = $replaced;
+            }
+        }
+    
+        // 4) Reemplazar <span class="whatsapp">...</span> si viene whatsapp
+        if ( $brandIdentity->whatsapp_number !== null) {
+            $safeWhats = $safeText( $brandIdentity->whatsapp_number);
+            $replaced = preg_replace(
+                '/<span\s+class="whatsapp">.*?<\/span>/isu',
+                '<span class="whatsapp">' . $safeWhats . '</span>',
+                $finalHtml,
+                1
+            );
+            if ($replaced !== null) {
+                $finalHtml = $replaced;
+            }
+        }
+
     
         $dir = 'published';
         if (!Storage::disk('public')->exists($dir)) {

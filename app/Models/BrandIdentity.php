@@ -16,6 +16,10 @@ class BrandIdentity extends Model
         'products_services',
         'company_history',
         'guidelines_json',
+        'website',
+        'whatsapp_number',
+        'facebook_page_id',
+        'instagram_account_id',
     ];
 
     protected $casts = [
