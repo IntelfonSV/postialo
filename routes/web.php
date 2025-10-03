@@ -18,16 +18,14 @@ use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\LogoController;
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('guides');
-    });
-    
+Route::middleware(['auth', 'verified'])->group(function () {  
     Route::post('/users/demo', [UserController::class, 'demo'])->name('users.demo');
     Route::inertia('guides', 'Guides/FacebookAccessGuide')->name('guides');
     Route::get('/demos/guide', [DemoController::class, 'guide'])->name('demos.guide');
     Route::post('/logos/store', [LogoController::class, 'store'])->name('logos.store');
     Route::delete('/logos/{logo}', [LogoController::class, 'destroy'])->name('logos.destroy');
+    Route::post('/demos/activate', [DemoController::class, 'activateDemo'])->name('demos.activate');
+    Route::get('/', function () { return Inertia::render('Welcome');})->name('home');
 });
 
 
@@ -37,9 +35,12 @@ Route::post('/email/verification-notification', function (Request $request) {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
+    Route::resource('brand-identities', BrandIdentityController::class)->names('brand-identities');
+});
+
+Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('templates', TemplateController::class)->names('templates');
-    Route::resource('brand-identities', BrandIdentityController::class)->names('brand-identities');
     Route::resource('schedules', ScheduleController::class);
     Route::post('schedules/{schedule}/update-template', [ScheduleController::class, 'updateTemplate'])->name('schedules.update-template');
     Route::post('scheduled-posts/{scheduled_post}/regenerate', [ScheduledPostController::class, 'regenerate'])->name('scheduled-posts.regenerate');

@@ -22,7 +22,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="flex ">
                                 <div className="flex shrink-0 items-center">
                                     <Link
-                                        href="/"
+                                        href={route("home")}
                                         className="text-white font-bold text-3xl"
                                     >
                                         Post

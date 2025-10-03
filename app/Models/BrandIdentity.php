@@ -38,4 +38,9 @@ class BrandIdentity extends Model
     {
         return $this->hasMany(Logo::class);
     }
+
+    public function isCompleted()
+    {
+        return $this->company_identity && $this->mission_vision && $this->products_services && $this->company_history && $this->guidelines_json && $this->website && $this->whatsapp_number && $this->facebook_page_id && $this->instagram_account_id;
+    }
 }

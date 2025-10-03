@@ -93,7 +93,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             Datos de contacto y red social
                         </h4>
                         <div className="flex flex-col gap-6">
-                            <label htmlFor="facebook_page_id">ID de Facebook</label>
+                            <label htmlFor="facebook_page_id">ID de Facebook <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 name="facebook_page_id"
@@ -103,7 +103,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="instagram_account_id">ID de Instagram</label>
+                            <label htmlFor="instagram_account_id">ID de Instagram <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 name="instagram_account_id"
@@ -123,7 +123,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="whatsapp_number">Numero de Whatsapp</label>
+                            <label htmlFor="whatsapp_number">Numero de Whatsapp <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 name="whatsapp_number"
@@ -141,7 +141,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             Información General
                         </h4>
                         <div className="flex flex-col gap-6">
-                            <label htmlFor="company_identity">Identidad de la Empresa</label>
+                            <label htmlFor="company_identity">Identidad de la Empresa <span className="text-red-500">*</span></label>
                             <textarea
                                 name="company_identity"
                                 rows="5"
@@ -151,7 +151,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="mission_vision">Misión & Visión</label>
+                            <label htmlFor="mission_vision">Misión & Visión <span className="text-red-500">*</span></label>
                             <textarea
                                 name="mission_vision"
                                 rows="5"
@@ -161,7 +161,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="products_services">Productos/Servicios</label>
+                            <label htmlFor="products_services">Productos/Servicios <span className="text-red-500">*</span></label>
                             <textarea
                                 name="products_services"
                                 rows="5"
@@ -172,7 +172,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 disabled={!edit}
                             />
 
-                            <label htmlFor="company_history">Historia de la Compañía</label>
+                            <label htmlFor="company_history">Historia de la Compañía <span className="text-red-500">*</span></label>
                             <textarea
                                 name="company_history"
                                 rows="5"
@@ -199,7 +199,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             ? "X (Twitter)"
                                             : network}
                                     </h5>
-                                    <label htmlFor="tone">Tono de comunicación</label>
+                                    <label htmlFor="tone">Tono de comunicación <span className="text-red-500">*</span></label>
                                     <div className="flex flex-col gap-3">
                                         <textarea
                                             rows="5"
@@ -211,7 +211,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             }
                                             disabled={!edit}
                                         />
-                                        <label htmlFor="guidelines">Guías de estilo y contenido</label>
+                                        <label htmlFor="guidelines">Guías de estilo y contenido <span className="text-red-500">*</span></label>
                                         <textarea
                                             rows="5"
                                             className={textAreaClasses}
@@ -226,7 +226,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                             }
                                             disabled={!edit}
                                         />
-                                        <label htmlFor="audience">Público objetivo</label>
+                                        <label htmlFor="audience">Público objetivo <span className="text-red-500">*</span></label>
                                         <textarea
                                             rows="5"
                                             className={textAreaClasses}
@@ -250,7 +250,6 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                 <div className="mt-8 flex justify-center mb-10">
                     {edit && (
                         <div className="flex gap-2">
-                            {" "}
                             <DangerButton
                                 type="button"
                                 onClick={() => setEdit(false)}

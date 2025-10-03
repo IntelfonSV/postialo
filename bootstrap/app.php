@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'subscription' => \App\Http\Middleware\CheckSubscription::class,
             'no-subscription' => \App\Http\Middleware\EnsureUserHasNoSubscription::class,
+            'brand-identity' => \App\Http\Middleware\CheckBrandIdentity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
