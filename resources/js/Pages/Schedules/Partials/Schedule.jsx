@@ -4,6 +4,7 @@ import { router, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import StatusHelper from "@/Helpers/StatusHelper";
+import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
 
 function Schedule({
     schedule = null,
@@ -26,7 +27,7 @@ function Schedule({
         idea: schedule?.idea || "",
         objective: schedule?.objective || "",
         prompt_image: schedule?.prompt_image || "",
-        networks: schedule?.networks || [],
+        networks: schedule?.networks || ['facebook', 'instagram'],
         user_id: user?.id || auth.user.id,
         template_id: schedule?.template_id || "",
         status: schedule?.status || "pending",
@@ -291,7 +292,7 @@ function Schedule({
                                         disabled={disabled}
                                     />
                                     <span className="ml-2 text-gray-700">
-                                        {net}
+                                        {net === 'facebook' ? <FaFacebookSquare className="text-blue-600 text-3xl" /> : <FaInstagram className="text-pink-600 text-3xl" />}
                                     </span>
                                 </label>
                             ))}

@@ -1,7 +1,7 @@
 import StatusHelper from "@/Helpers/StatusHelper";
 import SelectTextModal from "../Partials/SelectTextModal";
 import { useState } from "react";
-import { FaCheck, FaEdit } from "react-icons/fa";
+import { FaCheck, FaEdit, FaFacebookSquare, FaInstagram } from "react-icons/fa";
 import { IoReloadCircleSharp } from "react-icons/io5";
 import { BsChatRightTextFill } from "react-icons/bs";
 import { router } from "@inertiajs/react";
@@ -69,9 +69,8 @@ function TextSection({ schedule, networks, setLoading }) {
                     >
                         <div className="flex items-center w-full gap-2 bg-gray-200 p-2 rounded-xl justify-between">
                             <div className="flex  items-center gap-2">
-                                <span className={badge(row.network)}>
-                                    {TranslateStatus(row.network)}
-                                </span>
+                                {row.network === "facebook" ? <FaFacebookSquare className="text-blue-600 text-3xl" /> : <FaInstagram className="text-pink-600 text-3xl" />} 
+
                                 {schedule.status == "cancelled" ? (
                                     <span className={badge(schedule.status)}>
                                         Cancelada
