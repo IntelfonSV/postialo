@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use App\Models\BrandIdentity;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ScheduleController extends Controller
 
@@ -419,6 +420,10 @@ class ScheduleController extends Controller
             $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
             $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
             $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
+            $fecha_ddmmyyyy = Carbon::parse($schedule->scheduled_date)
+            ->tz('America/El_Salvador')
+            ->format('d/m/Y');
+            $schedule->fecha = $fecha_ddmmyyyy;
             
             $response = Http::post($webhook, [
                 'schedule' => $schedule        
@@ -450,6 +455,10 @@ class ScheduleController extends Controller
         $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
         $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
         $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
+        $fecha_ddmmyyyy = Carbon::parse($schedule->scheduled_date)
+        ->tz('America/El_Salvador')
+        ->format('d/m/Y');
+        $schedule->fecha = $fecha_ddmmyyyy;
         $response = Http::post($webhook, [
             'schedule' => $schedule        
         ]);
