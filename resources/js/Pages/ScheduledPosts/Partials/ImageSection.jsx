@@ -24,6 +24,8 @@ function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
         setRegenerateImageModal(true);
     };
 
+
+    console.log(brandIdentity);
     const handleShowChangeTemplateModal = (row) => {
         setChangeTemplateElement(row);
         setShowChangeTemplateModal(true);
@@ -80,7 +82,7 @@ function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
                 className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
                 templateHtml={schedule.template.html_code}
                 imageUrl={`storage/${schedule.selected_image.image_path}`}
-                whatsapp={brandIdentity?.whatsapp}
+                whatsapp={brandIdentity?.whatsapp_number }
                 website={brandIdentity?.website}
                 logo={brandIdentity?.logos[0]?.image ? `storage/${brandIdentity?.logos[0]?.image}` : null}
             />: <div className="w-80 h-80 sm:w-96 sm:h-96">
