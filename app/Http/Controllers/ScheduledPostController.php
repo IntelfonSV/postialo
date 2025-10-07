@@ -40,7 +40,7 @@ class ScheduledPostController extends Controller
 
         // cargar logos si existe brandidentity
         if($user->brandIdentity){
-            $brandIdentity = $user->brandIdentity->with('logos')->first();
+            $brandIdentity = BrandIdentity::with('logos')->where('user_id', $user->id)->first();
         }else{
             $brandIdentity = null;
         }

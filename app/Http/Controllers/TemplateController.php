@@ -16,6 +16,7 @@ class TemplateController extends Controller
     public function index()
     {
         $user = auth()->user();
+
         if($user->hasRole('admin')) {
             $users = User::all();
             $templates = Template::orderBy('id', 'asc')->get();
@@ -24,7 +25,7 @@ class TemplateController extends Controller
            $templates = Template::orderBy('id', 'asc')->get();
         }
         if($user->brandIdentity){
-            $brandIdentity = $user->brandIdentity->with('logos')->first();
+            $brandIdentity = BrandIdentity:: with('logos')->where('user_id', $user->id)->first();
         }else{
             $brandIdentity = null;
         }
