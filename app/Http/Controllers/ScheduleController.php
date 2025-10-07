@@ -413,8 +413,9 @@ class ScheduleController extends Controller
         ->with('selectedImage')
         ->get();
 
-        $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
+        //$webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
         foreach ($schedules as $schedule) {
+            $webhook = $schedule->user->make_url;
             $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
             $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
             $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
@@ -444,7 +445,8 @@ class ScheduleController extends Controller
             'user',
         ]); 
 
-        $webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
+        #$webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
+        $webhook = $schedule->user->make_url;
         $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
         $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
         $schedule->instagram_account_id = $brandIdentity->instagram_account_id;

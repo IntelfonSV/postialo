@@ -3,8 +3,7 @@ import { Head, useForm } from "@inertiajs/react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
-import PrimaryButton from "@/Components/PrimaryButton";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaLink } from "react-icons/fa";
 import GrayContainer from "@/Components/GrayContainer";
 import BackButton from "@/Components/BackButton";
 import BlueButton from "@/Components/BlueButton";
@@ -13,6 +12,7 @@ function Edit({ auth, user, roles }) {
     const { data, setData, put, processing, errors } = useForm({
         name: user.name || '',
         email: user.email || '',
+        make_url:user.make_url || '',
         password: '',
         roles: user.roles.map(role => role.name) || [],
     });
@@ -89,6 +89,25 @@ function Edit({ auth, user, roles }) {
                                     />
                                 </div>
                                 <InputError message={errors.email} className="mt-2" />
+                            </div>
+
+                            {/* make_url */}
+                            <div>
+                                <InputLabel htmlFor="make_url" value="webhook de make" />
+                                <div className="relative mt-1">
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <FaLink className="text-gray-400" />
+                                    </div>
+                                    <TextInput
+                                        id="make_url"
+                                        type="text"
+                                        name="make_url"
+                                        value={data.make_url}
+                                        className="block w-full pl-10"
+                                        onChange={(e) => setData('make_url', e.target.value)}
+                                    />
+                                </div>
+                                <InputError message={errors.make_url} className="mt-2" />
                             </div>
 
                             {/* Password */}

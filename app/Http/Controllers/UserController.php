@@ -83,12 +83,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'make_url' => 'nullable|string',
             'roles' => 'required|array'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'make_url'=> $request->make_url,
             'password' => Hash::make($request->password),
         ]);
 
@@ -111,12 +113,14 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'make_url'=>'nullable|string',
             'password' => 'nullable|string|min:8',
             'roles' => 'required|array'
         ]);
 
         $updateData = [
             'name' => $request->name,
+            'make_url'=>$request->make_url,
             'email' => $request->email,
         ];
 

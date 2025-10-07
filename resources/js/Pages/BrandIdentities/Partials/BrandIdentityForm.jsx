@@ -2,6 +2,12 @@ import DangerButton from "@/Components/DangerButton";
 import DefaultContainer from "@/Components/DefaultContainer";
 import GreenButton from "@/Components/GreenButton";
 import { useForm } from "@inertiajs/react";
+import {
+    FaFacebookSquare,
+    FaGlobe,
+    FaInstagram,
+    FaWhatsapp,
+} from "react-icons/fa";
 
 export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
     let guidelines = {};
@@ -84,16 +90,23 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         (edit ? "" : " bg-gray-50");
 
     return (
-
-            <form onSubmit={handleSubmit} className="mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:flex xl:flex-row w-full justify-center">
-                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
-                        {/* datos de red social */}
-                        <h4 className="text-xl font-bold mb-6 text-[#002073]">
-                            Datos de contacto y red social
-                        </h4>
-                        <div className="flex flex-col gap-6">
-                            <label htmlFor="facebook_page_id">ID de Facebook <span className="text-red-500">*</span></label>
+        <form onSubmit={handleSubmit} className="mx-auto">
+            <div className="grid grid-cols-1 gap-8">
+                <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full ">
+                    {/* datos de red social */}
+                    <h4 className="text-xl font-bold mb-6 text-[#002073]">
+                        Datos de contacto y red social
+                    </h4>
+                    <div className="flex gap-6 flex-wrap w-full">
+                        <div>
+                            <label
+                                htmlFor="facebook_page_id"
+                                className="flex items-center gap-2 mb-5"
+                            >
+                                <FaFacebookSquare className="text-blue-600 w-6 h-6" />{" "}
+                                ID de Facebook{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="facebook_page_id"
@@ -103,7 +116,16 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="instagram_account_id">ID de Instagram <span className="text-red-500">*</span></label>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="instagram_account_id"
+                                className="flex items-center gap-2 mb-5"
+                            >
+                                <FaInstagram className="text-pink-600 w-6 h-6" />{" "}
+                                ID de Instagram{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="instagram_account_id"
@@ -113,7 +135,15 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="website">Pagina web</label>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="website"
+                                className="flex items-center gap-2 mb-5"
+                            >
+                                <FaGlobe className="text-blue-600 w-6 h-6" />{" "}
+                                Pagina web
+                            </label>
                             <input
                                 type="text"
                                 name="website"
@@ -123,7 +153,16 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 onChange={handleChange}
                                 disabled={!edit}
                             />
-                            <label htmlFor="whatsapp_number">Numero de Whatsapp <span className="text-red-500">*</span></label>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="whatsapp_number"
+                                className="flex items-center gap-2 mb-5"
+                            >
+                                <FaWhatsapp className="text-green-600 w-6 h-6" />{" "}
+                                Numero de Whatsapp{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="whatsapp_number"
@@ -134,133 +173,156 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 disabled={!edit}
                             />
                         </div>
-                    </DefaultContainer>
-                    {/* Información General */}
-                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
-                        <h4 className="text-xl font-bold mb-6 text-[#002073]">
-                            Información General
-                        </h4>
-                        <div className="flex flex-col gap-6">
-                            <label htmlFor="company_identity">Identidad de la Empresa <span className="text-red-500">*</span></label>
-                            <textarea
-                                name="company_identity"
-                                rows="5"
-                                className={textAreaClasses}
-                                placeholder="Identidad de la Empresa"
-                                value={data.company_identity}
-                                onChange={handleChange}
-                                disabled={!edit}
-                            />
-                            <label htmlFor="mission_vision">Misión & Visión <span className="text-red-500">*</span></label>
-                            <textarea
-                                name="mission_vision"
-                                rows="5"
-                                className={textAreaClasses}
-                                placeholder="Misión & Visión"
-                                value={data.mission_vision}
-                                onChange={handleChange}
-                                disabled={!edit}
-                            />
-                            <label htmlFor="products_services">Productos/Servicios <span className="text-red-500">*</span></label>
-                            <textarea
-                                name="products_services"
-                                rows="5"
-                                className={textAreaClasses}
-                                placeholder="Productos/Servicios"
-                                value={data.products_services}
-                                onChange={handleChange}
-                                disabled={!edit}
-                            />
+                    </div>
+                </DefaultContainer>
+                {/* Información General */}
+                <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
+                    <h4 className="text-xl font-bold mb-6 text-[#002073]">
+                        Información General
+                    </h4>
+                    <div className="flex flex-col gap-6">
+                        <label htmlFor="company_identity">
+                            Identidad de la Empresa{" "}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                            name="company_identity"
+                            rows="3"
+                            className={textAreaClasses}
+                            placeholder="Identidad de la Empresa"
+                            value={data.company_identity}
+                            onChange={handleChange}
+                            disabled={!edit}
+                        />
+                        <label htmlFor="mission_vision">
+                            Misión & Visión{" "}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                            name="mission_vision"
+                            rows="3"
+                            className={textAreaClasses}
+                            placeholder="Misión & Visión"
+                            value={data.mission_vision}
+                            onChange={handleChange}
+                            disabled={!edit}
+                        />
+                        <label htmlFor="products_services">
+                            Productos/Servicios{" "}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                            name="products_services"
+                            rows="3"
+                            className={textAreaClasses}
+                            placeholder="Productos/Servicios"
+                            value={data.products_services}
+                            onChange={handleChange}
+                            disabled={!edit}
+                        />
 
-                            <label htmlFor="company_history">Historia de la Compañía <span className="text-red-500">*</span></label>
-                            <textarea
-                                name="company_history"
-                                rows="5"
-                                className={textAreaClasses}
-                                placeholder="Historia de la Compañía"
-                                value={data.company_history}
-                                onChange={handleChange}
-                                disabled={!edit}
-                            />
-                        </div>
-                    </DefaultContainer>
+                        <label htmlFor="company_history">
+                            Historia de la Compañía{" "}
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                            name="company_history"
+                            rows="3"
+                            className={textAreaClasses}
+                            placeholder="Historia de la Compañía"
+                            value={data.company_history}
+                            onChange={handleChange}
+                            disabled={!edit}
+                        />
+                    </div>
+                </DefaultContainer>
 
-                    {/* Lineamientos por Red Social */}
-                    <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
-                    
-                        <h4 className="text-xl font-bold mb-6 text-[#002073]">
-                            Lineamientos por Red Social
-                        </h4>
-                        <div>
-                            {networks.map((network) => (
-                                <div key={network} className="">
-                                    <h5 className="text-lg font-semibold capitalize mb-3 text-[#002073]">
+                {/* Lineamientos por Red Social */}
+                <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
+                    <h4 className="text-xl font-bold mb-6 text-[#002073]">
+                        Lineamientos por Red Social
+                    </h4>
+                    <div>
+                        {networks.map((network) => (
+                            <div key={network} className="">
+                                <h5 className="text-lg font-semibold capitalize mb-3 text-[#002073]">
+                                    <div className="flex items-center gap-2 mt-5">
+                                        {network === "facebook" ? (
+                                            <FaFacebookSquare className="text-blue-600 w-6 h-6" />
+                                        ) : (
+                                            <FaInstagram className="text-pink-600 w-6 h-6" />
+                                        )}
                                         {network === "x"
                                             ? "X (Twitter)"
                                             : network}
-                                    </h5>
-                                    <label htmlFor="tone">Tono de comunicación <span className="text-red-500">*</span></label>
-                                    <div className="flex flex-col gap-3">
-                                        <textarea
-                                            rows="5"
-                                            className={textAreaClasses}
-                                            placeholder="Tono de comunicación"
-                                            value={data[network].tone}
-                                            onChange={(e) =>
-                                                handleChange(e, network, "tone")
-                                            }
-                                            disabled={!edit}
-                                        />
-                                        <label htmlFor="guidelines">Guías de estilo y contenido <span className="text-red-500">*</span></label>
-                                        <textarea
-                                            rows="5"
-                                            className={textAreaClasses}
-                                            placeholder="Guías de estilo y contenido"
-                                            value={data[network].guidelines}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    e,
-                                                    network,
-                                                    "guidelines",
-                                                )
-                                            }
-                                            disabled={!edit}
-                                        />
-                                        <label htmlFor="audience">Público objetivo <span className="text-red-500">*</span></label>
-                                        <textarea
-                                            rows="5"
-                                            className={textAreaClasses}
-                                            placeholder="Público objetivo"
-                                            value={data[network].audience}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    e,
-                                                    network,
-                                                    "audience",
-                                                )
-                                            }
-                                            disabled={!edit}
-                                        /> 
                                     </div>
+                                </h5>
+                                <label htmlFor="tone">
+                                    Tono de comunicación{" "}
+                                    <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex flex-col gap-3">
+                                    <textarea
+                                        rows="3"
+                                        className={textAreaClasses}
+                                        placeholder="Tono de comunicación"
+                                        value={data[network].tone}
+                                        onChange={(e) =>
+                                            handleChange(e, network, "tone")
+                                        }
+                                        disabled={!edit}
+                                    />
+                                    <label htmlFor="guidelines">
+                                        Guías de estilo y contenido{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        rows="5"
+                                        className={textAreaClasses}
+                                        placeholder="Guías de estilo y contenido"
+                                        value={data[network].guidelines}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                e,
+                                                network,
+                                                "guidelines",
+                                            )
+                                        }
+                                        disabled={!edit}
+                                    />
+                                    <label htmlFor="audience">
+                                        Público objetivo{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        rows="5"
+                                        className={textAreaClasses}
+                                        placeholder="Público objetivo"
+                                        value={data[network].audience}
+                                        onChange={(e) =>
+                                            handleChange(e, network, "audience")
+                                        }
+                                        disabled={!edit}
+                                    />
                                 </div>
-                            ))}
-                        </div>
-                    </DefaultContainer>
-                </div>
-                <div className="mt-8 flex justify-center mb-10">
-                    {edit && (
-                        <div className="flex gap-2">
-                            <DangerButton
-                                type="button"
-                                onClick={() => setEdit(false)}
-                            >
-                                Cancelar
-                            </DangerButton>
-                            <GreenButton type="submit">Guardar</GreenButton>
-                        </div>
-                    )}
-                </div>
-            </form>
-
+                            </div>
+                        ))}
+                    </div>
+                </DefaultContainer>
+            </div>
+            <div className="mt-8 flex justify-center mb-10">
+                {edit && (
+                    <div className="flex gap-2">
+                        <DangerButton
+                            type="button"
+                            onClick={() => setEdit(false)}
+                        >
+                            Cancelar
+                        </DangerButton>
+                        <GreenButton type="submit">Guardar</GreenButton>
+                    </div>
+                )}
+            </div>
+        </form>
     );
 }
