@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Spatie\Browsershot\Browsershot;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\Log;
+use App\Models\BrandIdentity;
 
 class GenerateImageController extends Controller
 {
