@@ -60,7 +60,8 @@ class GenerateImageController extends Controller
     public function generateImageFromHtml(Schedule $schedule): string
     {
         $schedule->load('template', 'selectedImage');
-        $brandIdentity = $schedule->user->brandIdentity->with('logos')->first();
+        #$brandIdentity = $schedule->user->brandIdentity->with('logos')->first();
+        $brandIdentity = BrandIdentity::with('logos')->where('user_id', $schedule->user_id)->first();
 
         $safeText = static function (?string $txt): string {
             return htmlspecialchars($txt ?? '', ENT_QUOTES, 'UTF-8', false);

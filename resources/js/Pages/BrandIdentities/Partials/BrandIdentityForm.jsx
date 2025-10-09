@@ -185,6 +185,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             Identidad de la Empresa{" "}
                             <span className="text-red-500">*</span>
                         </label>
+                        {edit ? (
                         <textarea
                             name="company_identity"
                             rows="3"
@@ -194,11 +195,13 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             onChange={handleChange}
                             disabled={!edit}
                         />
+                        ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data.company_identity}</p>}
                         <label htmlFor="mission_vision">
                             Misión & Visión{" "}
                             <span className="text-red-500">*</span>
                         </label>
-                        <textarea
+                        {edit ? (
+                            <textarea
                             name="mission_vision"
                             rows="3"
                             className={textAreaClasses}
@@ -207,10 +210,12 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             onChange={handleChange}
                             disabled={!edit}
                         />
+                        ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data.mission_vision}</p>}
                         <label htmlFor="products_services">
                             Productos/Servicios{" "}
                             <span className="text-red-500">*</span>
                         </label>
+                        {edit ? (
                         <textarea
                             name="products_services"
                             rows="3"
@@ -219,12 +224,13 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             value={data.products_services}
                             onChange={handleChange}
                             disabled={!edit}
-                        />
+                        />  ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data.products_services}</p>}
 
                         <label htmlFor="company_history">
                             Historia de la Compañía{" "}
                             <span className="text-red-500">*</span>
                         </label>
+                        {edit ? (
                         <textarea
                             name="company_history"
                             rows="3"
@@ -234,6 +240,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                             onChange={handleChange}
                             disabled={!edit}
                         />
+                        ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data.company_history}</p>}
                     </div>
                 </DefaultContainer>
 
@@ -262,6 +269,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                     <span className="text-red-500">*</span>
                                 </label>
                                 <div className="flex flex-col gap-3">
+                                    {edit ? (
                                     <textarea
                                         rows="3"
                                         className={textAreaClasses}
@@ -272,10 +280,12 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                         }
                                         disabled={!edit}
                                     />
+                                    ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data[network].tone}</p>}
                                     <label htmlFor="guidelines">
                                         Guías de estilo y contenido{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
+                                    {edit ? (
                                     <textarea
                                         rows="5"
                                         className={textAreaClasses}
@@ -290,10 +300,12 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                         }
                                         disabled={!edit}
                                     />
+                                    ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data[network].guidelines}</p>}
                                     <label htmlFor="audience">
                                         Público objetivo{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
+                                    {edit ? (
                                     <textarea
                                         rows="5"
                                         className={textAreaClasses}
@@ -304,6 +316,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                         }
                                         disabled={!edit}
                                     />
+                                    ) : <p className="text-gray-600 bg-gray-100 p-2 rounded-xl">{data[network].audience}</p>}
                                 </div>
                             </div>
                         ))}
