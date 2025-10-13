@@ -291,9 +291,7 @@ function Index({ templates = [], auth, users, brandIdentity }) {
                                             logo={brandIdentity?.logos?.[0]?.image ? ('/storage/' + brandIdentity?.logos?.[0]?.image) : ""}
                                             whatsapp={brandIdentity?.whatsapp_number}
                                             website={brandIdentity?.website}
-                                            imageUrl={
-                                                "/images/template_image.jpg"
-                                            }
+                                            imageUrl=""
 
                                             templateHtml={tpl.html_code}
                                             className="w-80 h-80 sm:w-96 sm:h-96 object-cover rounded-xl"
