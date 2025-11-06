@@ -58,7 +58,7 @@ class GenerateImageController extends Controller
             \Log::error("Error de conexión con Ideogram: " . $e->getMessage());
             return [
                 "status" => "error",
-                "message" => "No se pudo conectar con Ideogram. Verifique su conexión o inténtelo más tarde."
+                "message" => "No se pudo generar la imagen. Inténtelo de nuevo."
             ];
         } catch (\Exception $e) {
             // Otros errores inesperados
