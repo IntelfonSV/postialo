@@ -15,28 +15,59 @@ class GenerateImageController extends Controller
 {
     public function generateImage($prompt)
     {
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'api-key' => config('services.ideogram.api_key'),
-        ])->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
-            'prompt' => $prompt,
-            'aspect_ratio' => '1x1',
-            'rendering_speed' => 'QUALITY',
-            'style_type' => 'REALISTIC'
-        ]);
-        
+        try {
+            $response = Http::timeout(60)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'api-key' => config('services.ideogram.api_key'),
+                ])
+                ->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
+                    'prompt' => $prompt,
+                    'aspect_ratio' => '1x1',
+                    'rendering_speed' => 'QUALITY',
+                    'style_type' => 'REALISTIC'
+                ]);
 
-        if (isset($response->json()['error'])) {
-            return ["status" => "error", "message" => $response->json()['error']];
+            // Si la API devuelve un error
+            if (isset($response->json()['error'])) {
+                return [
+                    "status" => "error",
+                    "message" => $response->json()['error']
+                ];
+            }
+
+            // Validar que la respuesta tenga datos
+            $data = $response->json()['data'][0] ?? null;
+            if (!$data || empty($data['url'])) {
+                return [
+                    "status" => "error",
+                    "message" => "No se pudo generar la imagen o la respuesta está vacía."
+                ];
+            }
+
+            // Guardar imagen
+            $image = $this->saveImage($data['url']);
+
+            return [
+                "status" => "success",
+                "image" => $image
+            ];
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // Error tipo cURL (como el 28)
+            \Log::error("Error de conexión con Ideogram: " . $e->getMessage());
+            return [
+                "status" => "error",
+                "message" => "No se pudo conectar con Ideogram. Verifique su conexión o inténtelo más tarde."
+            ];
+        } catch (\Exception $e) {
+            // Otros errores inesperados
+            \Log::error("Error al generar imagen: " . $e->getMessage());
+            return [
+                "status" => "error",
+                "message" => "Ocurrió un error inesperado al generar la imagen."
+            ];
         }
-        
-        //en data.url esta la url de la imagen quiero retornar la imagen
-        if($response->json()['data'][0]['url'] == null){
-            return ["status" => "error", "message" => "No se pudo generar la imagen"];
-        }
-            
-        $image = $this->saveImage($response->json()['data'][0]['url']);
-        return ["status" => "success", "image" => $image];
     }
 
     private function saveImage($url)

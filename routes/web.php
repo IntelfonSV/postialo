@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DemoController;
 use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\LogoController;
+use App\Http\Controllers\ClientController;
 
 
 Route::middleware(['auth', 'verified'])->group(function () {  
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/logos/{logo}', [LogoController::class, 'destroy'])->name('logos.destroy');
     Route::post('/demos/activate', [DemoController::class, 'activateDemo'])->name('demos.activate');
     Route::get('/', function () { return Inertia::render('Welcome');})->name('home');
+    
+    Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
 });
 
 
