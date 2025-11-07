@@ -20,6 +20,8 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
     const [showMonthYearSelect, setShowMonthYearSelect] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
+    const unlimitedPostsUsersId = [1,2, 6,8,10];
+
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
     useEffect(() => {
@@ -253,7 +255,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
 
                 <div className="mt-4 w-full bg-gray-200 gap-4 p-4 rounded-xl ">
                     <div className="flex justify-center items-center gap-4">
-                        {selectedSchedules?.length < 14 && !newSchedule && (
+                        { (unlimitedPostsUsersId.includes(auth.user.id) || selectedSchedules?.length < 14) && !newSchedule && (
                             <BlueButton onClick={handleAddPost}>
                                 Agregar Publicación
                             </BlueButton>
@@ -278,7 +280,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                             )}
                     </div >
 
-                    {selectedSchedules?.length >= 14 && !newSchedule && (
+                    { !(unlimitedPostsUsersId.includes(auth.user.id) || selectedSchedules?.length >= 14) && !newSchedule && (
                     <div className="flex justify-center items-center gap-4 mt-5">
                         <span className="text-gray-700">
                             No se pueden agregar más publicaciones
