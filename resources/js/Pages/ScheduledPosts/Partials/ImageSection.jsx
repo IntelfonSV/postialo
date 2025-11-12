@@ -94,7 +94,7 @@ function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
             </div>
             }
             <div className="flex items-center gap-2 mt-2">
-                { schedule.status != "cancelled" && !schedule.selected_image.is_approved &&
+                { schedule.status != "cancelled" && !schedule.selected_image.is_approved && schedule.status != "published" &&
                     schedule.images.length < 3 && (
                         <button
                             className="rounded-full p-1 hover:bg-purple-100 mt-1 lg:px-2 flex items-center gap-2 text-purple-500"
@@ -106,7 +106,7 @@ function ImageSection({ schedule, setLoading, templates, brandIdentity }) {
                         </button>
 
                     )}  
-                    {schedule.status != "cancelled" && !schedule.selected_image.is_approved && (
+                    {schedule.status != "cancelled" && !schedule.selected_image.is_approved && schedule.status != "published" && (
                 <button
                     className="rounded-full flex items-center p-1 text-pink-500 hover:bg-pink-100 mt-1 lg:px-2"
                     title="Cambiar plantilla"

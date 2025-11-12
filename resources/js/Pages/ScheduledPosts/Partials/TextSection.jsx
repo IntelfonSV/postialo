@@ -82,7 +82,7 @@ function TextSection({ schedule, networks, setLoading }) {
                                 )}
                             </div>
                             {row.status !== "approved" &&
-                                schedule.status != "cancelled" && (
+                                schedule.status != "cancelled" && row.status != "published" && schedule.status != "published" &&  (
                                     <div className="flex flex-wrap justify-end  items-center gap-2">
                                         <button
                                             onClick={() => handleEdit(row)}

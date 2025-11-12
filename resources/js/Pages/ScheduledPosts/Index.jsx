@@ -147,7 +147,7 @@ function Index({
                         </select>
                     </div>
                     <h3 className="text-xl font-semibold w-full text-blue-900 text-center">
-                        Publicaciones Programadas
+                        Publicaciones Generadas
                     </h3>
                     <div className="flex gap-2">
                         <div className="flex items-center gap-2 bg-white hover:bg-gray-100 p-2 rounded">

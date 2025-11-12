@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import BlueButton from "@/Components/BlueButton";
-import { FaCheck, FaPlus } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Schedule from "./Partials/Schedule";
-import GreenButton from "@/Components/GreenButton";
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import GrayContainer from "@/Components/GrayContainer";
 import MonthYearSelect from "@/Components/MonthYearSelect";
 import Loading from "@/Components/Loading";
+import GenerateButton from "./Components/GenerateButton";
 
-const Index = ({ schedules = [], templates = [], months = [], auth, users }) => {
+const Index = ({
+    schedules = [],
+    templates = [],
+    months = [],
+    auth,
+    users,
+}) => {
     const [monthsData, setMonthsData] = useState({});
     const [selectedMonth, setSelectedMonth] = useState("");
     const [newSchedule, setNewSchedule] = useState(false);
@@ -20,20 +26,21 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
     const [showMonthYearSelect, setShowMonthYearSelect] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const unlimitedPostsUsersId = [1,2, 6,8,10];
+    const unlimitedPostsUsersId = [1, 2, 6, 8, 10];
 
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
     useEffect(() => {
-        if(urlUser){
+        if (urlUser) {
             setSelectedUser(users.find((user) => user.id == urlUser));
-        }else{
+        } else {
             setSelectedUser(auth.user);
         }
     }, []);
 
+    const newScheduleRef = useRef(null);
     useEffect(() => {
-        if(users?.length > 0 && selectedUser){
+        if (users?.length > 0 && selectedUser) {
             //cambiar la url
             const params = new URLSearchParams(window.location.search);
             params.set("user", selectedUser.id);
@@ -41,7 +48,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
             window.history.pushState(null, "", newUrl);
         }
     }, [selectedUser]);
-    
+
     useEffect(() => {
         if (months.length) {
             if (
@@ -49,7 +56,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                 !months.find(
                     (month) =>
                         month.month == selectedMonth.split("-")[1] &&
-                        month.year == selectedMonth.split("-")[0]
+                        month.year == selectedMonth.split("-")[0],
                 )
             ) {
                 setSelectedMonth(months[0].year + "-" + months[0].month);
@@ -57,28 +64,22 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
         }
     }, [months]);
 
-    useEffect(() => {
-        if (selectedUser) {
-            setSchedules(schedules.filter((schedule) => schedule.user_id == selectedUser.id));
-        } else {
-            setSchedules(schedules);
-        }
+
+    const filteredSchedules = useMemo(() => {
+        const [year, month] = selectedMonth
+            ? selectedMonth.split("-")
+            : [null, null];
+        return (schedules || [])
+            .filter((s) => !selectedUser || s.user_id == selectedUser.id)
+            .filter((s) =>
+                month && year ? s.month == month && s.year == year : true,
+            );
     }, [schedules, selectedMonth, selectedUser]);
 
-    const setSchedules = (schedules) => {
-        setSelectedSchedules([]);
-        const data = schedules.filter(
-            (schedule) =>
-                schedule.month == selectedMonth.split("-")[1] &&
-                schedule.year == selectedMonth.split("-")[0]
-        );
-        setSelectedSchedules(data);
-        setNewSchedule(false);
-    };
 
     const populateMonthSelect = () => {
         const sortedMonths = months.map(
-            (month) => month.year + "-" + month.month
+            (month) => month.year + "-" + month.month,
         );
         return sortedMonths.map((month) => (
             <option key={month} value={month}>
@@ -97,10 +98,19 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
 
     const handleAddPost = () => {
         if (!selectedMonth) return;
-        const posts = monthsData[selectedMonth]?.posts || [];
-        if (posts.length >= 14) return alert("Máximo 14 publicaciones");
         setNewSchedule(true);
     };
+    
+    useEffect(() => {
+        if (newSchedule && newScheduleRef.current) {
+            requestAnimationFrame(() => {
+                newScheduleRef.current.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            });
+        }
+    }, [newSchedule]);
 
     const handleGeneratePosts = () => {
         Swal.fire({
@@ -120,27 +130,25 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                     {
                         month: selectedMonth.split("-")[1],
                         year: selectedMonth.split("-")[0],
-                        schedules: auth.user.roles.includes("admin") ? selectedSchedules.map((schedule) => schedule.id) : null,
+                        schedules: auth.user.roles.includes("admin")
+                            ? selectedSchedules.map((schedule) => schedule.id)
+                            : null,
                     },
                     {
                         preserveScroll: true,
                         onSuccess: (page) => {
                             setLoading(false);
-                            setSchedules(page.props.schedules);
+
                         },
                         onError: () => {
                             setLoading(false);
                         },
-                    }
+                    },
                 );
             }
         });
     };
 
-    useEffect(() => {
-        console.log(selectedSchedules);
-        console.log(selectedMonth);
-    }, [selectedSchedules]);
 
     return (
         <AuthenticatedLayout>
@@ -172,7 +180,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                     </h3>
 
                     <div className="flex gap-2">
-                        {selectedSchedules?.length < 14 && !newSchedule && (
+                        {filteredSchedules?.length < 14 && !newSchedule && (
                             <BlueButton
                                 className="flex gap-2"
                                 onClick={handleAddPost}
@@ -186,23 +194,7 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                                 </p>
                             </BlueButton>
                         )}
-                        {selectedSchedules?.length >= 1 &&
-                            selectedSchedules.filter(
-                                (schedule) => schedule.status != "generated"
-                            ).length >= 1 && (
-                                <GreenButton
-                                    className="flex gap-2"
-                                    onClick={handleGeneratePosts}
-                                >
-                                    <FaCheck />{" "}
-                                    <p>
-                                        Generar{" "}
-                                        <span className="hidden lg:inline">
-                                            Publicaciones
-                                        </span>
-                                    </p>
-                                </GreenButton>
-                            )}
+                        <GenerateButton schedules={filteredSchedules} onClick={handleGeneratePosts} />
                     </div>
                 </div>
             </GrayContainer>
@@ -216,7 +208,14 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                             <select
                                 value={selectedUser?.id}
                                 onChange={(e) =>
-                                    e.target.value == "" ? setSelectedUser(null) : setSelectedUser(users.find((user) => user.id == e.target.value))
+                                    e.target.value == ""
+                                        ? setSelectedUser(null)
+                                        : setSelectedUser(
+                                              users.find(
+                                                  (user) =>
+                                                      user.id == e.target.value,
+                                              ),
+                                          )
                                 }
                                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                             >
@@ -232,16 +231,22 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                 </GrayContainer>
             )}
             <div className="mt-4 space-y-4 pb-10">
-                {selectedSchedules &&
-                    selectedSchedules?.map((schedule, index) => (
-                        <Schedule
-                            key={`schedule-${schedule.id}-${schedule.status}-${schedule.scheduled_date}-${schedule.template_id}`}
-                            schedule={schedule}
-                            templates={templates}
-                            number={index + 1}
-                            user={schedule.user}
-                        />
-                    ))}
+                {filteredSchedules &&
+                    filteredSchedules
+                        .filter(
+                            (schedule) =>
+                                schedule.status != "published" &&
+                                schedule.status != "cancelled",
+                        )
+                        ?.map((schedule, index) => (
+                            <Schedule
+                                key={`schedule-${schedule.updated_at}`}
+                                schedule={schedule}
+                                templates={templates}
+                                number={index + 1}
+                                user={schedule.user}
+                            />
+                        ))}
                 {newSchedule && (
                     <Schedule
                         setNewSchedule={setNewSchedule}
@@ -253,40 +258,38 @@ const Index = ({ schedules = [], templates = [], months = [], auth, users }) => 
                     />
                 )}
 
-                <div className="mt-4 w-full bg-gray-200 gap-4 p-4 rounded-xl ">
+                <div
+                    className="mt-4 w-full bg-gray-200 gap-4 p-4 rounded-xl"
+                    ref={newScheduleRef}
+                >
                     <div className="flex justify-center items-center gap-4">
-                        { (unlimitedPostsUsersId.includes(auth.user.id) || selectedSchedules?.length < 14) && !newSchedule && (
-                            <BlueButton onClick={handleAddPost}>
-                                Agregar Publicación
-                            </BlueButton>
-                        )}
-
-                        {selectedSchedules?.length >= 1 &&
-                            selectedSchedules.filter(
-                                (schedule) => schedule.status != "generated" && schedule.status != "cancelled"
-                            ).length >= 1 && (
-                                <GreenButton
-                                    className="flex gap-2"
-                                    onClick={handleGeneratePosts}
-                                >
-                                    <FaCheck />{" "}
-                                    <p>
-                                        Generar{" "}
-                                        <span className="hidden lg:inline">
-                                            Publicaciones
-                                        </span>
-                                    </p>
-                                </GreenButton>
+                        {(unlimitedPostsUsersId.includes(auth.user.id) ||
+                            filteredSchedules?.length < 14) &&
+                            !newSchedule && (
+                                <BlueButton onClick={handleAddPost}>
+                                    Agregar Publicación
+                                </BlueButton>
                             )}
-                    </div >
 
-                    { !(unlimitedPostsUsersId.includes(auth.user.id) || selectedSchedules?.length >= 14) && !newSchedule && (
+                            <GenerateButton schedules={filteredSchedules} onClick={handleGeneratePosts} />
+                    </div>
+
                     <div className="flex justify-center items-center gap-4 mt-5">
                         <span className="text-gray-700">
-                            No se pueden agregar más publicaciones
+                            {unlimitedPostsUsersId.includes(auth.user.id)
+                                ? filteredSchedules.length
+                                : filteredSchedules.length + " / 14"}
                         </span>
                     </div>
-                    )}
+                    {!unlimitedPostsUsersId.includes(auth.user.id) &&
+                        filteredSchedules?.length >= 14 &&
+                        !newSchedule && (
+                            <div className="flex justify-center items-center gap-4 mt-2">
+                                <span className="text-gray-700">
+                                    No se pueden agregar más publicaciones para este mes
+                                </span>
+                            </div>
+                        )}
                 </div>
             </div>
             {loading && (

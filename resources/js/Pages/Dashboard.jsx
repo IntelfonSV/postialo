@@ -42,7 +42,6 @@ export default function Dashboard({
                             icon={
                                 <FaUsers className="h-10 w-10 text-white"></FaUsers>
                             }
-                            onClick={() => router.get(route("users.index"))}
                         ></SmallCard>
                     )}
                     <SmallCard
@@ -50,14 +49,12 @@ export default function Dashboard({
                         bg="bg-gray-600"
                         value={schedules_count}
                         icon={<TbSum className="h-10 w-10 text-white"></TbSum>}
-                        onClick={() => router.get(route("schedules.index"))}
                     ></SmallCard>
                     <SmallCard
                         bg="bg-cyan-600"
                         title="Plantillas"
                         value={templates_count}
                         icon={<HiTemplate className="h-10 w-10 text-white"></HiTemplate>}
-                        onClick={() => router.get(route("templates.index"))}
                     ></SmallCard>   
                     <SmallCard
                         title="Publicaciones pendientes"
@@ -66,7 +63,6 @@ export default function Dashboard({
                         icon={
                             <MdOutlinePending className="h-10 w-10 text-white"></MdOutlinePending>
                         }
-                        onClick={() => router.get(route("schedules.index"))}
                     ></SmallCard>
                     <SmallCard
                         title="Publicaciones en progreso"
@@ -75,7 +71,6 @@ export default function Dashboard({
                         icon={
                             <AiOutlineLoading3Quarters className="h-10 w-10 text-white"></AiOutlineLoading3Quarters>
                         }
-                        onClick={() => router.get(route("schedules.index"))}
                     ></SmallCard>
                     <SmallCard
                         title="Publicaciones generadas"
@@ -84,7 +79,6 @@ export default function Dashboard({
                         icon={
                             <RiAiGenerate2 className="h-10 w-10 text-white"></RiAiGenerate2>
                         }
-                        onClick={() => router.get(route("scheduled-posts.index"))}
                     ></SmallCard>
                     <SmallCard
                         title="Publicaciones aprobadas"
@@ -93,7 +87,6 @@ export default function Dashboard({
                         icon={
                             <FaCheck className="h-10 w-10 text-white"></FaCheck>
                         }
-                        onClick={() => router.get(route("scheduled-posts.index"))}
                     ></SmallCard>
                     <SmallCard
                         title="Publicaciones publicadas"
@@ -102,7 +95,6 @@ export default function Dashboard({
                         icon={
                             <FaCalendarCheck className="h-10 w-10 text-white" />
                         }
-                        onClick={() => router.get(route("scheduled-posts.index"))}
                     ></SmallCard>
                     <SmallCard
                         title="Publicaciones canceladas"
@@ -111,7 +103,6 @@ export default function Dashboard({
                         icon={
                             <MdCancel className="h-10 w-10 text-white" />
                         }
-                        onClick={() => router.get(route("scheduled-posts.index"))}
                     ></SmallCard>
                 </div>
             </GrayContainer>

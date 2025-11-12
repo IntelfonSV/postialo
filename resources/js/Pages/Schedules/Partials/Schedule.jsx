@@ -17,7 +17,6 @@ function Schedule({
     const { TranslateStatus, badge } = StatusHelper();
     const { auth } = usePage().props;
 
-    console.log(usePage().props);
 
     const SOCIAL_NETWORKS = ["facebook", "instagram"];
     const { data, setData, post, put, reset, errors, processing } = useForm({
@@ -108,7 +107,6 @@ function Schedule({
         } else {
             post(route("schedules.store"), {
                 preserveScroll: true,
-                preserveState: true,
                 onSuccess: () => {
                     setNewSchedule(false);
                     reset();
