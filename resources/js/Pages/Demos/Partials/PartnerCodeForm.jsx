@@ -39,4 +39,3 @@ export default function PartnerCodeForm({ data, setData, errors, processing, onS
         </div>
     );
 }
-z
