@@ -46,7 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'warning' => $request->session()->get('warning'),
             ],
-            'partner' => Partner::where('id', $request->user()->partner_id)->first(),
+            'partner' => $request->user()->partner_id ? Partner::where('id', $request->user()->partner_id)->first() : null,
         ];
     }
 }
