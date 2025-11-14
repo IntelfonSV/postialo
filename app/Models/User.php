@@ -102,4 +102,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->demos()->where('valid_until', '>=', now())->exists();
     }
     
+    public function partner()
+    {
+        return $this->belongsTo(Partner::class);
+    }
+
+    public function isFromPartner(string $code): bool
+    {
+        return $this->partner && $this->partner->code === strtoupper($code);
+    }
 }

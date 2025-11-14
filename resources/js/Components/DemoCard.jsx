@@ -16,7 +16,7 @@ export default function DemoCard() {
         });
     };
     return (
-        <div className="p-6 bg-white rounded-2xl shadow-md border max-w-md mx-auto">
+        <div className="p-6 bg-white rounded-2xl shadow-md border max-w-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 Activa tu mes de prueba 🎉
             </h2>

@@ -101,6 +101,9 @@ export default function Register() {
                         message={errors.password_confirmation}
                         className="mt-2"
                     />
+                    <div className="mt-2 text-xs text-red-600 font-semibold bg-red-50 p-2 rounded">
+                        la Contraseña debe tener al menos 8 caracteres y contener al menos una mayúscula, una minúscula, un número y un carácter especial
+                    </div>
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">

@@ -17,12 +17,15 @@ use App\Http\Controllers\DemoController;
 use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\LogoController;
 use App\Http\Controllers\ClientController;
-
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\ShortLinkController;
 
 Route::middleware(['auth', 'verified'])->group(function () {  
     Route::post('/users/demo', [UserController::class, 'demo'])->name('users.demo');
     Route::inertia('guides', 'Guides/FacebookAccessGuide')->name('guides');
     Route::get('/demos/guide', [DemoController::class, 'guide'])->name('demos.guide');
+    Route::get('/demos/partner-guide', [DemoController::class, 'partnerGuide'])->name('demos.partner-guide');
+    Route::post('/partner/validate-partner-code', [PartnerController::class, 'validatePartnerCode'])->name('partner.validate-partner-code');
     Route::post('/logos/store', [LogoController::class, 'store'])->name('logos.store');
     Route::delete('/logos/{logo}', [LogoController::class, 'destroy'])->name('logos.destroy');
     Route::post('/demos/activate', [DemoController::class, 'activateDemo'])->name('demos.activate');
@@ -70,6 +73,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('users/{user}/activate-demo', [UserController::class, 'activateDemo'])->name('users.activate-demo');
 });
 
+Route::get('/s/{code}', [ShortLinkController::class, 'redirect'])->name('shortLink.redirect');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/billing.php';

@@ -1,7 +1,8 @@
 import DangerButton from "@/Components/DangerButton";
 import DefaultContainer from "@/Components/DefaultContainer";
 import GreenButton from "@/Components/GreenButton";
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
+import { useState } from "react";
 import {
     FaFacebookSquare,
     FaGlobe,
@@ -11,6 +12,9 @@ import {
 
 export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
     let guidelines = {};
+    const {partner} = usePage().props;
+
+    const user = usePage().props.auth.user;
     if (
         !(
             brandIdentity?.guidelines_json?.facebook ||
@@ -54,6 +58,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         },
     });
 
+    const [warning, setWarning] = useState("");
     const handleChange = (e, section, key) => {
         if (section) {
             setData({
@@ -85,6 +90,25 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
         }
     };
 
+    const handleWebsiteChange = (e) => {
+        const value = e.target.value.trim();
+        setData("website", value);
+        setWarning(""); // limpia alertas previas
+
+        // si hay partner, validamos
+        if (partner?.branding?.url && value.length > 0) {
+            const normalizedValue = value.startsWith("http")
+                ? value
+                : `https://${value}`;
+
+            if (!normalizedValue.startsWith(partner?.branding?.url)) {
+                setWarning(
+                    `⚠️ La URL debe comenzar con ${partner?.branding?.url}`
+                );
+            }
+        }
+    };
+
     const textAreaClasses =
         "w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 disabled:bg-gray-100 disabled:text-gray-500" +
         (edit ? "" : " bg-gray-50");
@@ -97,8 +121,8 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                     <h4 className="text-xl font-bold mb-6 text-[#002073]">
                         Datos de contacto y red social
                     </h4>
-                    <div className="flex gap-6 flex-wrap w-full">
-                        <div>
+                    <div className="md:flex gap-6 w-full">
+                        <div className="w-full mt-6">
                             <label
                                 htmlFor="facebook_page_id"
                                 className="flex items-center gap-2 mb-5"
@@ -117,7 +141,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 disabled={!edit}
                             />
                         </div>
-                        <div>
+                        <div className="w-full mt-6">
                             <label
                                 htmlFor="instagram_account_id"
                                 className="flex items-center gap-2 mb-5"
@@ -136,7 +160,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 disabled={!edit}
                             />
                         </div>
-                        <div>
+                        <div className="w-full mt-6">
                             <label
                                 htmlFor="website"
                                 className="flex items-center gap-2 mb-5"
@@ -150,11 +174,16 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 className={textAreaClasses}
                                 placeholder="Pagina web"
                                 value={data.website}
-                                onChange={handleChange}
+                                onChange={handleWebsiteChange}
                                 disabled={!edit}
                             />
+                            {warning && (
+                                <p className="text-red-600 text-sm mt-2 font-medium">
+                                    {warning}
+                                </p>
+                            )}
                         </div>
-                        <div>
+                        <div className="w-full mt-6">
                             <label
                                 htmlFor="whatsapp_number"
                                 className="flex items-center gap-2 mb-5"
@@ -170,7 +199,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                                 placeholder="Numero de Whatsapp 50377889988"
                                 value={data.whatsapp_number}
                                 onChange={handleChange}
-                                disabled={!edit}
+                                disabled={user.partner_id || !edit}
                             />
                         </div>
                     </div>
@@ -248,7 +277,9 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                 <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
                     <h4 className="text-xl font-bold mb-6 text-[#002073]">
                         Lineamientos por Red Social
-                    </h4>
+                    </h4>la otra opcion es que yo incorpore el acortador de link en postioalo 
+
+es decir programarlo 
                     <div>
                         {networks.map((network) => (
                             <div key={network} className="">

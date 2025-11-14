@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-
+use App\Models\Partner;
 class HandleInertiaRequests extends Middleware
 {
     /**
@@ -34,6 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
+                    'partner_id' => $request->user()->partner_id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'image' => $request->user()->image,
@@ -45,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'warning' => $request->session()->get('warning'),
             ],
+            'partner' => Partner::where('id', $request->user()->partner_id)->first(),
         ];
     }
 }

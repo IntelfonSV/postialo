@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\BrandIdentity;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\ShortLink;
 
 class ScheduleController extends Controller
 
@@ -197,7 +198,7 @@ class ScheduleController extends Controller
                 $closing .= "✨ Visita nuestra página para descubrir más productos: {$website}\n\n";
             }
             if ($wa_base_url) {
-                $closing .= "📲 Escríbenos por WhatsApp y te ayudamos con todo lo que necesites.\n👉 {$wa_base_url}\n" . 
+                $closing .= "📲 Escríbenos por WhatsApp y te ayudamos con todo lo que necesites.\n👉*espacio*{$wa_base_url}\n" . 
                 " también agregale mensaje prellenado para iniciar conversación en WhatsApp: por ejemplo  {$wa_base_url}?text=Hola%2C%20me%20interesa%20la%20Alexa%20Echo%20Dot%205ta%20generacion
                     - Mensaje máximo 10 palabras, tono claro y directo.
                     - Sin emojis, sin hashtags, sin comillas.
@@ -271,10 +272,30 @@ class ScheduleController extends Controller
                     'network' => $network,
                     'scheduled_date' => $schedule->scheduled_date,
                 ]);
+
+                $postText = $post[$network];
+                preg_match('/https?:\/\/(?:www\.)?wa\.me\/[^\s]+/i',$postText,$matches);
+
+                // Si encontramos un enlace válido
+                if (!empty($matches[0])) {
+                    $whatsappUrl = $matches[0];
+
+                    // 2️⃣ Generar código corto y guardar en base de datos
+                    $code = ShortLink::generateCode();
+
+                    $shortLink = ShortLink::create([
+                        'code'         => $code,
+                        'original_url' => $whatsappUrl,
+                        'user_id'      => auth()->id(),
+                    ]);
+
+                    $shortUrl = route('shortLink.redirect', ['code' => $shortLink->code]);
+                    $postText = str_replace($whatsappUrl, $shortUrl, $postText);
+                }
     
                     $scheduled_post_text = ScheduledPostText::create([
                         'scheduled_post_id' => $scheduled_post->id,
-                        'content' => $post[$network],
+                        'content' => $postText,
                     ]);
 
                     $scheduled_post->update([

@@ -8,7 +8,8 @@ import { useState } from "react";
 import Notification from "@/Components/Notification";
 
 export default function AuthenticatedLayout({ header, children }) {
-    const { auth } = usePage().props;
+    const { auth, partner } = usePage().props;
+    console.log(partner);
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -20,7 +21,22 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between">
                             <div className="flex ">
-                                <div className="flex shrink-0 items-center">
+                                <div className="flex shrink-0 items-center  gap-2">
+                                    {partner && (
+                                        <div className="flex shrink-0 items-center">
+                                            <a
+                                                href={partner.branding.url}
+                                                target="_blank"
+                                                className="text-white font-bold text-3xl bg-gray-100 p-1 rounded"
+                                            >
+                                                <img
+                                                    src={partner.logo_path}
+                                                    alt=""
+                                                />
+                                            </a>
+                                        </div>
+                                    )}
+
                                     <Link
                                         href={route("home")}
                                         className="text-white font-bold text-3xl"
@@ -32,29 +48,30 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </div>
 
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                    {
-                                        auth.user.roles.includes('admin') && (
+                                    {auth.user.roles.includes("admin") && (
                                         <NavLink
-                                        href={route("dashboard")}
-                                        active={route().current("dashboard")}
+                                            href={route("dashboard")}
+                                            active={route().current(
+                                                "dashboard",
+                                            )}
                                         >
-                                        Dashboard
-                                    </NavLink>
+                                            Dashboard
+                                        </NavLink>
                                     )}
-                                    {
-                                        auth.user.roles.includes('admin') && (
+                                    {auth.user.roles.includes("admin") && (
                                         <NavLink
-                                        href={route("users.index")}
-                                        active={route().current("users.index")}
-                                    >
-                                        Usuarios
-                                    </NavLink>
-                                    )
-                                    }
+                                            href={route("users.index")}
+                                            active={route().current(
+                                                "users.index",
+                                            )}
+                                        >
+                                            Usuarios
+                                        </NavLink>
+                                    )}
                                     <NavLink
                                         href={route("brand-identities.index")}
                                         active={route().current(
-                                            "brand-identities.index"
+                                            "brand-identities.index",
                                         )}
                                     >
                                         Identidad de Marca
@@ -62,7 +79,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <NavLink
                                         href={route("templates.index")}
                                         active={route().current(
-                                            "templates.index"
+                                            "templates.index",
                                         )}
                                     >
                                         Plantillas HTML
@@ -70,7 +87,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <NavLink
                                         href={route("schedules.index")}
                                         active={route().current(
-                                            "schedules.index"
+                                            "schedules.index",
                                         )}
                                     >
                                         Programación
@@ -78,7 +95,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <NavLink
                                         href={route("scheduled-posts.index")}
                                         active={route().current(
-                                            "scheduled-posts.index"
+                                            "scheduled-posts.index",
                                         )}
                                     >
                                         Publicaciones
@@ -135,7 +152,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <button
                                     onClick={() =>
                                         setShowingNavigationDropdown(
-                                            (previousState) => !previousState
+                                            (previousState) => !previousState,
                                         )
                                     }
                                     className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
@@ -181,27 +198,26 @@ export default function AuthenticatedLayout({ header, children }) {
                         }
                     >
                         <div className="space-y-1 pb-3 pt-2">
-                            
                             <ResponsiveNavLink
                                 href={route("dashboard")}
                                 active={route().current("dashboard")}
                             >
                                 Dashboard
                             </ResponsiveNavLink>
-                            {
-                                auth.user.roles.some(role => role.name === 'admin') && (
-                                    <ResponsiveNavLink
+                            {auth.user.roles.some(
+                                (role) => role.name === "admin",
+                            ) && (
+                                <ResponsiveNavLink
                                     href={route("users.index")}
-                                        active={route().current("users.index")}
-                                        >
-                                        Usuarios
-                                    </ResponsiveNavLink>
-                                )
-                            }
+                                    active={route().current("users.index")}
+                                >
+                                    Usuarios
+                                </ResponsiveNavLink>
+                            )}
                             <ResponsiveNavLink
                                 href={route("brand-identities.index")}
                                 active={route().current(
-                                    "brand-identities.index"
+                                    "brand-identities.index",
                                 )}
                             >
                                 Identidad de Marca
@@ -221,7 +237,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ResponsiveNavLink
                                 href={route("scheduled-posts.index")}
                                 active={route().current(
-                                    "scheduled-posts.index"
+                                    "scheduled-posts.index",
                                 )}
                             >
                                 Publicaciones
@@ -253,7 +269,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
                 </nav>
-<Notification />
+                <Notification />
             </div>
             <div className="w-full mt-20 ">
                 {header && (

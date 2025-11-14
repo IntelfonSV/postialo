@@ -18,6 +18,7 @@ use App\Models\PaymentItem;
 use App\Services\Payment\ScheduleGenerator;
 use Illuminate\Support\Str;
 use App\Models\PaymentTransaction;
+use App\Models\Partner;
 
 
 
@@ -52,6 +53,9 @@ class BillingController extends Controller
     public function show(Request $request)
     {
         $user = auth()->user();
+        $partners = Partner::where('active', true)
+            ->orderBy('id')
+            ->get();
         $products = Product::query()
             ->where('active', true)
             ->orderBy('id')
@@ -61,6 +65,7 @@ class BillingController extends Controller
             'subscription' => auth()->user()->subscription,
             'products' => $products,
             'demos' => $user->demos(),
+            'partners' => $partners,
         ]);
     }
 
