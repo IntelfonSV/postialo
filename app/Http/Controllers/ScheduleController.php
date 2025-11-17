@@ -435,6 +435,10 @@ class ScheduleController extends Controller
         ->with('selectedImage')
         ->get();
 
+        if($schedules->isEmpty()) return response()->json(  [
+            'message' => 'No hay publicaciones programadas',
+        ]);
+
         //$webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
         foreach ($schedules as $schedule) {
             $webhook = $schedule->user->make_url;

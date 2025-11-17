@@ -17,18 +17,20 @@ export default function GuideSteps() {
                     <li>
                         Ingrese a{" "}
                         <a
-                            href="https://www.facebook.com/settings"
+                            href="https://business.facebook.com"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-bold underline text-[#002073] hover:text-[#F94B53]"
                         >
-                            facebook.com/settings
-                        </a>
+                            business.facebook.com
+                        </a> y asegúrese de estar dentro del Business Manager correspondiente a la página a la cual desea delegar acceso.
                     </li>
-                    <li>En el menú lateral, haga clic en <strong>Configuración y privacidad</strong>.</li>
-                    <li>Seleccione <strong>Configuración de página</strong>.</li>
-                    <li>Entre a <strong>Acceso a la página</strong>.</li>
-                    <li>Agregue a <strong>Marcos Salvador</strong> con permisos de <strong>Contenido</strong>.</li>
+                    <li>Diríjase a la sección, seleccione <strong>Usuarios</strong>en el menú lateral.</li>
+                    <li>Seleccione la opción <strong>Socios</strong>.</li>
+                    <li>Haga clic en <strong>Agregar</strong>.</li>
+                    <li>Elija la opción <strong>“Dar acceso a sus activos a un socio”</strong>.</li>
+                    <li>Ingrese el <strong>ID del negocio: 1358677642433939</strong>.</li>
+                    <li>Confirme y asigne los permisos necesarios según los activos que desea compartir.</li>
                 </ol>
             </div>
 
@@ -54,14 +56,10 @@ export default function GuideSteps() {
                             className="font-bold underline text-[#002073] hover:text-[#F94B53]"
                         >
                             business.facebook.com
-                        </a> y asegúrese de estar dentro del Business Manager correspondiente a la página a la cual desea delegar acceso.
+                        </a>
                     </li>
-                    <li>Diríjase a la sección, seleccione <strong>Usuarios</strong>en el menú lateral.</li>
-                    <li>Seleccione la opción <strong>Socios</strong>.</li>
-                    <li>Haga clic en <strong>Agregar</strong>.</li>
-                    <li>Elija la opción <strong>“Dar acceso a sus activos a un socio”</strong>.</li>
-                    <li>Ingrese el <strong>ID del negocio: 1358677642433939</strong>.</li>
-                    <li>Confirme y asigne los permisos necesarios según los activos que desea compartir.</li>
+                    <li>En el menú lateral, seleccione <strong>Configuraciones</strong>.</li>
+                    <li>Haga clic en <strong>Perfiles</strong> → <strong>Páginas</strong> o <strong>Cuentas de Instagram</strong>.</li>
                 </ol>
             </div>
         </div>
