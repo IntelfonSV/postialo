@@ -28,12 +28,14 @@ export default function Guide() {
                             setData={setData}
                             errors={errors}
                         />
-                        <button
-                            className="mt-12 bg-[#002073] text-white font-bold py-3 px-10 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
-                            onClick={handleActivateDemo}
-                        >
-                            Continuar
-                        </button>
+                        <div className="flex justify-center">
+                            <button
+                                className="mt-12 bg-[#002073] text-white font-bold py-3 px-10 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
+                                onClick={handleActivateDemo}
+                            >
+                                Continuar
+                            </button>
+                        </div>
                     </div>
                     <GuideFooter />
                 </div>

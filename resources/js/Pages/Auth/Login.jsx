@@ -2,10 +2,11 @@ import BlueButton from "@/Components/BlueButton";
 import Checkbox from "@/Components/Checkbox";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -14,9 +15,12 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePassword = () => setShowPassword(!showPassword);
+
     const submit = (e) => {
         e.preventDefault();
-
         post(route("login"), {
             onFinish: () => reset("password"),
         });
@@ -33,9 +37,9 @@ export default function Login({ status, canResetPassword }) {
             )}
 
             <form onSubmit={submit} className="py-6">
+                {/* === Usuario === */}
                 <div>
                     <InputLabel htmlFor="email" value="Usuario" />
-
                     <TextInput
                         id="email"
                         type="email"
@@ -46,26 +50,36 @@ export default function Login({ status, canResetPassword }) {
                         isFocused={true}
                         onChange={(e) => setData("email", e.target.value)}
                     />
-
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
+                {/* === Contraseña con ícono === */}
+                <div className="mt-4 relative">
                     <InputLabel htmlFor="password" value="Contraseña" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData("password", e.target.value)}
-                    />
-
+                    <div className="relative">
+                        <TextInput
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={data.password}
+                            className="mt-1 block w-full pr-10"
+                            autoComplete="current-password"
+                            onChange={(e) =>
+                                setData("password", e.target.value)
+                            }
+                        />
+                        <button
+                            type="button"
+                            onClick={togglePassword}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                    </div>
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
+                {/* === Recordar === */}
                 <div className="mt-4 block hidden">
                     <label className="flex items-center">
                         <Checkbox
@@ -76,21 +90,24 @@ export default function Login({ status, canResetPassword }) {
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                            Recordarme
                         </span>
                     </label>
                 </div>
 
+                {/* === Recuperar contraseña === */}
                 <div className="mt-4 flex items-center justify-end">
                     {canResetPassword && (
                         <Link
                             href={route("password.request")}
                             className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
-                            Olvido su contraseña?
+                            ¿Olvidó su contraseña?
                         </Link>
                     )}
                 </div>
+
+                {/* === Botón ingresar === */}
                 <div className="mt-4">
                     <BlueButton
                         className="w-full flex justify-center"
@@ -99,11 +116,18 @@ export default function Login({ status, canResetPassword }) {
                         Ingresar
                     </BlueButton>
                 </div>
-                <div className="mt-4">
-                    No tienes una cuenta? <Link className="text-blue-600 hover:text-blue-700" href={route("register")}>Regístrate</Link>
+
+                {/* === Registro === */}
+                <div className="mt-4 text-center text-sm">
+                    ¿No tienes una cuenta?{" "}
+                    <Link
+                        className="text-blue-600 hover:text-blue-700"
+                        href={route("register")}
+                    >
+                        Regístrate
+                    </Link>
                 </div>
             </form>
-
         </GuestLayout>
     );
 }

@@ -277,9 +277,7 @@ export default function BrandIdentityForm({ edit, setEdit, brandIdentity }) {
                 <DefaultContainer className="bg-white p-6 rounded-2xl shadow-lg w-full">
                     <h4 className="text-xl font-bold mb-6 text-[#002073]">
                         Lineamientos por Red Social
-                    </h4>la otra opcion es que yo incorpore el acortador de link en postioalo 
-
-es decir programarlo 
+                    </h4>
                     <div>
                         {networks.map((network) => (
                             <div key={network} className="">
