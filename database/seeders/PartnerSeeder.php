@@ -14,7 +14,7 @@ class PartnerSeeder extends Seeder
     {
         $partners = [
             [
-                'code' => 'AEROMALL',
+                'code' => 'AERO',
                 'name' => 'Aeromall Alliance',
                 'contact_email' => 'contacto@aeromall.com',
                 'logo_path' => '/storage/partners/aeromall/logo.png',

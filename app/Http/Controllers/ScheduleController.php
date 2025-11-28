@@ -17,6 +17,7 @@ use App\Models\BrandIdentity;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\ShortLink;
+use Illuminate\Support\Str;
 
 class ScheduleController extends Controller
 
@@ -33,12 +34,12 @@ class ScheduleController extends Controller
         if($user->hasRole('admin')){
             $users = User::all();
             $templates = Template::all();
-            $schedules = Schedule::with('user')->orderBy('id', 'asc')->get();
+            $schedules = Schedule::with('selectedImage')->with('user')->orderBy('id', 'asc')->get();
             $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }else{
             //$templates = Template::where('user_id', $user->id)->get();
             $templates = Template::orderBy('id', 'asc')->get();
-            $schedules = Schedule::where('user_id', $user->id)->orderBy('id', 'asc')->get();
+            $schedules = Schedule::where('user_id', $user->id)->with('selectedImage')->orderBy('id', 'asc')->get();
             $months =  Schedule::where('user_id', $user->id)->select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }
         return Inertia::render('Schedules/Index', [
@@ -60,6 +61,7 @@ class ScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request){
         $user = auth()->user();
         if(!$user->hasRole('admin')){
@@ -74,15 +76,51 @@ class ScheduleController extends Controller
         }
 
         $request->validate([
-            'month' => 'required|numeric',
-            'year' => 'required|numeric',
-            'idea' => 'required',
-            'objective' => 'required',
-            'prompt_image' => 'required',
-            'networks' => 'required|array',
-            'template_id' => 'nullable|exists:templates,id',
-            'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
+            'image_source' => 'required|in:generated,uploaded,api',
         ]);
+
+
+        //validate if image_source is generated
+        switch ($request->image_source) {
+            case 'generated':
+                $request->validate([
+                    'prompt_image' => 'required',
+                    'month' => 'required|numeric',
+                    'year' => 'required|numeric',
+                    'idea' => 'required',
+                    'objective' => 'required',
+                    'networks' => 'required|array',
+                    'template_id' => 'nullable|exists:templates,id',
+                    'property_id' => 'nullable',
+                    'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
+                    ]);
+        break;
+        case 'uploaded':
+              $request->validate([
+                'month' => 'required|numeric',
+                'year' => 'required|numeric',
+                'idea' => 'required',
+                'objective' => 'required',
+                'networks' => 'required|array',
+                'template_id' => 'nullable|exists:templates,id',
+                'property_id' => 'nullable',
+                'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+        break;
+        case 'api':
+            $request->validate([
+                'month' => 'required|numeric',
+                'year' => 'required|numeric',
+                'idea' => 'required',
+                'objective' => 'required',
+                'networks' => 'required|array',
+                'template_id' => 'nullable|exists:templates,id',
+                'property_id' => 'nullable',
+                'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
+                'image' => 'required',
+            ]);
+        }
 
         $scheduledDateUtc = \Carbon\Carbon::createFromFormat(
             'Y-m-d\TH:i',
@@ -92,7 +130,36 @@ class ScheduleController extends Controller
 
         //return json_encode($request->all());
         $schedule = Schedule::create($request->all());
-        return back()->with('success', 'Publicación creada exitosamente');
+        if($request->image_source == 'uploaded'){
+            $image = $request->file('image');
+            $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension    = $image->getClientOriginalExtension();
+            
+            $fileName = Str::slug($originalName) . '_' . Carbon::now()->timestamp . '.' . $extension;
+            $path = $image->storeAs('images', $fileName, 'public');  // <- recomendado
+
+            $scheduleImage = ScheduleImage::create([
+                'schedule_id' => $schedule->id,
+                'image_source' => 'uploaded',
+                'image_path' => $path,
+            ]);
+            $schedule->update([
+                'selected_image_id' => $scheduleImage->id,
+            ]);
+        }
+
+        if($request->image_source == 'api') {
+            $scheduleImage = ScheduleImage::create([
+                'schedule_id' => $schedule->id,
+                'image_source' => 'api',
+                'image_path' => $request->image,
+            ]);
+            $schedule->update([
+                'selected_image_id' => $scheduleImage->id,
+            ]);
+        } 
+        //retorna a index
+        return redirect()->route('schedules.index')->with('success', 'Publicación creada exitosamente');
     }
 
     /**
@@ -116,19 +183,79 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, Schedule $schedule)
     {
-
-        //dd($request->all());
+        //dd($request->all());  
         $request->validate([
+                'image_source' => 'required|in:generated,uploaded',
+            ]);
+
+        //validate
+        if($request->image_source == 'generated') {        
+            $request->validate([
+            'prompt_image' => 'required',
+            'image_source' => 'required|in:generated,uploaded',
+            'month' => 'required|numeric',
+            'year' => 'required|numeric',
             'idea' => 'required',
             'objective' => 'required',
-            'prompt_image' => 'required',
             'networks' => 'required|array',
             'template_id' => 'nullable|exists:templates,id',
+            'property_id' => 'nullable',
             'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
-        ]);
+            ]);
+        }elseif($request->image_source == 'uploaded') {
+            $request->validate([
+                'month' => 'required|numeric',
+                'year' => 'required|numeric',
+                'idea' => 'required',
+                'objective' => 'required',
+                'networks' => 'required|array',
+                'template_id' => 'nullable|exists:templates,id',
+                'property_id' => 'nullable',
+                'scheduled_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:today',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+        } 
 
+        
+        $current_image_source = $schedule->image_source;
         $schedule->update($request->all());
-        return back()->with('success', 'Publicación editada exitosamente');
+        if($request->image_source == 'uploaded'){
+            $image = $request->file('image');
+            $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension    = $image->getClientOriginalExtension();
+            
+            $fileName = Str::slug($originalName) . '_' . Carbon::now()->timestamp . '.' . $extension;
+            $path = $image->storeAs('images', $fileName, 'public');  // <- recomendado
+
+            if($schedule->selected_image_id){
+
+                $scheduleImage = ScheduleImage::where('id', $schedule->selected_image_id)->first();
+                //dd($scheduleImage);
+                Storage::disk('public')->delete($scheduleImage->image_path);
+                $scheduleImage->update([
+                    'image_path' => $path,
+                ]);
+            }else{
+                $scheduleImage = ScheduleImage::create([
+                    'schedule_id' => $schedule->id,
+                    'image_source' => 'uploaded',
+                    'image_path' => $path,
+                ]);
+                $schedule->update([
+                    'selected_image_id' => $scheduleImage->id,
+                ]);
+            }
+        }elseif($request->image_source == 'generated' && $current_image_source == 'uploaded'){
+            $scheduleImage = ScheduleImage::where('id', $schedule->selected_image_id)->first();
+            //dd($scheduleImage);
+            Storage::disk('public')->delete($scheduleImage->image_path);
+            $schedule->update([
+                'selected_image_id' => null,
+            ]);
+            $scheduleImage->delete();
+        }
+        
+        return back()->with('success', 'Publicación actualizada exitosamente');
     }
 
     /**
@@ -144,6 +271,28 @@ class ScheduleController extends Controller
         return back()->with('success', 'Publicación eliminada exitosamente');
     }
 
+    public function uploadImage(Request $request, Schedule $schedule){
+        $request->validate([
+            'image' => 'required|image|max:2048',
+        ]);
+
+        $image = $request->file('image');
+        $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension    = $image->getClientOriginalExtension();
+        
+        $fileName = Str::slug($originalName) . '_' . Carbon::now()->timestamp . '.' . $extension;
+        $path = $image->storeAs('images', $fileName, 'public');  // <- recomendado
+
+        $scheduleImage = ScheduleImage::create([
+            'schedule_id' => $schedule->id,
+                'image_source' => 'uploaded',
+                'image_path' => $path,
+            ]);
+            $schedule->update([
+                'selected_image_id' => $scheduleImage->id,
+            ]);
+        return back()->with('success', 'Imagen cargada exitosamente');
+    }   
 
     public function generatePosts(Request $request){
 
@@ -170,24 +319,29 @@ class ScheduleController extends Controller
         try{
         foreach ($schedules as $schedule) {
 
-            if($schedule->image){
-                Storage::disk('public')->delete($schedule->image);
+            if($schedule->image_source == 'generated'){
+                    
+                    if($schedule->image){
+                        Storage::disk('public')->delete($schedule->image);
+                }
+                
+                $response = $imageController->generateImage($schedule->prompt_image);   
+
+                if($response['status'] === 'success'){
+                    $scheduleImage = ScheduleImage::create([
+                        'schedule_id' => $schedule->id,
+                        'image_source' => 'generated',
+                        'image_path' => $response['image'],
+                    ]);
+
+                    $schedule->update([
+                        'selected_image_id' => $scheduleImage->id,
+                    ]);
+                }else{
+                    return back()->with('error', $response['message']);
+                }   
             }
 
-            $response = $imageController->generateImage($schedule->prompt_image);
-
-            if($response['status'] === 'success'){
-                $scheduleImage = ScheduleImage::create([
-                    'schedule_id' => $schedule->id,
-                    'image_path' => $response['image'],
-                ]);
-
-                $schedule->update([
-                    'selected_image_id' => $scheduleImage->id,
-                ]);
-            }else{
-                return back()->with('error', $response['message']);
-            }   
             
             
             $website = $brandIdentity->website ?? null;
@@ -277,21 +431,21 @@ class ScheduleController extends Controller
                 preg_match('/https?:\/\/(?:www\.)?wa\.me\/[^\s]+/i',$postText,$matches);
 
                 // Si encontramos un enlace válido
-                if (!empty($matches[0])) {
-                    $whatsappUrl = $matches[0];
+                // if (!empty($matches[0])) {
+                //     $whatsappUrl = $matches[0];
 
-                    // 2️⃣ Generar código corto y guardar en base de datos
-                    $code = ShortLink::generateCode();
+                //     // 2️⃣ Generar código corto y guardar en base de datos
+                //     $code = ShortLink::generateCode();
 
-                    $shortLink = ShortLink::create([
-                        'code'         => $code,
-                        'original_url' => $whatsappUrl,
-                        'user_id'      => auth()->id(),
-                    ]);
+                //     $shortLink = ShortLink::create([
+                //         'code'         => $code,
+                //         'original_url' => $whatsappUrl,
+                //         'user_id'      => auth()->id(),
+                //     ]);
 
-                    $shortUrl = route('shortLink.redirect', ['code' => $shortLink->code]);
-                    $postText = str_replace($whatsappUrl, $shortUrl, $postText);
-                }
+                //     $shortUrl = route('shortLink.redirect', ['code' => $shortLink->code]);
+                //     $postText = str_replace($whatsappUrl, $shortUrl, $postText);
+                // }
     
                     $scheduled_post_text = ScheduledPostText::create([
                         'scheduled_post_id' => $scheduled_post->id,
@@ -439,9 +593,9 @@ class ScheduleController extends Controller
             'message' => 'No hay publicaciones programadas',
         ]);
 
-        //$webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
         foreach ($schedules as $schedule) {
             $webhook = $schedule->user->make_url;
+            $webhook = "https://hook.eu2.make.com/4aw4r07qtlkfdqad97jtyd5vuv932hrb";
             $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
             $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
             $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
@@ -450,9 +604,17 @@ class ScheduleController extends Controller
             ->format('d/m/Y');
             $schedule->fecha = $fecha_ddmmyyyy;
             
-            $response = Http::post($webhook, [
-                'schedule' => $schedule        
-            ]);
+            if($webhook){
+                try{
+                $response = Http::post($webhook, [
+                    'schedule' => $schedule        
+                ]);
+                }catch(Exception $e){
+                    return back()->with('error', 'Error al enviar la publicación');
+                }
+            }else{
+                return back()->with('error', 'No se encontro el webhook de publicacion');
+            }
         }
         
         return response()->json($schedules);
@@ -474,9 +636,8 @@ class ScheduleController extends Controller
             'selectedImage',
             'user',
         ]); 
-
-        #$webhook = "https://hook.eu2.make.com/u0oocwzbxukbkg37phfjviyrblvzh7lx";
         $webhook = $schedule->user->make_url;
+        $webhook = "https://hook.eu2.make.com/4aw4r07qtlkfdqad97jtyd5vuv932hrb";
         $brandIdentity = BrandIdentity::where('user_id', $schedule->user_id)->first();
         $schedule->facebook_page_id = $brandIdentity->facebook_page_id;
         $schedule->instagram_account_id = $brandIdentity->instagram_account_id;
@@ -484,12 +645,20 @@ class ScheduleController extends Controller
         ->tz('America/El_Salvador')
         ->format('d/m/Y');
         $schedule->fecha = $fecha_ddmmyyyy;
-        $response = Http::post($webhook, [
-            'schedule' => $schedule        
-        ]);
+        if($webhook){
+            try{
+            $response = Http::post($webhook, [
+                'schedule' => $schedule        
+            ]);
+            }catch(Exception $e){
+                return back()->with('error', 'Error al enviar la publicación');
+            }
+        }else{
+            return back()->with('error', 'No se encontro el webhook de publicacion');
+        }
 
-        return back()->with('success', 'Posts enviados exitosamente');
-        
+            return back()->with('success', 'Posts enviados exitosamente');
     }
+
 
 }

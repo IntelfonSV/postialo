@@ -9,6 +9,7 @@ import StatusHelper from "@/Helpers/StatusHelper";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import Swal from "sweetalert2";
+import PostCard from "./Partials/PostCard";
 
 function Index({
     scheduledPosts = [],
@@ -231,81 +232,7 @@ function Index({
             <div className="flex flex-col gap-2 pb-10">
                 {posts.length > 0 ? (
                     posts.map((obj) => (
-                        <div
-                            key={obj.id + "-" + obj.status}
-                            className="bg-white rounded-2xl shadow-lg shadow-black/50 w-full border-gray-200 border relative"
-                        >
-                            <div
-                                className={
-                                    "flex items-center justify-between w-full mb-5 " +
-                                    badge(obj.status) +
-                                    " rounded-xl"
-                                }
-                            >
-                                <h3 className="text-lg font-semibold w-full text-blue-900">
-                                {new Date(obj.scheduled_date.slice(0, 16)).toLocaleString()}
-                                </h3>
-
-                                <div className="flex items-center gap-2">
-                                    <span className={badge(obj.status)}>
-                                        {TranslateStatus(obj.status)}
-                                    </span>
-                                    {obj.status == "approved" && (
-                                        <button
-                                            className={
-                                                "ml-2 flex md:w-40 items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-xl"
-                                            }
-                                            onClick={() =>
-                                                handlePublishNow(obj)
-                                            }
-                                        >
-                                            <FaCheckCircle className="w-5 h-5" />
-                                            <span className="hidden sm:block">
-                                                Publicar
-                                            </span>{" "}
-                                            <span className="hidden md:block">
-                                                ahora
-                                            </span>
-                                        </button>
-                                    )}
-                                    {obj.status != "cancelled" &&
-                                        obj.status != "rejected" &&
-                                        obj.status != "published" && (
-                                            <button
-                                                className={
-                                                    "ml-2 flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-xl"
-                                                }
-                                                onClick={() =>
-                                                    handleCancel(obj)
-                                                }
-                                            >
-                                                <IoCloseSharp className="w-5 h-5" />
-                                                <span className="hidden sm:block">
-                                                    Cancelar
-                                                </span>{" "}
-                                                <span className="hidden md:block">
-                                                    publicación
-                                                </span>
-                                            </button>
-                                        )}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:flex gap-4">
-                                <ImageSection
-                                    key={obj.id + "-" + obj.template_id}
-                                    schedule={obj}
-                                    setLoading={setLoading}
-                                    templates={templates}
-                                    brandIdentity={brandIdentity}
-                                />
-                                <TextSection
-                                    schedule={obj}
-                                    networks={networks}
-                                    setLoading={setLoading}
-                                />
-                            </div>
-                        </div>
+                        <PostCard key={obj.id + '-' + obj.updated_at + '-' + obj.template_id} obj={obj} networks={networks} handleCancel={handleCancel} handlePublishNow={handlePublishNow} setLoading={setLoading} templates={templates} brandIdentity={brandIdentity}/>
                     ))
                 ) : (
                     <div className="text-center justify-center items-center flex flex-col h-64 ">

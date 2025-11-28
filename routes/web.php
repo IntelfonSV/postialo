@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group
     Route::resource('schedules', ScheduleController::class);
     Route::post('schedules/{schedule}/update-template', [ScheduleController::class, 'updateTemplate'])->name('schedules.update-template');
     Route::post('scheduled-posts/{scheduled_post}/regenerate', [ScheduledPostController::class, 'regenerate'])->name('scheduled-posts.regenerate');
+    Route::post('schedules/{schedule}/update-image', [ScheduleController::class, 'update'])->name('schedules.update-image');
+    Route::post('schedules/{schedule}/upload-image', [ScheduleController::class, 'uploadImage'])->name('schedules.upload-image');
     Route::resource('scheduled-posts', ScheduledPostController::class);
     Route::post('/schedules/generate', [ScheduleController::class, 'generatePosts'])->name('schedules.generatePosts');
     Route::get('/freepik/get-image/{id}', [FreepikController::class,'getImage'])->name('freepik.getImage');

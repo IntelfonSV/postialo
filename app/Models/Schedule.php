@@ -16,6 +16,7 @@ class Schedule extends Model
         'idea',
         'objective',
         'prompt_image',
+        'image_source',
         'networks',
         'template_id',
         'status',

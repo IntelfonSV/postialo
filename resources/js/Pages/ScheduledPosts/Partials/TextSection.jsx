@@ -87,7 +87,7 @@ function TextSection({ schedule, networks, setLoading }) {
                                         <button
                                             onClick={() => handleEdit(row)}
                                             title="Editar"
-                                            className="rounded-full p-1 bg-blue-50 hover:bg-blue-100 flex items-center gap-2 text-blue-500 lg:px-2"
+                                            className="rounded-full p-1 bg-blue-50 hover:bg-blue-100 flex items-center gap-2 text-blue-500 lg:px-2 hover:scale-105 transition-all duration-300"
                                         >
                                             <span className="hidden lg:block">
                                                 Editar
@@ -96,7 +96,7 @@ function TextSection({ schedule, networks, setLoading }) {
                                         </button>
                                         {row.texts.length < 3 && (
                                             <button
-                                                className="rounded-full bg-purple-50 p-1 hover:bg-purple-100 flex items-center gap-2 text-purple-500 lg:px-2"
+                                                className="rounded-full bg-purple-50 p-1 hover:bg-purple-100 flex items-center gap-2 text-purple-500 lg:px-2 hover:scale-105 transition-all duration-300"
                                                 onClick={() =>
                                                     handleGenerate(row)
                                                 }
@@ -116,7 +116,7 @@ function TextSection({ schedule, networks, setLoading }) {
                                                     )
                                                 }
                                                 title="Seleccionar texto"
-                                                className="rounded-full bg-pink-50 p-1 hover:bg-pink-100 flex items-center gap-2 text-pink-500 lg:px-2"
+                                                className="rounded-full bg-pink-50 p-1 hover:bg-pink-100 flex items-center gap-2 text-pink-500 lg:px-2 hover:scale-105 transition-all duration-300"
                                             >
                                                 <span className="hidden lg:block">
                                                     Seleccionar texto

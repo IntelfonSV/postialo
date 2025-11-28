@@ -8,6 +8,7 @@ class ScheduleImage extends Model
 {
     protected $fillable = [
         'schedule_id',
+        'image_source',
         'image_path',
         'generated_image_path',
         'is_approved',
