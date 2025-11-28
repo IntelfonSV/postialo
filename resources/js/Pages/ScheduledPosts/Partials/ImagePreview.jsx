@@ -67,13 +67,24 @@ function ImagePreview({
         }
     }, [templateHtml, imageUrl, logo, whatsapp, website]);
 
+    const iframeKey =
+        (htmlFinal || templateHtml) +
+        "|" +
+        imageUrl +
+        "|" +
+        logo +
+        "|" +
+        whatsapp +
+        "|" +
+        website;
+
     if (!templateHtml) return null;
 
     return (
         <div>
             {templateHtml &&
             templateHtml.includes('<img class="background-img"') ? (
-                <iframe srcDoc={htmlFinal} className={className} />
+                <iframe srcDoc={htmlFinal} className={className} key={iframeKey}S />
             ) : imageUrl ? (
                 <img src={imageUrl} className={className} />
             ) : null}
