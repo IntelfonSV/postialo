@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group
     Route::resource('scheduled-post-texts', ScheduledPostTextController::class);
     Route::put('/scheduled-post-texts/{scheduled_post_text}/update-content', [ScheduledPostTextController::class, 'updateContent'])->name('scheduled-post-texts.update-content');
     Route::put('/schedules/{schedule}/update-image', [ScheduleController::class, 'updateImage'])->name('schedules.update-image');
+    Route::put('/schedules/{schedule}/edit-image', [ScheduleController::class, 'editImage'])->name('schedules.edit-image');
     Route::put('/scheduled-posts/{scheduled_post}/update-text', [ScheduledPostController::class, 'updateText'])->name('scheduled-posts.update-text');
     Route::put('/scheduled-posts/{scheduled_post}/update-status', [ScheduledPostController::class, 'updateStatus'])->name('scheduled-posts.update-status');
     Route::get('/generate-image/{schedule}', [GenerateImageController::class, 'generateImageFromHtml'])->name('generate-image');

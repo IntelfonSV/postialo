@@ -294,6 +294,29 @@ class ScheduleController extends Controller
         return back()->with('success', 'Imagen cargada exitosamente');
     }   
 
+        public function editImage(Request $request, Schedule $schedule){
+        $imageController = new GenerateImageController();
+        $request->validate([
+            'prompt' => 'required',
+        ]);
+        $response = $imageController->generateWithNanoBanana($schedule->selectedImage,  $request->prompt);
+        if($response['ok']){
+
+            $schedule_image = $schedule->images()->create([
+                'image_path' => $response['file'],
+                'image_source' => 'generated',
+            ]);
+            $schedule->update([
+                'image_source' => 'generated',
+                'selected_image_id' => $schedule_image->id,
+            ]);
+            
+            return back()->with('success', 'Imagen editada exitosamente');
+        }else{
+            return back()->with('error', $response['error']);
+        }
+    }
+
     public function generatePosts(Request $request){
 
         $request->validate([

@@ -191,4 +191,93 @@ class GenerateImageController extends Controller
     
         return $filename; // => "published/xxxx.png"
     }
+
+
+    public function generateWithNanoBanana($image, $prompt) {
+        // 1) Leer imagen y convertirla a base64
+        if ($image->image_source == 'api') {
+            $imgResponse = Http::get($image->image_path);
+            if (!$imgResponse->successful()) {
+                return [
+                    'ok'=> false,
+                    'error' => 'No se pudo descargar la imagen'
+                ];
+            }
+            $imageData = base64_encode($imgResponse->body());
+        } else {
+            //validar error
+            
+            $path = Storage::disk('public')->path($image->image_path); 
+            //dd($path);
+                if (!file_exists($path)) {
+                    // para depurar
+                    // dd("No existe: " . $path);
+                    throw new \Exception("No existe la imagen en el path: $path");
+                }
+
+            $imageData = base64_encode(file_get_contents($path));
+        }
+
+        // 👈 FORMATO CORRECTO PARA GEMINI (REST)
+        $payload = [
+            "contents" => [
+                [
+                    // "role" => "user", // opcional, pero válido
+                    "parts" => [
+                        [
+                            "inlineData" => [
+                                "mimeType" => "image/png",
+                                "data" => $imageData,
+                            ],
+                        ],
+                        [
+                            "text" => $prompt,
+                        ],
+                    ],
+                ],
+            ],
+            // Opcional, pero recomendado para forzar imagen como salida
+            "generationConfig" => [
+                "responseModalities" => ["IMAGE"],
+            ],
+        ];
+
+        $response = Http::withHeaders([
+                "Content-Type"   => "application/json",
+                "x-goog-api-key" => config('services.google.api_key'),
+            ])->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                $payload
+            );
+
+        if (!$response->successful()) {
+            return [
+                'ok' => false,
+                'error' => 'No se pudo generar la imagen'
+            ];
+        }
+
+        $data  = $response->json();
+        $parts = $data["candidates"][0]["content"]["parts"] ?? [];
+        //dd($parts);
+        foreach ($parts as $part) {
+            if (isset($part["inlineData"])) {
+                $imgBase64 = $part["inlineData"]["data"];
+
+                $fileName = 'gemini_output_' . time() . '.png';
+                //guardar en storage/images
+                Storage::disk('public')->put('images/' . $fileName, base64_decode($imgBase64));
+
+                return [
+                    'ok' => true,
+                    'file' => "images/$fileName",
+                ];
+            }
+        }
+
+        return [
+            'ok' => false,
+            'error' => 'No se encontró imagen'
+        ];
+    }
 }

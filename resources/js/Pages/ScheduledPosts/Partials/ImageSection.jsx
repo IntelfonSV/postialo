@@ -11,6 +11,7 @@ import GreenButton from "@/Components/GreenButton";
 import { router } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import { FaFileUpload, FaUpload } from "react-icons/fa";
+import EditImageWithAIButton from "../Components/EditImageWithAIButton";
 
 function ImageSection({
     schedule,
@@ -183,6 +184,14 @@ function ImageSection({
                             <BsImages className="w-6 h-6 text-blue-500" />
                             <span className="hidden lg:block">Imagenes</span>
                         </button>
+                    )}
+
+                {schedule.status != "cancelled" &&
+                    !schedule.selected_image.is_approved && (
+                        <EditImageWithAIButton
+                            schedule={schedule}
+                            setLoading={setLoading}
+                        />
                     )}
             </div>
             <br />

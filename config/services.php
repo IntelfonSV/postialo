@@ -50,5 +50,8 @@ return [
         'uid'            => env('PAGADITO_UID'),
         'wsk'            => env('PAGADITO_WSK'),
     ],
+    'google' => [
+        'api_key' => env('GOOGLE_API_KEY'),
+    ],
 
 ];
