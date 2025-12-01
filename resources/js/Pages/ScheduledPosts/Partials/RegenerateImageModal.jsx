@@ -18,8 +18,6 @@ function RegenerateImageModal({
         });
     }, [schedule]);
 
-    console.log(schedule);
-
     const onSubmit = (e) => {
         e.preventDefault();
         setLoading(true);

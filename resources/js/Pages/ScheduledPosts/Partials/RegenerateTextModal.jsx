@@ -23,7 +23,6 @@ function RegenerateTextModal({show, close, editElement, setLoading}) {
 
     const handleSubmit = (e) => {
         setLoading(true);
-        console.log(data);
         close();
         post(route("scheduled-posts.regenerate-text", {scheduled_post: editElement?.id}),{
             preserveScroll: true,

@@ -17,28 +17,19 @@ export default function PartnerGuide() {
         instagram_account_id: "",
     });
 
-
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
-
     const [partner, setPartner] = useState(null);
     const handleActivateDemo = () =>
         post(route("demos.activate"), { preserveScroll: true });
 
     const handlePartnerCodeSubmit = async (event) => {
         event.preventDefault();
-        console.log(data);
         try {
             const response = await axios.post(
                 route("partner.validate-partner-code"),
-                data
+                data,
             );
-            console.log(response.data.partner);
             setPartner(response.data.partner);
-            setData({...data,
-                partner_id: response.data.partner.id,
-            });
+            setData({ ...data, partner_id: response.data.partner.id });
         } catch (error) {
             console.error(error);
         }

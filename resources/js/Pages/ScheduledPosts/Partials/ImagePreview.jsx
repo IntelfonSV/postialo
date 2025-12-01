@@ -8,7 +8,6 @@ function ImagePreview({
     whatsapp = "",
     website = "",
 }) {
-    console.log(imageUrl);
     const [htmlFinal, setHtmlFinal] = useState("");
 
     useEffect(() => {

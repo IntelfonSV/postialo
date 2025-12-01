@@ -26,8 +26,6 @@ function Index({
         instagram: true,
     });
 
-    console.log(brandIdentity);
-
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
     const [selectedUser, setSelectedUser] = useState(null);
@@ -51,7 +49,6 @@ function Index({
                 obj.year == selectedMonth.split("-")[1] &&
                 obj.user_id == selectedUser?.id,
         );
-        console.log(posts_filtered);
         setPosts(posts_filtered);
     }, [scheduledPosts, selectedMonth, selectedUser]);
 

@@ -23,10 +23,8 @@ function PostCard({
         image: null,
     });
     const handleFileChange = (e, schedule) => {
-        console.log(e);
         const file = e.target.files?.[0];
         if (!file) {
-            console.log("No file selected");
             setData({
                 image: null,
             });
@@ -52,11 +50,9 @@ function PostCard({
         setData({
             image: file,
         });
-        console.log(objectUrl);
     };
 
     useEffect(() => {
-        console.log(preview);
     }, [preview]);
 
     const handleAccept = () => {
@@ -69,7 +65,6 @@ function PostCard({
                 reset();
             },
             onError: (error) => {
-                console.log(error);
                 setLoading(false);
             },
         });

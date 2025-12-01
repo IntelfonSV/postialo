@@ -34,9 +34,7 @@ function Show({
     demo,
     hasActivePayment,
 }) {
-    console.log(payments);
-    console.log(demo);
-    const {TranslateStatus, badge} = StatusHelper();
+    const { TranslateStatus, badge } = StatusHelper();
 
     const activateDemo = () => {
         router.post(route("users.activate-demo", user.id));
@@ -189,11 +187,36 @@ function Show({
                         <GrayContainer>
                             <DataTable
                                 columns={[
-                                    { name: "ID", selector: row => row.id },
-                                    { name: "Fecha", selector: row => new Date(row.charge_date).toLocaleDateString() },
-                                    {name:'Descripción', selector: row => row.description},
-                                    { name: "Monto", selector: row => row.amount },
-                                    { name: "Estado", selector: row => <span className={badge(row.status.toLowerCase())}>{TranslateStatus(row.status.toLowerCase())}</span> },
+                                    { name: "ID", selector: (row) => row.id },
+                                    {
+                                        name: "Fecha",
+                                        selector: (row) =>
+                                            new Date(
+                                                row.charge_date,
+                                            ).toLocaleDateString(),
+                                    },
+                                    {
+                                        name: "Descripción",
+                                        selector: (row) => row.description,
+                                    },
+                                    {
+                                        name: "Monto",
+                                        selector: (row) => row.amount,
+                                    },
+                                    {
+                                        name: "Estado",
+                                        selector: (row) => (
+                                            <span
+                                                className={badge(
+                                                    row.status.toLowerCase(),
+                                                )}
+                                            >
+                                                {TranslateStatus(
+                                                    row.status.toLowerCase(),
+                                                )}
+                                            </span>
+                                        ),
+                                    },
                                 ]}
                                 data={payments}
                                 fixedHeader

@@ -33,7 +33,6 @@ function ImageSection({
         setRegenerateImageModal(true);
     };
 
-    console.log(brandIdentity);
     const handleShowChangeTemplateModal = (row) => {
         setChangeTemplateElement(row);
         setShowChangeTemplateModal(true);
@@ -77,8 +76,6 @@ function ImageSection({
             }
         });
     };
-
-    console.log(preview);
 
     return (
         <div className="w-full lg:w-fit flex justify-center items-center flex-col   mt-5">

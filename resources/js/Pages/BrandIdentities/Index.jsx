@@ -11,7 +11,6 @@ import { Alert, AlertTitle } from "@mui/material";
 
 function Index({ brandIdentity }) {
     const user = usePage().props.auth.user;
-    console.log(brandIdentity);
     const [editBrandIdentity, seteditBrandIdentity] = useState(false);
 
     return (

@@ -33,7 +33,6 @@ function ScheduleFileInput({ fileInputRef, setData, setPreview, preview }) {
         setData("image_source", "uploaded");
         const objectUrl = URL.createObjectURL(file);
         setPreview(objectUrl);
-        console.log("Vista previa generada:", objectUrl);
     };
 
     return (

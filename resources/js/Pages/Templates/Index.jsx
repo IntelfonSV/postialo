@@ -19,8 +19,6 @@ function Index({ templates = [], auth, users, brandIdentity }) {
     const [editingId, setEditingId] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    console.log(brandIdentity);
-
     const params = new URLSearchParams(window.location.search);
     const urlUser = params.get("user");
     useEffect(() => {

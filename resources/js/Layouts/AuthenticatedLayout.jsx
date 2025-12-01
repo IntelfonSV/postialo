@@ -9,8 +9,6 @@ import Notification from "@/Components/Notification";
 
 export default function AuthenticatedLayout({ header, children }) {
     const { auth, partner } = usePage().props;
-    console.log(partner);
-
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
