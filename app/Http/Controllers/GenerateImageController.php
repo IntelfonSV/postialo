@@ -353,11 +353,12 @@ class GenerateImageController extends Controller
 
     //dd($payload);
 
-     $response = Http::withHeaders([
+     $response = Http::timeout(180)->withHeaders([
                 "Content-Type"   => "application/json",
                 "x-goog-api-key" => config('services.google.api_key'),
             ])->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                //"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent",
                 $payload
             );
 
