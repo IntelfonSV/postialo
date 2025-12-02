@@ -298,8 +298,10 @@ class ScheduleController extends Controller
         $imageController = new GenerateImageController();
         $request->validate([
             'prompt' => 'required',
+            'images' => 'array',
         ]);
-        $response = $imageController->generateWithNanoBanana($schedule->selectedImage,  $request->prompt);
+
+        $response = $imageController->generateWithNanoBanana2($schedule->selectedImage, $request->images,  $request->prompt);
         if($response['ok']){
 
             $schedule_image = $schedule->images()->create([

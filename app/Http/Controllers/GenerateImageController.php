@@ -280,4 +280,115 @@ class GenerateImageController extends Controller
             'error' => 'No se encontró imagen'
         ];
     }
+
+    public function generateWithNanoBanana2($image, array $images, $prompt) {
+        
+        $parts = [];
+        if ($image->image_source == 'api') {
+            $imgResponse = Http::get($image->image_path);
+            if (!$imgResponse->successful()) {
+                return [
+                    'ok'=> false,
+                    'error' => 'No se pudo descargar la imagen'
+                ];
+            }
+            $imageData = base64_encode($imgResponse->body());
+        } else {
+            //validar error
+            
+            $path = Storage::disk('public')->path($image->image_path); 
+            if (!file_exists($path)) {
+                // para depurar
+                // dd("No existe: " . $path);
+                throw new \Exception("No existe la imagen en el path: $path");
+            }
+
+            $imageData = base64_encode(file_get_contents($path));
+        }
+
+        $parts[] = [
+            "inlineData" => [
+                "mimeType" => "image/png",
+                "data"     => $imageData,
+            ],
+        ];
+        // --- 1) Procesar todas las imágenes de entrada que vienen del formulario ---
+        foreach ($images as $img) {
+            
+            $imageData = '';
+            //obtener el mime type de la imagen que viene en el array 
+            $mimeType = $img->getMimeType(); // Ajustar si tienes distintos tipos (JPG, etc.)
+
+            try {
+                $imageData = base64_encode(file_get_contents($img->getRealPath()));
+            } catch (\Exception $e) {
+                return ['ok'=> false, 'error' => 'Error al procesar imagen: ' . $e->getMessage()];
+            }
+
+            // Añadir la imagen al array de 'parts'
+            $parts[] = [
+                "inlineData" => [
+                    "mimeType" => $mimeType,
+                    "data"     => $imageData,
+                ],
+            ];
+        }
+    
+    // --- 2) Añadir el prompt de texto al final ---
+    $parts[] = [
+        "text" => $prompt,
+    ];
+
+    // --- 3) Construir el payload final ---
+    $payload = [
+        "contents" => [
+            [
+                "parts" => $parts, // Aquí usamos el array $parts que contiene todas las imágenes y el prompt
+            ],
+        ],
+        "generationConfig" => [
+            "responseModalities" => ["IMAGE"],
+        ],
+    ];
+
+    //dd($payload);
+
+     $response = Http::withHeaders([
+                "Content-Type"   => "application/json",
+                "x-goog-api-key" => config('services.google.api_key'),
+            ])->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                $payload
+            );
+
+        if (!$response->successful()) {
+            return [
+                'ok' => false,
+                'error' => 'No se pudo generar la imagen'
+            ];
+        }
+
+        $data  = $response->json();
+        $parts = $data["candidates"][0]["content"]["parts"] ?? [];
+        //dd($parts);
+        foreach ($parts as $part) {
+            if (isset($part["inlineData"])) {
+                $imgBase64 = $part["inlineData"]["data"];
+
+                $fileName = 'gemini_output_' . time() . '.png';
+                //guardar en storage/images
+                Storage::disk('public')->put('images/' . $fileName, base64_decode($imgBase64));
+
+                return [
+                    'ok' => true,
+                    'file' => "images/$fileName",
+                ];
+            }
+        }
+
+        return [
+            'ok' => false,
+            'error' => 'No se encontró imagen'
+        ];
+    }
 }

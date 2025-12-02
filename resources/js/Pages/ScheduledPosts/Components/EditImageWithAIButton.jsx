@@ -1,33 +1,36 @@
 import Modal from "@/Components/Modal";
-import { router } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import { useState } from "react";
-import { RiImageAiFill } from "react-icons/ri";
+import { FaImage, FaTrash } from "react-icons/fa";
+import { RiImageAddFill, RiImageAiFill } from "react-icons/ri";
 
 function EditImageWithAIButton({ schedule, setLoading }) {
     const [showModal, setShowModal] = useState(false);
-    const [prompt, setPrompt] = useState("");
+    const { data, setData, post, errors } = useForm({
+        prompt: "",
+        images: [],
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
         setShowModal(false);
-        router.put(
-            route("schedules.edit-image", { schedule: schedule.id }),
-            { prompt: prompt },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setLoading(false);
-                },
-                onError: () => {
-                    setLoading(false);
-                },
-                onFinish: () => {
-                    setLoading(false);
-                    setPrompt("");
-                },
+        post(route("schedules.edit-image", schedule.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setLoading(false);
             },
-        );
+            onError: () => {
+                setLoading(false);
+            },
+            onFinish: () => {
+                setLoading(false);
+                setData({
+                    prompt: "",
+                    images: [],
+                });
+            },
+        });
     };
     return (
         <div>
@@ -46,6 +49,59 @@ function EditImageWithAIButton({ schedule, setLoading }) {
                         action=""
                         className="w-full p-6 space-y-6"
                     >
+                        <div>
+                            <p>
+                                <span className="text-xl font-bold text-gray-700">¿Quieres combinar imagenes?</span> <br />
+                                Puedes agregar una o mas imagenes.
+                            </p>
+                            <p className="text-red-500">Maximo 3 imágenes</p>
+                            <br />
+                            <input
+                                hidden
+                                type="file"
+                                name="images"
+                                id="images"
+                                onChange={(e) => e.target.files[0] &&
+                                    setData({
+                                        images: [
+                                            ...data.images,
+                                            e.target.files[0],
+                                        ],
+                                    })
+                                }
+                            />
+                            <div className="flex flex-wrap gap-2 w-full">
+                                <img className="h-32" src={schedule.image_source === 'api' ? schedule.selected_image.image_path : ("storage/"   +schedule.selected_image.image_path)} alt="" />
+                                {Array.from(data.images).map((image, index) => (
+                                    <div key={index} className="relative">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setData({
+                                                    images: data.images.filter(
+                                                        (_, i) => i !== index,
+                                                    ),
+                                                })
+                                            }
+                                            className="absolute top-1 right-1 text-red-500 hover:text-red-800 cursor-pointer"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                        <img
+                                            src={URL.createObjectURL(image)}
+                                            alt={`image-${index}`}
+                                            className="h-32 rounded-md"
+                                        />
+                                    </div>
+                                ))}
+                                <label
+                                    htmlFor="images"
+                                    className="w-32 h-32 flex justify-center items-center border border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-100 text-blue-500 hover:text-blue-800"
+                                >
+                                    <RiImageAddFill className="w-12 h-12" />
+                                </label>
+                            </div>
+                        </div>
                         <div className="flex flex-col gap-2">
                             <label
                                 htmlFor="prompt"
@@ -62,8 +118,10 @@ function EditImageWithAIButton({ schedule, setLoading }) {
                                 name="prompt"
                                 id="prompt"
                                 rows={4}
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
+                                value={data.prompt}
+                                onChange={(e) =>
+                                    setData({ ...data, prompt: e.target.value })
+                                }
                                 className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
