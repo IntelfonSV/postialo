@@ -35,13 +35,23 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </div>
                                     )}
 
-                                    <Link
+                                    {/* <Link
                                         href={route("home")}
                                         className="text-white font-bold text-3xl"
                                     >
                                         Post
                                         <span className="text-red-500">IA</span>
                                         lo
+                                    </Link> */}
+
+                                    <Link
+                                        href={route("home")}
+                                        className="text-white font-bold text-3xl"
+                                    >
+                                        Post
+                                        <span className="text-red-500">IA</span>
+                                        lo {" "}
+                                        <span className="text-white text-sm"><span className="text-red-500">x</span> Restaurantes</span>
                                     </Link>
                                 </div>
 

@@ -5,8 +5,12 @@ export default function GuestLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col items-center bg-[#002073] pt-6 sm:justify-center sm:pt-0">
             <div>
-                <Link href="/" className='text-white font-bold text-3xl'>
+                {/* <Link href="/" className='text-white font-bold text-3xl'>
                 Post<span className="text-red-500">IA</span>lo
+                </Link> */}
+                                <Link href="/" className='text-white font-bold text-3xl'>
+                Post<span className="text-red-500">IA</span>lo <span className='text-red-500'>x</span> {" "}
+                <span className="text-white">Restaurantes</span>
                 </Link>
             </div>
 
