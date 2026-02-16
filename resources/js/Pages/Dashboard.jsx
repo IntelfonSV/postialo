@@ -10,6 +10,8 @@ import { TbSum } from "react-icons/tb";
 import { FaUsers } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
 import { MdCancel } from "react-icons/md";
+import TokenUsageChart from "@/Components/TokenUsageChart";
+
 export default function Dashboard({
     users_count,
     schedules_count,
@@ -20,7 +22,8 @@ export default function Dashboard({
     schedules_published,
     templates_count,
     schedules_cancelled,
-    activeDemo = null,  
+    activeDemo = null,
+    tokenUsageByMonth = [],
 }) {
     const user = usePage().props.auth.user;
     return (
@@ -106,6 +109,11 @@ export default function Dashboard({
                     ></SmallCard>
                 </div>
             </GrayContainer>
+            
+            {/* Gráfica de uso de tokens */}
+            <div className="mt-6">
+                <TokenUsageChart tokenUsageByMonth={tokenUsageByMonth} />
+            </div>
         </AuthenticatedLayout>
     );
 }

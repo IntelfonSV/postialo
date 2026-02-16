@@ -20,6 +20,21 @@ function TextSection({ schedule, networks, setLoading }) {
     const [showEditModal, setShowEditModal] = useState(false);
 
     const handleApproveTexts = () => {
+        // Verificar si la fecha de publicación es menor que la fecha actual
+        const scheduledTime = new Date(schedule.scheduled_date);
+        const currentTime = new Date();
+        
+        if (scheduledTime <= currentTime) {
+            Swal.fire({
+                title: "Fecha inválida",
+                text: "No se puede aprobar una publicación cuya fecha de programación es menor o igual a la fecha actual.",
+                icon: "error",
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Entendido",
+            });
+            return;
+        }
+        
         Swal.fire({
             title: "Aprobar textos",
             text: "¿Estás seguro de aprobar los textos de esta publicación?",

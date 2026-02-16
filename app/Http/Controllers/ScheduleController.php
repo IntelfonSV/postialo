@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\ShortLink;
 use Illuminate\Support\Str;
+use App\Services\NanoBananaService;
+
 
 class ScheduleController extends Controller
 
@@ -264,8 +266,9 @@ class ScheduleController extends Controller
     public function destroy(Schedule $schedule)
     {
         //eliminar la imagen de la publicación
-        if($schedule->image){
-            Storage::disk('public')->delete($schedule->image);
+        $images = $schedule->images;
+        foreach($images as $image){
+            Storage::disk('public')->delete($image->image_path);
         }
         $schedule->delete();
         return back()->with('success', 'Publicación eliminada exitosamente');
@@ -294,7 +297,7 @@ class ScheduleController extends Controller
         return back()->with('success', 'Imagen cargada exitosamente');
     }   
 
-        public function editImage(Request $request, Schedule $schedule){
+    public function editImage(Request $request, Schedule $schedule){
         $imageController = new GenerateImageController();
         $request->validate([
             'prompt' => 'required',
@@ -327,30 +330,33 @@ class ScheduleController extends Controller
             'schedules' => 'nullable|array',
         ]);
 
-        $user = auth()->user();
-        if($request->schedules && $user->hasRole('admin')){
+        $authUser = auth()->user();
+        if($request->schedules && $authUser->hasRole('admin')){
             $schedules = Schedule::whereIn('id', $request->schedules)->where('status', 'pending')->get();
         }else{
-            $schedules = Schedule::where('user_id', $user->id)->where('month', $request->month)->where('year', $request->year)->where('status', 'pending')->get();
+            $schedules = Schedule::where('user_id', $authUser->id)->where('month', $request->month)->where('year', $request->year)->where('status', 'pending')->get();
         }
 
-        $brandIdentity = BrandIdentity::where('user_id', $user->id)->first();
-        if (!$brandIdentity) {
-            return back()->with('error', 'No se ha completado la informacion de identidad de marca para el usuario');
-        }
 
-        $imageController = new GenerateImageController();
+
+        //$imageController = new GenerateImageController();
         $assistant = new AssistantController();
         try{
         foreach ($schedules as $schedule) {
+
+            $user = $schedule->user;
+            $brandIdentity = BrandIdentity::where('user_id', $user->id)->first();
+            if (!$brandIdentity) {
+                return back()->with('error', 'No se ha completado la informacion de identidad de marca para el usuario');
+            }
 
             if($schedule->image_source == 'generated'){
                     
                     if($schedule->image){
                         Storage::disk('public')->delete($schedule->image);
                 }
-                
-                $response = $imageController->generateImage($schedule->prompt_image);   
+                $nanoBananaService = new NanoBananaService();
+                $response = $nanoBananaService->generateImage(null, [], $schedule->prompt_image, $user); 
 
                 if($response['status'] === 'success'){
                     $scheduleImage = ScheduleImage::create([
@@ -507,8 +513,11 @@ class ScheduleController extends Controller
         $request->validate([
             'prompt_image' => 'required',
         ]);
-        $imageController = new GenerateImageController();
-        $response = $imageController->generateImage($request->prompt_image);
+
+        // $imageController = new GenerateImageController();
+        // $response = $imageController->generateImage($request->prompt_image);
+        $nanoBananaService = new NanoBananaService();
+        $response = $nanoBananaService->generateImage(null, [], $request->prompt_image, $schedule->user); 
 
         if($response['status'] == 'error'){
             return back()->with('error', $response['message']);
@@ -683,6 +692,54 @@ class ScheduleController extends Controller
         }
 
             return back()->with('success', 'Posts enviados exitosamente');
+    }
+
+    public function updateDate(Request $request, Schedule $schedule)
+    {
+        $request->validate([
+            'scheduled_date' => 'required|date',
+        ]);
+
+        // Log the raw input for debugging
+        \Log::info('Raw date input:', ['scheduled_date' => $request->scheduled_date]);
+
+        // Check if user can edit this schedule
+        if (auth()->user()->id !== $schedule->user_id && !auth()->user()->hasRole('admin')) {
+            return back()->with('error', 'No tienes permiso para editar esta publicación');
+        }
+
+        // Check if schedule is still editable (not published or cancelled)
+        if (in_array($schedule->status, ['published', 'cancelled'])) {
+            return back()->with('error', 'No se puede editar la fecha de una publicación publicada o cancelada');
+        }
+
+        // Parse the date from datetime-local input (comes as local time)
+        // Convert to UTC for storage
+        $scheduledTime = Carbon::parse($request->scheduled_date, auth()->user()->timezone ?? 'America/El_Salvador');
+        $scheduledTime->setTimezone('UTC');
+        
+        $currentTime = Carbon::now();
+        
+        $minutesDiff = $currentTime->diffInMinutes($scheduledTime, false); // false = absolute value
+        
+        // Log for debugging
+        \Log::info('Date update attempt', [
+            'schedule_id' => $schedule->id,
+            'requested_date' => $request->scheduled_date,
+            'scheduled_time_utc' => $scheduledTime->toDateTimeString(),
+            'current_time' => $currentTime->toDateTimeString(),
+            'minutes_diff' => $minutesDiff,
+        ]);
+        
+        if ($scheduledTime->lte($currentTime) || $minutesDiff < 5) {
+            return back()->with('error', 'La fecha de publicación debe ser al menos 5 minutos en el futuro. Diferencia: ' . $minutesDiff . ' minutos');
+        }
+
+        $schedule->update([
+            'scheduled_date' => $scheduledTime,
+        ]);
+
+        return back()->with('success', 'Fecha de publicación actualizada exitosamente');
     }
 
 

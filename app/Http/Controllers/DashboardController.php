@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Models\Template;
+use App\Models\AiUsage;
+use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -32,7 +34,20 @@ class DashboardController extends Controller
         $schedules_published = $schedules->where('status', 'published')->count();
         $schedules_cancelled = $schedules->where('status', 'cancelled')->count();
 
-
+        // Obtener uso de tokens por mes
+        $tokenUsageByMonth = AiUsage::select(
+                DB::raw('TO_CHAR(created_at, \'YYYY-MM\') as month'),
+                DB::raw('SUM(total_tokens) as total_tokens'),
+                DB::raw('SUM(prompt_tokens) as prompt_tokens'),
+                DB::raw('SUM(candidates_tokens) as candidates_tokens')
+            )
+            ->when(!$user->hasRole('admin'), function ($query) use ($user) {
+                return $query->where('user_id', $user->id);
+            })
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy(DB::raw('TO_CHAR(created_at, \'YYYY-MM\')'))
+            ->orderBy('month')
+            ->get();
 
         return Inertia::render('Dashboard', [
             'schedules_count' => $schedules_count,
@@ -45,6 +60,7 @@ class DashboardController extends Controller
             'templates_count' => $templates,
             'schedules_cancelled' => $schedules_cancelled,
             'activeDemo' => $activeDemo ?? null,
+            'tokenUsageByMonth' => $tokenUsageByMonth,
             ]); 
     }
 

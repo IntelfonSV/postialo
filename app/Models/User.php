@@ -111,4 +111,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->partner && $this->partner->code === strtoupper($code);
     }
+
+    public function aiUsages()
+    {
+        return $this->hasMany(\App\Models\AiUsage::class);
+    }
 }

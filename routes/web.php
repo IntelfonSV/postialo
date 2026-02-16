@@ -47,7 +47,9 @@ Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
 Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('templates', TemplateController::class)->names('templates');
-    Route::resource('schedules', ScheduleController::class);
+    //excluir delete 
+    Route::resource('schedules', ScheduleController::class, ['except' => ['destroy']]);
+
     Route::post('schedules/{schedule}/update-template', [ScheduleController::class, 'updateTemplate'])->name('schedules.update-template');
     Route::post('scheduled-posts/{scheduled_post}/regenerate', [ScheduledPostController::class, 'regenerate'])->name('scheduled-posts.regenerate');
     Route::post('schedules/{schedule}/update-image', [ScheduleController::class, 'update'])->name('schedules.update-image');
@@ -68,7 +70,8 @@ Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group
     Route::put('/schedules/{schedule}/approve-image', [ScheduleController::class, 'approveImage'])->name('schedules.approve-image');
     Route::put('/schedules/send/{schedule}', [ScheduleController::class, 'sendSchedule'])->name('schedules.send');
     Route::put('/schedules/{schedule}/cancel', [ScheduleController::class, 'cancelSchedule'])->name('schedules.cancel');
-
+    Route::put('/schedules/{schedule}/update-date', [ScheduleController::class, 'updateDate'])->name('schedules.update-date');
+    Route::delete('schedules/{schedule}', [ScheduleController::class, 'destroy'])->name('schedules.destroy');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
