@@ -53,6 +53,8 @@ class BillingController extends Controller
     public function show(Request $request)
     {
         $user = auth()->user();
+        $user->load('demos');
+        $demos = $user->demos;
         $partners = Partner::where('active', true)
             ->orderBy('id')
             ->get();
@@ -64,7 +66,7 @@ class BillingController extends Controller
         return Inertia::render('Billing/Index', [
             'subscription' => auth()->user()->subscription,
             'products' => $products,
-            'demos' => $user->demos(),
+            'demos' => $user->demos,
             'partners' => $partners,
         ]);
     }

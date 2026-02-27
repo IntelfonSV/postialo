@@ -90,7 +90,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             "templates.index",
                                         )}
                                     >
-                                        Plantillas HTML
+                                        Plantillas
                                     </NavLink>
                                     <NavLink
                                         href={route("schedules.index")}
