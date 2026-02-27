@@ -36,20 +36,62 @@ class ScheduleController extends Controller
         if($user->hasRole('admin')){
             $users = User::all();
             $templates = Template::all();
-            $schedules = Schedule::with('selectedImage')->with('user')->orderBy('id', 'asc')->get();
+            $schedules = Schedule::with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')
+            ->with('user')->orderBy('id', 'asc')->get();
             $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }else{
             //$templates = Template::where('user_id', $user->id)->get();
             $templates = Template::orderBy('id', 'asc')->get();
-            $schedules = Schedule::where('user_id', $user->id)->with('selectedImage')->orderBy('id', 'asc')->get();
+            $schedules =Schedule::where('user_id', $user->id)->with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')->orderBy('id', 'asc')
+            ->get();
+
+
             $months =  Schedule::where('user_id', $user->id)->select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
         }
+
+        if($user->brandIdentity){
+            $brandIdentity = BrandIdentity::with('logos')->where('user_id', $user->id)->first();
+        }else{
+            $brandIdentity = null;
+        }
+
         return Inertia::render('Schedules/Index', [
             'schedules' => $schedules,
             'templates' => $templates,
             'months' => $months,
             'users' => $users ?? null,
+            'brandIdentity' => $brandIdentity,
         ]);
+    }
+
+    public function calendar(){
+        $user = auth()->user();
+        $user->load('roles');
+
+        if($user->hasRole('admin')){
+            $users = User::all();
+            $templates = Template::all();
+            $schedules = Schedule::with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')
+            ->with('user')->orderBy('id', 'asc')->get();
+            $months =  Schedule::select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
+        }else{
+            //$templates = Template::where('user_id', $user->id)->get();
+            $templates = Template::orderBy('id', 'asc')->get();
+            $schedules =Schedule::where('user_id', $user->id)->with(['posts' => function ($q) {
+                $q->with('selectedText')->with('texts')->orderBy('network', 'asc');
+            }])->with('template')->with('selectedImage')->with('images')->orderBy('id', 'asc')
+            ->get();
+
+
+            $months =  Schedule::where('user_id', $user->id)->select('month', 'year')->distinct()->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
+        }
+        return Inertia::render('Schedules/Calendar', ['schedules' => $schedules]);
     }
 
     /**
@@ -169,7 +211,12 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule)
     {
-        //
+        $schedule->load('template', 'user', 'selectedImage', 'images', 'posts');
+        foreach ($schedule->posts as $post) {
+            $post->load('selectedText', 'texts');
+            }
+        $templates = Template::orderBy('id', 'asc')->get();
+        return Inertia::render('Schedules/Show', ['schedule' => $schedule , 'templates' => $templates]);
     }
 
     /**
@@ -358,6 +405,10 @@ class ScheduleController extends Controller
                 $nanoBananaService = new NanoBananaService();
                 $response = $nanoBananaService->generateImage(null, [], $schedule->prompt_image, $user); 
 
+                if(!$response['ok']){
+                    return back()->with('error', $response['error']);
+                }
+                
                 if($response['status'] === 'success'){
                     $scheduleImage = ScheduleImage::create([
                         'schedule_id' => $schedule->id,
@@ -408,7 +459,7 @@ class ScheduleController extends Controller
             " . json_encode($brandIdentity->guidelines_json) . "
             Cierre obligatorio:
             Antes del cierre obligatorio agrega 2 saltos de linea
-            {$closing}";
+            {$closing} el cierre obligatorio solo se debe agregar si la publicacion es para ***facebook***";
 
 
             $social_networks = json_encode($schedule->networks);

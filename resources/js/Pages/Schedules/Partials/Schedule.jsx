@@ -8,6 +8,7 @@ import ScheduleNetworksInput from "../Components/ScheduleNetworksInput";
 import ScheduleTemplatesSelect from "../Components/ScheduleTemplatesSelect";
 import ScheduleButtons from "../Components/ScheduleButtons";
 import ScheduleUserInfo from "../Components/ScheduleUserInfo";
+import StatusHelper from "@/Helpers/StatusHelper";
 
 function Schedule({
     schedule = null,
@@ -18,6 +19,7 @@ function Schedule({
     user = null,
 }) {
     const { auth } = usePage().props;
+    const { TranslateStatus, badge } = StatusHelper();
 
     const [images, setImages] = useState([]);
     const [preview, setPreview] = useState(null);
@@ -112,9 +114,9 @@ function Schedule({
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-lg shadow-gray-800/50 p-2 md:p-4 space-y-2 border-gray-200 border">
+        <div className="bg-white rounded-xl shadow-lg shadow-gray-800/50 space-y-2 border-gray-200 border pb-5">
             {/* -- Cabecera de la tarjeta -- */}
-            <div className="flex flex-wrap gap-2 justify-between items-start bg-gray-200 p-5 rounded-xl">
+            <div className={"flex flex-wrap gap-2 justify-between items-start p-5 rounded-xl " + badge(data.status)}>
                 <ScheduleUserInfo number={number} user={user} />
                 <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg flex-wrap">
                     <ScheduleDateInput
@@ -130,7 +132,7 @@ function Schedule({
                 </div>
             </div>
 
-            <div className="md:grid md:grid-cols-3 gap-2">
+            <div className="md:grid md:grid-cols-3 gap-2 p-2 md:p-4">
                 {/* -- Contenido principal (Idea, Objetivo, Prompt) -- */}
                 <div className="grid md:grid-cols-3 gap-2 md:col-span-2">
                     <ScheduleTextArea

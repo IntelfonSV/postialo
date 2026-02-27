@@ -6,6 +6,19 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import Notification from "@/Components/Notification";
+import { 
+    FaTachometerAlt, 
+    FaUsers, 
+    FaPalette, 
+    FaFileAlt, 
+    FaCalendarAlt, 
+    FaList, 
+    FaShareAlt,
+    FaBars,
+    FaTimes,
+    FaUserCircle,
+    FaSignOutAlt
+} from "react-icons/fa";
 
 export default function AuthenticatedLayout({ header, children }) {
     const { auth, partner } = usePage().props;
@@ -35,24 +48,24 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </div>
                                     )}
 
-                                     <Link
+                                    <Link
                                         href={route("home")}
                                         className="text-white font-bold text-3xl"
                                     >
                                         Post
                                         <span className="text-red-500">IA</span>
                                         lo
-                                    </Link> 
+                                    </Link>
 
                                     {/* <Link
                                         href={route("home")}
                                         className="text-white font-bold text-lg"
                                     >
                                         Post
-                                        <span className="text-red-500">IA</span>
                                         lo {" "}
                                         <span className="text-white text-lg"><span className="text-red-500">x</span> Restaurantes</span>
                                     </Link> */}
+
                                 </div>
 
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -63,6 +76,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "dashboard",
                                             )}
                                         >
+                                            <FaTachometerAlt className="w-4 h-4 mr-2" />
                                             Dashboard
                                         </NavLink>
                                     )}
@@ -73,6 +87,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "users.index",
                                             )}
                                         >
+                                            <FaUsers className="w-4 h-4 mr-2" />
                                             Usuarios
                                         </NavLink>
                                     )}
@@ -82,6 +97,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             "brand-identities.index",
                                         )}
                                     >
+                                        <FaPalette className="w-4 h-4 mr-2" />
                                         Identidad de Marca
                                     </NavLink>
                                     <NavLink
@@ -90,7 +106,17 @@ export default function AuthenticatedLayout({ header, children }) {
                                             "templates.index",
                                         )}
                                     >
+                                        <FaFileAlt className="w-4 h-4 mr-2" />
                                         Plantillas
+                                    </NavLink>
+                                    <NavLink
+                                        href={route("schedules.calendar")}
+                                        active={route().current(
+                                            "schedules.calendar",
+                                        )}
+                                    >
+                                        <FaCalendarAlt className="w-4 h-4 mr-2" />
+                                        Calendario
                                     </NavLink>
                                     <NavLink
                                         href={route("schedules.index")}
@@ -98,16 +124,18 @@ export default function AuthenticatedLayout({ header, children }) {
                                             "schedules.index",
                                         )}
                                     >
-                                        Programación
+                                        <FaList className="w-4 h-4 mr-2" />
+                                        Mis Publicaciones
                                     </NavLink>
-                                    <NavLink
+                                    {/* <NavLink
                                         href={route("scheduled-posts.index")}
                                         active={route().current(
                                             "scheduled-posts.index",
                                         )}
                                     >
+                                        <FaShareAlt className="w-4 h-4 mr-2" />
                                         Publicaciones
-                                    </NavLink>
+                                    </NavLink> */}
                                 </div>
                             </div>
 
@@ -118,8 +146,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <span className="inline-flex rounded-md">
                                                 <button
                                                     type="button"
-                                                    className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                    className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                 >
+                                                    <FaUserCircle className="w-5 h-5 mr-2 text-gray-400" />
                                                     {auth.user.name}
 
                                                     <svg
@@ -142,13 +171,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Dropdown.Link
                                                 href={route("profile.edit")}
                                             >
+                                                <FaUserCircle className="w-4 h-4 mr-2" />
                                                 Perfil
                                             </Dropdown.Link>
                                             <Dropdown.Link
                                                 href={route("logout")}
                                                 method="post"
                                                 as="button"
+                                                className="text-red-600 hover:text-red-800 hover:bg-red-50 focus:text-red-800 focus:bg-red-50"
                                             >
+                                                <FaSignOutAlt className="w-4 h-4 mr-2" />
                                                 Cerrar Sesión
                                             </Dropdown.Link>
                                         </Dropdown.Content>
@@ -206,19 +238,21 @@ export default function AuthenticatedLayout({ header, children }) {
                         }
                     >
                         <div className="space-y-1 pb-3 pt-2">
-                            <ResponsiveNavLink
-                                href={route("dashboard")}
-                                active={route().current("dashboard")}
-                            >
-                                Dashboard
-                            </ResponsiveNavLink>
-                            {auth.user.roles.some(
-                                (role) => role.name === "admin",
-                            ) && (
+                            {auth.user.roles.includes("admin") && (
+                                <ResponsiveNavLink
+                                    href={route("dashboard")}
+                                    active={route().current("dashboard")}
+                                >
+                                    <FaTachometerAlt className="w-4 h-4 mr-2" />
+                                    Dashboard
+                                </ResponsiveNavLink>
+                            )}
+                            {auth.user.roles.includes("admin") && (
                                 <ResponsiveNavLink
                                     href={route("users.index")}
                                     active={route().current("users.index")}
                                 >
+                                    <FaUsers className="w-4 h-4 mr-2" />
                                     Usuarios
                                 </ResponsiveNavLink>
                             )}
@@ -228,19 +262,29 @@ export default function AuthenticatedLayout({ header, children }) {
                                     "brand-identities.index",
                                 )}
                             >
+                                <FaPalette className="w-4 h-4 mr-2" />
                                 Identidad de Marca
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 href={route("templates.index")}
                                 active={route().current("templates.index")}
                             >
-                                Plantillas HTML
+                                <FaFileAlt className="w-4 h-4 mr-2" />
+                                Plantillas
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("schedules.calendar")}
+                                active={route().current("schedules.calendar")}
+                            >
+                                <FaCalendarAlt className="w-4 h-4 mr-2" />
+                                Calendario
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 href={route("schedules.index")}
                                 active={route().current("schedules.index")}
                             >
-                                Programación
+                                <FaList className="w-4 h-4 mr-2" />
+                                Mis Publicaciones
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 href={route("scheduled-posts.index")}
@@ -248,30 +292,45 @@ export default function AuthenticatedLayout({ header, children }) {
                                     "scheduled-posts.index",
                                 )}
                             >
+                                <FaShareAlt className="w-4 h-4 mr-2" />
                                 Publicaciones
                             </ResponsiveNavLink>
                         </div>
 
                         <div className="border-t border-gray-200 pb-1 pt-4">
                             <div className="px-4">
-                                <div className="text-base font-medium text-gray-800">
-                                    {auth.user.name}
-                                </div>
-                                <div className="text-sm font-medium text-gray-500">
-                                    {auth.user.email}
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex-shrink-0">
+                                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <span className="text-white font-medium text-lg">
+                                                {auth.user.name.charAt(0).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-base font-medium text-white truncate">
+                                            {auth.user.name}
+                                        </div>
+                                        <div className="text-sm font-medium text-blue-100 truncate">
+                                            {auth.user.email}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="mt-3 space-y-1">
                                 <ResponsiveNavLink href={route("profile.edit")}>
-                                    Profile
+                                    <FaUserCircle className="w-4 h-4 mr-2" />
+                                    Perfil
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
                                     method="post"
                                     href={route("logout")}
                                     as="button"
+                                    className="text-red-600 hover:text-red-800 hover:bg-red-50 focus:text-red-800 focus:bg-red-50"
                                 >
-                                    Log Out
+                                    <FaSignOutAlt className="w-4 h-4 mr-2" />
+                                    Cerrar Sesión
                                 </ResponsiveNavLink>
                             </div>
                         </div>

@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified', 'subscription', 'brand-identity'])->group
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('templates', TemplateController::class)->names('templates');
     //excluir delete 
+    Route::get('/schedules/calendar', [ScheduleController::class, 'calendar'])->name('schedules.calendar');
     Route::resource('schedules', ScheduleController::class, ['except' => ['destroy']]);
 
     Route::post('schedules/{schedule}/update-template', [ScheduleController::class, 'updateTemplate'])->name('schedules.update-template');

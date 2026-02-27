@@ -12,7 +12,7 @@ import CloseModalButton from "@/Components/CloseModalButton";
 import { usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import GrayContainer from "@/Components/GrayContainer";
-import ImagePreview from "../ScheduledPosts/Partials/ImagePreview";
+import ImagePreview from "../Schedules/Partials/ImagePreview";
 function Index({ templates = [], auth, users, brandIdentity }) {
     const [items, setItems] = useState(templates);
     const [preview, setPreview] = useState(null);

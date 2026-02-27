@@ -61,7 +61,7 @@ function SelectImageModal({ element, show, close }) {
                                     >
                                         <label htmlFor={`image-${image.id}`}>
                                             <img
-                                                src={`storage/${image.image_path}`}
+                                                src={`/storage/${image.image_path}`}
                                                 alt={image.name}
                                                 className="w-full h-full object-cover rounded-lg"
                                             />

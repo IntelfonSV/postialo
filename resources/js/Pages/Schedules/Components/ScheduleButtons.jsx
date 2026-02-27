@@ -59,7 +59,7 @@ function ScheduleButtons({
 
 
     return (
-        <div className="flex justify-between w-full mt-4">
+        <div className="flex justify-between w-full mt-4 px-5">
             <div className="flex gap-2">
                 {edit ? (
                     <BlueButton onClick={handleSave} disabled={processing}>

@@ -6,7 +6,7 @@ import { BsCheck } from "react-icons/bs";
 import RegenerateImageModal from "../Partials/RegenerateImageModal";
 import { useId, useState } from "react";
 import ChangeTemplateModal from "../Partials/ChangeTemplateModal";
-import SelectImageModal from "../Partials/SelectImageModal";
+import SelectImageModal from "./SelectImageModal";
 import GreenButton from "@/Components/GreenButton";
 import { router } from "@inertiajs/react";
 import Swal from "sweetalert2";
@@ -94,7 +94,7 @@ function ImageSection({
 
     return (
         <div className="w-full lg:w-fit flex justify-center items-center flex-col   mt-5">
-            {schedule.selected_image.is_approved ? (
+            {schedule.selected_image?.is_approved ? (
                 <div className="w-80 h-80 sm:w-96 sm:h-96">
                     {preview ? (
                         <img
@@ -107,7 +107,7 @@ function ImageSection({
                             className="w-full h-full rounded-xl"
                             src={
                                 "storage/" +
-                                schedule.selected_image.generated_image_path
+                                schedule.selected_image?.generated_image_path
                             }
                             alt=""
                         />
@@ -120,13 +120,13 @@ function ImageSection({
                     imageUrl={
                         preview
                             ? preview
-                            : `storage/${schedule.selected_image.image_path}`
+                            : `/storage/${schedule.selected_image?.image_path}`
                     }
                     whatsapp={brandIdentity?.whatsapp_number}
                     website={brandIdentity?.website}
                     logo={
                         brandIdentity?.logos[0]?.image
-                            ? `storage/${brandIdentity?.logos[0]?.image}`
+                            ? `/storage/${brandIdentity?.logos[0]?.image}`
                             : null
                     }
                 />
@@ -134,14 +134,14 @@ function ImageSection({
                 <div className="w-80 h-80 sm:w-96 sm:h-96">
                     <img
                         className="w-full h-full rounded-xl"
-                        src={`storage/${schedule.selected_image.image_path}`}
+                        src={`/storage/${schedule.selected_image?.image_path}`}
                         alt=""
                     />
                 </div>
             )}
             <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
                 {schedule.status != "cancelled" &&
-                    !schedule.selected_image.is_approved &&
+                    !schedule.selected_image?.is_approved &&
                     schedule.status != "published" &&
                     schedule.images.length < 3 && (
                         <button
@@ -154,7 +154,7 @@ function ImageSection({
                         </button>
                     )}
                 {schedule.status != "cancelled" &&
-                    !schedule.selected_image.is_approved &&
+                    !schedule.selected_image?.is_approved &&
                     schedule.status != "published" && (
                         <button
                             className="rounded-full flex items-center p-1 text-pink-500 hover:bg-pink-100 mt-1 lg:px-2 hover:scale-105 transition-all duration-300"
@@ -169,7 +169,7 @@ function ImageSection({
                     )}
 
                 {schedule.status != "cancelled" &&
-                    !schedule.selected_image.is_approved &&
+                    !schedule.selected_image?.is_approved &&
                     schedule.status != "published" && (
                         <label
                             htmlFor={id}
@@ -187,7 +187,7 @@ function ImageSection({
 
                 {schedule.images.length > 1 &&
                     schedule.status != "cancelled" &&
-                    !schedule.selected_image.is_approved && (
+                    !schedule.selected_image?.is_approved && (
                         <button
                             className="rounded-full flex gap-2 items-center p-1 text-blue-500 hover:bg-blue-100 mt-1 lg:px-2 hover:scale-105 transition-all duration-300"
                             title="Cambiar imagen de la publicación"
@@ -199,7 +199,7 @@ function ImageSection({
                     )}
 
                 {schedule.status != "cancelled" &&
-                    !schedule.selected_image.is_approved && (
+                    !schedule.selected_image?.is_approved && (
                         <EditImageWithAIButton
                             schedule={schedule}
                             setLoading={setLoading}
@@ -207,7 +207,7 @@ function ImageSection({
                     )}
             </div>
             <br />
-            {!schedule.selected_image.is_approved &&
+            {!schedule.selected_image?.is_approved &&
                 schedule.status != "cancelled" && (
                     <GreenButton
                         title="Aprobar Imagen"

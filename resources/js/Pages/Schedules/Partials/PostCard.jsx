@@ -4,10 +4,10 @@ import { FaCheck, FaCheckCircle, FaEdit, FaSave } from "react-icons/fa";
 import { IoCloseSharp, IoTrash } from "react-icons/io5";
 import ImageSection from "./ImageSection";
 import TextSection from "./TextSection";
-import ImagePreview from "./ImagePreview";
 import { GiCancel } from "react-icons/gi";
 import { router, useForm, usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
+import ImagePreview from "./ImagePreview";
 
 
 function PostCard({
@@ -18,6 +18,7 @@ function PostCard({
     setLoading,
     templates,
     brandIdentity,
+    publicacion
 }) {
     const { TranslateStatus, badge } = StatusHelper();
     const [preview, setPreview] = useState(null);
@@ -208,6 +209,11 @@ function PostCard({
                 }
             >
                 <div className="flex flex-wrap items-center gap-2">
+                    {publicacion && (
+                        <span className="text-sm font-medium text-gray-700">
+                            Publicación # {publicacion}
+                        </span>
+                    )}
                     {isEditingDate ? (
                         <div className="flex flex-wrap items-center gap-2">
                             <input

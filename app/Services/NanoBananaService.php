@@ -136,11 +136,10 @@ class NanoBananaService
                 'x-goog-api-key' => config('services.google.api_key'),
             ])
             ->post(
-                //'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent',
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent',
+                //"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
                 $payload
             );
-
         if (!$response->successful()) {
             return [
                 'ok'    => false,
@@ -148,8 +147,15 @@ class NanoBananaService
             ];
         }
         $data  = $response->json();
-        $parts = $data['candidates'][0]['content']['parts'] ?? [];
 
+        if (!isset($data['candidates'][0]['content'])) {
+            return [
+                'ok'    => false,
+                'error' => 'No se pudo generar la imagen',
+            ];
+        }
+
+        $parts = $data['candidates'][0]['content']['parts'] ?? [];
         $usage = $data['usageMetadata'] ?? null;
         
         if ($usage) {
@@ -175,6 +181,7 @@ class NanoBananaService
                 $fileName = 'gemini_output_' . time() . '.png';
                 Storage::disk('public')->put("images/{$fileName}", base64_decode($imgBase64));
                 return [
+                    'ok'    => true,
                     'status'   => 'success',
                     'image' => "images/{$fileName}",
                 ];
@@ -182,6 +189,7 @@ class NanoBananaService
         }
 
         return [
+            'ok'    => false,
             'status'    =>  'error',
             'message' => 'No se encontró imagen en la respuesta',
         ];

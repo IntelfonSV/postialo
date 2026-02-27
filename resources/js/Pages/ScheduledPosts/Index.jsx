@@ -3,13 +3,13 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import Loading from "@/Components/Loading";
-import ImageSection from "./Partials/ImageSection";
-import TextSection from "./Partials/TextSection";
+import ImageSection from "../Schedules/Partials/ImageSection";
+import TextSection from "../Schedules/Partials/TextSection";
 import StatusHelper from "@/Helpers/StatusHelper";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import Swal from "sweetalert2";
-import PostCard from "./Partials/PostCard";
+import PostCard from "../Schedules/Partials/PostCard";
 
 function Index({
     scheduledPosts = [],

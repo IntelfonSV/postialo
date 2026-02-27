@@ -75,7 +75,7 @@ export default function Welcome() {
                                             component={Link}
                                             href={
                                                 route?.(
-                                                    "scheduled-posts.index",
+                                                    "schedules.calendar",
                                                 ) ?? "#"
                                             }
                                             variant="outlined"

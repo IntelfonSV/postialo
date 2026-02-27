@@ -1,16 +1,18 @@
 import StatusHelper from "@/Helpers/StatusHelper";
-import SelectTextModal from "../Partials/SelectTextModal";
+import SelectTextModal from "./SelectTextModal";
 import { useState } from "react";
 import { FaCheck, FaEdit, FaFacebookSquare, FaInstagram } from "react-icons/fa";
 import { IoReloadCircleSharp } from "react-icons/io5";
 import { BsChatRightTextFill } from "react-icons/bs";
 import { router } from "@inertiajs/react";
-import RegenerateTextModal from "../Partials/RegenerateTextModal";
-import EditTextModal from "../Partials/EditTextModal";
+import RegenerateTextModal from "./RegenerateTextModal";
+import EditTextModal from "./EditTextModal";
 import Swal from "sweetalert2";
 import GreenButton from "@/Components/GreenButton";
 
 function TextSection({ schedule, networks, setLoading }) {
+    console.log(schedule);
+    
     const { TranslateStatus, badge } = StatusHelper();
     const [regenerateElement, setRegenerateElement] = useState(null);
     const [showRegenerateTextModal, setShowRegenerateTextModal] =

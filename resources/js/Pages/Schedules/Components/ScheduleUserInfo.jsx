@@ -6,10 +6,9 @@ function ScheduleUserInfo({ number, user }) {
     const { badge } = StatusHelper();
     return (
         <div>
-            <p className="font-bold text-lg text-gray-800">
-                Publicación #{" "}
-                <span className="font-normal text-gray-800">{number}</span>
-            </p>
+            <span className="text-sm font-medium text-gray-700">
+                Publicación #{number}
+            </span>
             {user ? (
                 <p className="font-bold text-lg text-gray-800 my-2 flex items-center gap-2">
                     Usuario:

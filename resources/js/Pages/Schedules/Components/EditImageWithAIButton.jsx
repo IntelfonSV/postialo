@@ -71,7 +71,7 @@ function EditImageWithAIButton({ schedule, setLoading }) {
                                 }
                             />
                             <div className="flex flex-wrap gap-2 w-full">
-                                <img className="h-32" src={schedule.image_source === 'api' ? schedule.selected_image.image_path : ("storage/"   +schedule.selected_image.image_path)} alt="" />
+                                <img className="h-32" src={schedule.image_source === 'api' ? schedule.selected_image?.image_path : ("storage/"   +schedule.selected_image?.image_path)} alt="" />
                                 {Array.from(data.images).map((image, index) => (
                                     <div key={index} className="relative">
                                         <button
