@@ -5,7 +5,6 @@ import BlueButton from "@/Components/BlueButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import Search from "@/Components/Search";
 import { useState } from "react";
-import GrayContainer from "@/Components/GrayContainer";
 
 function Index({ users }) {
     const columns = [
@@ -34,34 +33,74 @@ function Index({ users }) {
                 </Link>
             ),
             ignoreRowClick: true,
-            allowOverflow: true,
-            button: true,
         },
     ];
 
     const [results, setResults] = useState(users);
     return (
-        <AuthenticatedLayout
-        >
+        <AuthenticatedLayout>
             <Head title="Usuarios" />
-            <GrayContainer>
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Usuarios</h2>
-                <Link href={route("users.create")}>
-                    <BlueButton>Crear Usuario</BlueButton>
-                </Link>
-            </GrayContainer>
+            
+            <div className="min-h-screen bg-gray-50 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                        {/* Header Section */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-white">Gestión de Usuarios</h1>
+                                    <p className="text-blue-100 text-sm mt-1">
+                                        Administra todos los usuarios del sistema
+                                    </p>
+                                </div>
+                                <Link href={route("users.create")}>
+                                    <button className="px-4 py-2 bg-white text-blue-600 border-2 border-white hover:bg-blue-50 hover:border-blue-300 rounded-lg font-medium transition-colors duration-200">
+                                        Crear Usuario
+                                    </button>
+                                </Link>
+                            </div>
+                        </div>
 
-            <div className="bg-gray-200 rounded-xl">
-                <div className="py-12">
-                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div className="p-6 text-gray-900 dark:text-gray-100">
+                        {/* Content Section */}
+                        <div className="p-6">
+                            {/* Search Bar */}
+                            <div className="mb-6">
                                 <Search
                                     placeholder="Buscar usuario"
                                     datos={users}
                                     keys={["name", "email", "roles.name"]}
                                     setResultados={setResults}
                                 />
+                            </div>
+
+                            {/* Statistics Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                    <div className="text-2xl font-bold text-blue-600">{users.length}</div>
+                                    <div className="text-sm text-blue-800">Total Usuarios</div>
+                                </div>
+                                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                                    <div className="text-2xl font-bold text-green-600">
+                                        {users.filter(u => u.hasActiveSubscription).length}
+                                    </div>
+                                    <div className="text-sm text-green-800">Suscripción Activa</div>
+                                </div>
+                                <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                                    <div className="text-2xl font-bold text-yellow-600">
+                                        {users.filter(u => u.hasActiveDemo).length}
+                                    </div>
+                                    <div className="text-sm text-yellow-800">Demo Activa</div>
+                                </div>
+                                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                                    <div className="text-2xl font-bold text-red-600">
+                                        {users.filter(u => !u.hasActiveSubscription && !u.hasActiveDemo).length}
+                                    </div>
+                                    <div className="text-sm text-red-800">Inactivos</div>
+                                </div>
+                            </div>
+
+                            {/* DataTable */}
+                            <div className="border border-gray-200 rounded-lg overflow-hidden">
                                 <DataTable
                                     columns={columns}
                                     data={results}
@@ -71,6 +110,26 @@ function Index({ users }) {
                                     pointerOnHover
                                     highlightOnHover
                                     pagination
+                                    paginationPerPage={10}
+                                    paginationRowsPerPageOptions={[10, 25, 50, 100]}
+                                    noDataComponent="No hay usuarios para mostrar"
+                                    customStyles={{
+                                        headCells: {
+                                            style: {
+                                                backgroundColor: '#f8fafc',
+                                                fontWeight: '600',
+                                                color: '#374151',
+                                                border: '1px solid #e5e7eb',
+                                                padding: '12px 16px',
+                                            },
+                                        },
+                                        cells: {
+                                            style: {
+                                                border: '1px solid #e5e7eb',
+                                                padding: '12px 16px',
+                                            },
+                                        },
+                                    }}
                                 />
                             </div>
                         </div>

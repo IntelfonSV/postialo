@@ -345,17 +345,20 @@ class ScheduleController extends Controller
     }   
 
     public function editImage(Request $request, Schedule $schedule){
-        $imageController = new GenerateImageController();
         $request->validate([
             'prompt' => 'required',
             'images' => 'array',
         ]);
+        $nanoBananaService = new NanoBananaService();
+        try{
+            $response = $nanoBananaService->generateImage($schedule->selectedImage, $request->images, $request->prompt, auth()->user()); 
+        }catch(\Exception $e){
+            return back()->with('error', 'Error al generar la imagen, intenta de nuevo');
+        }
 
-        $response = $imageController->generateWithNanoBanana2($schedule->selectedImage, $request->images,  $request->prompt);
         if($response['ok']){
-
             $schedule_image = $schedule->images()->create([
-                'image_path' => $response['file'],
+                'image_path' => $response['image'],
                 'image_source' => 'generated',
             ]);
             $schedule->update([
@@ -385,9 +388,8 @@ class ScheduleController extends Controller
         }
 
 
-
-        //$imageController = new GenerateImageController();
         $assistant = new AssistantController();
+        $nanoBananaService = new NanoBananaService();
         try{
         foreach ($schedules as $schedule) {
 
@@ -399,10 +401,9 @@ class ScheduleController extends Controller
 
             if($schedule->image_source == 'generated'){
                     
-                    if($schedule->image){
-                        Storage::disk('public')->delete($schedule->image);
+                if($schedule->selectedImage){
+                    Storage::disk('public')->delete($schedule->selectedImage->image_path);
                 }
-                $nanoBananaService = new NanoBananaService();
                 $response = $nanoBananaService->generateImage(null, [], $schedule->prompt_image, $user); 
 
                 if(!$response['ok']){
