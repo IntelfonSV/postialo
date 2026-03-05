@@ -13,7 +13,7 @@ const locales = { es: esES };
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek: (date) => startOfWeek(date, { locale: esES }),
+  startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 1 }), // Lunes como primer día
   getDay,
   locales,
 });
@@ -137,6 +137,7 @@ export default function Index({ schedules }) {
                 style={{ height: "100%", width: "100%" }}
                 views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
                 tooltipAccessor="title"
+                culture="es"
                 messages={{
                   next: "Siguiente",
                   previous: "Anterior",
@@ -149,6 +150,7 @@ export default function Index({ schedules }) {
                   time: "Hora",
                   event: "Publicación",
                   noEventsInRange: "No hay publicaciones generadas o aprobadas en este rango",
+                  showMore: (count) => `+${count} más`,
                 }}
                 eventPropGetter={(event) => ({
                   className: "bg-blue-500 hover:bg-blue-600 border-blue-600 text-white rounded-lg shadow-sm",
