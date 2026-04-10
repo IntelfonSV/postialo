@@ -9,6 +9,7 @@ import ScheduleTemplatesSelect from "../Components/ScheduleTemplatesSelect";
 import ScheduleButtons from "../Components/ScheduleButtons";
 import ScheduleUserInfo from "../Components/ScheduleUserInfo";
 import StatusHelper from "@/Helpers/StatusHelper";
+import DateTimeHelper from "@/Helpers/DateTimeHelper";
 
 function Schedule({
     schedule = null,
@@ -20,6 +21,7 @@ function Schedule({
 }) {
     const { auth } = usePage().props;
     const { TranslateStatus, badge } = StatusHelper();
+    const browserTimeZone = DateTimeHelper.getBrowserTimeZone();
 
     const [images, setImages] = useState([]);
     const [preview, setPreview] = useState(null);
@@ -37,9 +39,11 @@ function Schedule({
         user_id: user?.id || auth.user.id,
         template_id: schedule?.template_id || "",
         status: schedule?.status || "pending",
-        scheduled_date: schedule?.scheduled_date
-            ? schedule.scheduled_date.slice(0, 16)
-            : "",
+        scheduled_date: DateTimeHelper.formatServerDateToDatetimeLocal(
+            schedule?.scheduled_date,
+            browserTimeZone,
+        ),
+        timezone: browserTimeZone,
     });
 
     const [edit, setEdit] = useState(false);
@@ -48,6 +52,19 @@ function Schedule({
     useEffect(() => {
         schedule?.id ? setDisabled(!edit) : setEdit(true);
     }, [edit]);
+
+        useEffect(() => {
+        setData(
+            "scheduled_date",
+            DateTimeHelper.formatServerDateToDatetimeLocal(
+                schedule?.scheduled_date,
+                browserTimeZone,
+            ),
+        );
+        setData("timezone", browserTimeZone);
+    }, [schedule?.scheduled_date, browserTimeZone, setData]);
+
+    
     const handleSave = () => {
         const isUpdate = Boolean(data.id);
         const hasFile = data.image instanceof File;
@@ -73,7 +90,6 @@ function Schedule({
                     setPreview(null);
                 },
                 onError: (errors) => {
-                    console.error(errors);
                     Swal.fire({
                         icon: "error",
                         title: "Error",

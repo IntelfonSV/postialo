@@ -106,6 +106,8 @@ class ScheduleController extends Controller
      * Store a newly created resource in storage.
      */
 
+
+
     public function store(Request $request){
         $user = auth()->user();
         if(!$user->hasRole('admin')){
@@ -166,11 +168,21 @@ class ScheduleController extends Controller
             ]);
         }
 
-        $scheduledDateUtc = \Carbon\Carbon::createFromFormat(
-            'Y-m-d\TH:i',
-            $request->scheduled_date,
-            config('app.timezone') // ejemplo: 'America/El_Salvador'
-        )->utc();
+        $scheduledDateUtc = Carbon::createFromFormat('Y-m-d\TH:i', $request->scheduled_date, $request->timezone)
+            ->utc()
+            ->format('Y-m-d H:i:s');
+
+        $request->merge([
+            'scheduled_date' => $scheduledDateUtc,
+        ]);
+
+
+
+        // $scheduledDateUtc = \Carbon\Carbon::createFromFormat(
+        //     'Y-m-d\TH:i',
+        //     $request->scheduled_date,
+        //     config('app.timezone') // ejemplo: 'America/El_Salvador'
+        // )->utc();
 
         //return json_encode($request->all());
         $schedule = Schedule::create($request->all());

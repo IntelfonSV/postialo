@@ -186,8 +186,8 @@ const Index = ({
 
     const handlePublishNow = (post) => {
         Swal.fire({
-            title: "Publicar publicación",
-            text: "¿Estás seguro de publicar el contenido inmediatamente? Al publicar el contenido, se publicará en su redes sociales!",
+            title: "Publicar ahora",
+            text: "¿Deseas publicar este contenido inmediatamente en tus redes sociales?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",

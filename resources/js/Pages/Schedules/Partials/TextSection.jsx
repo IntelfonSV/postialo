@@ -11,8 +11,7 @@ import Swal from "sweetalert2";
 import GreenButton from "@/Components/GreenButton";
 
 function TextSection({ schedule, networks, setLoading }) {
-    console.log(schedule);
-    
+   
     const { TranslateStatus, badge } = StatusHelper();
     const [regenerateElement, setRegenerateElement] = useState(null);
     const [showRegenerateTextModal, setShowRegenerateTextModal] =

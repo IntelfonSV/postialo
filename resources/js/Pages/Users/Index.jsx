@@ -1,7 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import DataTable from "react-data-table-component";
-import BlueButton from "@/Components/BlueButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import Search from "@/Components/Search";
 import { useState } from "react";
